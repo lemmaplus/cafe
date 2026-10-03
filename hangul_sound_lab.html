@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hangul Sound Lab</title>
+<style>
+  :root{
+    --paper:#f3efe4;
+    --paper-2:#ebe5d8;
+    --ink:#20201d;
+    --muted:#777165;
+    --line:#b9b1a3;
+    --accent:#476b83;
+    --accent-2:#476b83;
+    --error:#9b5147;
+    --sound-soft:#dbe4e7;
+    --pair:#c77f42;
+    --pair-soft:#f0dfcf;
+    --soft:#ddd5c6;
+    --shadow:rgba(35,31,24,.08);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    line-height:1.45;
+  }
+  button,input,textarea{font:inherit}
+  button{color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+  header{
+    border-top:1px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+    padding:18px 0 20px;
+    display:grid;
+    grid-template-columns:1.25fr .75fr;
+    gap:30px;
+    align-items:end;
+  }
+  .kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,7vw,82px);font-weight:400;line-height:.92;letter-spacing:-.045em}
+  .subtitle{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:18px;margin-top:12px;color:#4d4941}
+  .source-note{font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:.02em}
+  .intro{font-size:14px;color:#4e4a43;max-width:430px;justify-self:end}
+  .intro b{color:var(--ink)}
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    border-bottom:1px solid var(--ink);
+  }
+  .stat{padding:18px 14px 17px;border-right:1px solid var(--line);min-height:96px}
+  .stat:first-child{padding-left:0}
+  .stat:last-child{border-right:0}
+  .num{font-family:Georgia,"Times New Roman",serif;font-size:32px;line-height:1;margin-bottom:7px}
+  .lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  .section{padding:34px 0;border-bottom:1px solid var(--ink)}
+  .section-head{display:flex;justify-content:space-between;gap:20px;align-items:baseline;margin-bottom:18px}
+  .board-title-row{display:flex;align-items:center;gap:10px}
+  .pron-mode-toggle{width:18px;height:18px;border:1.5px solid var(--ink);border-radius:50%;padding:0;background:var(--ink);cursor:pointer;flex:0 0 auto;transition:.14s ease}
+  .pron-mode-toggle[data-mode="pair"]{background:transparent;border-color:var(--ink)}
+  .pron-mode-toggle:hover{transform:scale(1.08)}
+  h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:30px;margin:0}
+  .aside{font-size:12px;color:var(--muted);max-width:520px;text-align:right}
+
+  .controls{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+  .control{
+    background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;font-size:12px;
+  }
+  .control:hover,.control.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  .field{
+    background:rgba(255,255,255,.18);
+    border:1px solid var(--line);
+    padding:16px;
+    box-shadow:0 8px 24px var(--shadow) inset;
+  }
+  .lyric-line{display:block;margin:0 0 8px;line-height:0}
+  .lyric-line:last-child{margin-bottom:0}
+  .word{--tile-w:27px;display:inline-flex;align-items:center;gap:0;margin:0 13px 4px 0;white-space:nowrap;vertical-align:middle;line-height:1;position:relative}
+  .hangul-segment{display:inline-flex;align-items:center;gap:0;white-space:nowrap;position:relative;padding-bottom:2px;line-height:1}
+  .lyric-extra{display:inline-flex;align-items:center;min-height:31px;padding:0 2px 2px;color:var(--muted);font-size:13px;line-height:1;white-space:pre;vertical-align:middle}
+  .lyric-extra.latin{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-style:normal;font-size:12px;font-weight:500;letter-spacing:.045em;color:#69645b;padding-top:1px}
+  .lyric-extra.punct{padding-left:1px;padding-right:1px;color:#8b857a;font-size:14px}
+  .tile{
+    width:27px;height:31px;border:1px solid transparent;border-radius:4px;background:transparent;
+    display:grid;place-items:center;cursor:pointer;font-size:19px;line-height:1;transition:.12s ease;position:relative;padding:0 0 1px;z-index:2;
+  }
+  .tile:hover{border-color:var(--line);transform:translateY(-1px);background:#faf7ef}
+  .tile.selected{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:none;transform:none}
+  .tile.sound-neighbor{background:rgba(197,220,229,.42);color:var(--ink)}
+  .tile.sound-neighbor.selected{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .tile.pair-neighbor,.tile.pair-neighbor.phonetic{background:rgba(240,223,207,.62);color:var(--ink)}
+  .tile.pair-neighbor.selected{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .tile.phonetic{font-weight:600;background:rgba(197,220,229,.55)}
+  .tile.sound-neighbor.phonetic{background:rgba(197,220,229,.55)}
+  /* State priority: active pronunciation > selected > normal.
+     A selected tile is black/white only until a pronunciation overlay rewrites it. */
+  .tile.selected,
+  .tile.selected.phonetic{
+    background:var(--ink) !important;color:var(--paper) !important;border-color:var(--ink) !important;box-shadow:none;transform:none;
+  }
+  .tile.sound-neighbor,
+  .tile.sound-neighbor.phonetic,
+  .tile.sound-neighbor.selected,
+  .tile.sound-neighbor.selected.phonetic{
+    background:var(--sound-soft) !important;color:var(--ink) !important;border-color:transparent !important;box-shadow:none;transform:none;
+  }
+  .tile.pair-neighbor,
+  .tile.pair-neighbor.phonetic,
+  .tile.pair-neighbor.selected,
+  .tile.pair-neighbor.selected.phonetic{
+    background:var(--pair-soft) !important;color:var(--ink) !important;border-color:transparent !important;box-shadow:none;transform:none;
+  }
+  .tile.dim{opacity:.12}
+  .tile.match{background:#f8fbfc;border-color:var(--accent-2)}
+  .sound-run{
+    position:absolute;height:10px;bottom:0;border:0;background:transparent;padding:0;cursor:pointer;z-index:6;touch-action:manipulation;overflow:visible;
+    left:calc(var(--start) * var(--tile-w));width:calc(var(--span) * var(--tile-w));
+  }
+  .sound-run::before{
+    content:"";position:absolute;left:4px;right:4px;bottom:1px;height:3px;border-radius:999px;background:rgba(113,162,181,.42);transition:.12s ease;
+  }
+  .sound-run::after{
+    content:"";position:absolute;left:1px;right:1px;bottom:-2px;height:12px;border-radius:5px;background:transparent;transition:.12s ease;
+  }
+  .sound-run.run-mode:hover::before,.sound-run.run-mode.active::before{height:4px;background:rgba(83,143,167,.76)}
+  .sound-run.run-mode.active::after{background:rgba(197,220,229,.14)}
+  .sound-run.pair-mode{
+    left:calc((var(--start) + .5) * var(--tile-w));width:var(--tile-w);
+  }
+  .sound-run.pair-mode::before{left:4px;right:4px;background:rgba(199,127,66,.47);height:3px}
+  .sound-run.pair-mode:hover::before,.sound-run.pair-mode.active::before{height:4px;background:rgba(199,127,66,.86)}
+  .sound-run.pair-mode.active::after{background:rgba(240,223,207,.24)}
+  .sound-run.dim{opacity:.10}
+  .sound-summary{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:-4px 0 14px;font-size:11px;color:var(--muted)}
+  .sound-summary b{font-family:Georgia,"Times New Roman",serif;font-size:15px;color:var(--ink);font-weight:400}
+  .sound-key{display:inline-flex;align-items:center;gap:5px}
+  .sound-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block}
+  .sound-dot.pair{background:var(--pair)}
+  .sound-readout{display:none;margin:10px 0 0;padding:11px 13px;border:1px solid var(--line);border-left:3px solid var(--accent);background:rgba(255,255,255,.22);font-size:12px;color:#4e4a43}
+  .sound-readout.show{display:block}
+  .sound-readout.pair-readout{border-left-color:var(--pair)}
+  .sound-readout.run-readout{border-left-color:var(--accent)}
+  .sound-readout strong{font-family:Georgia,"Times New Roman",serif;font-size:16px;font-weight:400;color:var(--ink);margin-right:7px}
+  .sound-readout .possible{font-size:9px;letter-spacing:.09em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:2px 5px;margin-left:6px;color:var(--muted)}
+
+  .lens-grid{display:grid;grid-template-columns:330px 1fr;gap:34px;align-items:stretch}
+  .lens{
+    border:1px solid var(--ink);min-height:320px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;
+    background:#f8f4ea;
+  }
+  .big-char{font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:150px;line-height:1;text-align:center;margin:14px 0 4px}
+  .parts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink)}
+  .part{padding:12px 8px 4px;border-right:1px solid var(--line);text-align:center}
+  .part:last-child{border-right:0}
+  .part .jamo{font-size:30px;margin-bottom:2px}
+  .part .part-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .lens-note{font-size:11px;color:var(--muted)}
+
+  .shelves{display:grid;gap:18px}
+  .shelf{border-top:1px solid var(--line);padding-top:12px}
+  .shelf:first-child{border-top:0;padding-top:0}
+  .shelf-title{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px}
+  .shelf-title span:last-child{color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    border:1px solid var(--line);background:transparent;border-radius:4px;padding:5px 8px;cursor:pointer;font-size:14px;
+  }
+  .chip small{font-size:9px;color:var(--muted);margin-left:4px;vertical-align:top}
+  .chip:hover,.chip.active{background:var(--accent-2);color:white;border-color:var(--accent-2)}
+  .chip:hover small,.chip.active small{color:#e8eef2}
+
+  .freq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:7px}
+  .freq-item{
+    min-height:72px;border:1px solid var(--line);background:rgba(255,255,255,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .freq-item:hover{background:#faf7ef;border-color:var(--ink)}
+  .freq-char{font-size:26px;line-height:1}
+  .freq-count{font-family:Georgia,"Times New Roman",serif;color:var(--muted);font-size:12px;margin-top:5px}
+
+  .bars{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .bar-panel{border-top:1px solid var(--ink);padding-top:10px}
+  .bar-title{font-family:Georgia,"Times New Roman",serif;font-size:20px;margin-bottom:10px}
+  .bar-row{display:grid;grid-template-columns:32px 1fr 30px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+  .bar-track{height:8px;background:var(--soft);position:relative;overflow:hidden}
+  .bar-fill{height:100%;background:var(--ink)}
+  .bar-count{font-size:11px;color:var(--muted);text-align:right}
+
+  .editor-grid{display:grid;grid-template-columns:1fr 240px;gap:18px;align-items:stretch}
+  textarea{
+    min-height:240px;width:100%;resize:vertical;border:1px solid var(--line);background:#fbf7ed;padding:14px;color:var(--ink);outline:none;
+  }
+  textarea:focus{border-color:var(--ink)}
+  .editor-side{border:1px solid var(--line);padding:14px;display:flex;flex-direction:column;justify-content:space-between;background:rgba(255,255,255,.13)}
+  .editor-side p{font-size:12px;color:var(--muted);margin:0 0 16px}
+  .apply{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 12px;cursor:pointer}
+  .apply:hover{opacity:.88}
+  .input-status{min-height:34px;font-size:11px;line-height:1.35;color:var(--muted);margin-top:12px}
+  .input-status.error{color:var(--error)}
+
+  .closing-note{padding-top:22px;display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:11px}
+  .closing-note .tiny{font-family:Georgia,"Times New Roman",serif;font-style:italic}
+
+  .site-footer{
+    width:100%;
+    margin:0;
+    padding:24px 20px 25px;
+    background:var(--ink);
+    color:var(--paper);
+    text-align:center;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    font-size:11px;
+    line-height:1.55;
+    letter-spacing:.02em;
+  }
+  .site-footer a{
+    display:inline-block;
+    margin-top:3px;
+    color:var(--pair);
+    text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb, var(--pair) 55%, transparent);
+  }
+  .site-footer a:hover{color:var(--paper);border-bottom-color:var(--paper)}
+
+  @media (max-width:850px){
+    header{grid-template-columns:1fr}.intro{justify-self:start}
+    .stats{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .stat,.stat:first-child{padding:12px 7px 11px;min-height:74px;text-align:center;border-right:1px solid var(--line);border-bottom:0}
+    .stat:last-child{border-right:0}
+    .num{font-size:27px;margin-bottom:5px;font-variant-numeric:tabular-nums}
+    .lab{font-size:8px;line-height:1.25;letter-spacing:.08em}
+    .lens-grid,.bars,.editor-grid{grid-template-columns:1fr}
+    .big-char{font-size:120px}
+    .aside{text-align:left}
+    .section-head{align-items:flex-start;flex-direction:column;gap:5px}
+    .bar-panel>div:not(.bar-title){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
+    .bar-row{grid-template-columns:25px 1fr 24px;gap:5px;margin:3px 0;font-size:11px}
+    .bar-track{height:5px}
+    .bar-title{font-size:18px;margin-bottom:6px}
+  }
+  @media (max-width:520px){
+    .wrap{padding:18px 13px 50px}
+    h1{font-size:48px}
+    .stats{margin-left:-3px;margin-right:-3px}
+    .stat,.stat:first-child{padding:10px 3px 9px;min-height:66px}
+    .num{font-size:24px}
+    .lab{font-size:7px;letter-spacing:.055em}
+    .tile{width:24px;height:29px;font-size:18px;box-sizing:border-box}
+    .word{--tile-w:24px;margin-right:11px;margin-bottom:5px}
+    .lyric-extra{min-height:29px;font-size:12px;padding-bottom:2px}
+    .lyric-extra.punct{font-size:13px}
+    .sound-run{bottom:0}
+    .sound-run.run-mode::before{left:3px;right:3px}
+    .sound-run.pair-mode::before{left:3px;right:3px}
+    .field{padding:10px}
+    .freq-grid{grid-template-columns:repeat(auto-fill,minmax(58px,1fr))}
+    .section{padding:28px 0}
+    .bars{gap:17px}
+    .closing-note{flex-direction:column}
+    .site-footer{padding:21px 15px 22px;font-size:10.5px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">Pilemma / language experiment no. 01</div>
+      <h1>Hangul<br>Sound Lab</h1>
+      <div class="subtitle">A song, laid out as little Hangul blocks.</div>
+      <div class="source-note" id="sampleLabel">Current sample · IU — <i>Someday</i></div>
+    </div>
+    <div class="intro">
+      Each Hangul syllable is a tiny construction: an initial consonant, a vowel, and sometimes <b>받침 (batchim)</b> — a consonant in the final, bottom slot of the syllable. We begin with IU’s <i>Someday</i>. The song is not explained here; it is <b>sorted, cracked open, and looked at.</b>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section class="section">
+    <div class="section-head">
+      <div class="board-title-row"><h2>The lyrics board</h2><button class="pron-mode-toggle" id="pronModeToggle" data-mode="run" aria-label="Switch to pair-by-pair pronunciation mode" title="Filled: sing-along runs · hollow: pair-by-pair"></button></div>
+      <div class="aside" id="boardAside">Click a block to crack it open. Soft blue bars mark connected stretches where the written blocks and spoken form part ways. Tap once to flip the whole stretch into a pronunciation spelling.</div>
+    </div>
+    <div class="controls">
+      <button class="control active" data-filter="all">all</button>
+      <button class="control" data-filter="sound">sound shifts</button>
+      <button class="control" data-filter="batchim">with 받침</button>
+      <button class="control" data-filter="nobatchim">without 받침</button>
+      <button class="control" data-filter="reset">clear selection</button>
+    </div>
+    <div class="sound-summary" id="soundSummary"></div>
+    <div class="field" id="field"></div>
+    <div class="sound-readout" id="soundReadout" aria-live="polite"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Crack one open</h2>
+      <div class="aside">Unicode already knows how Hangul is assembled. The page simply takes the block apart. <b>받침 (batchim)</b> is the optional syllable-final consonant — literally the consonant sitting underneath the vowel/onset structure.</div>
+    </div>
+    <div class="lens-grid">
+      <div class="lens">
+        <div class="kicker">selected block</div>
+        <div class="big-char" id="bigChar">언</div>
+        <div class="parts">
+          <div class="part"><div class="jamo" id="partInitial">ㅇ</div><div class="part-label">초성</div></div>
+          <div class="part"><div class="jamo" id="partVowel">ㅓ</div><div class="part-label">중성</div></div>
+          <div class="part"><div class="jamo" id="partFinal">ㄴ</div><div class="part-label">받침 · final</div></div>
+        </div>
+        <div class="lens-note" id="lensNote">This syllable appears 0 times in the current text.</div>
+      </div>
+      <div class="shelves">
+        <div class="shelf"><div class="shelf-title"><span>초성 shelf</span><span>tap to highlight</span></div><div class="chips" id="initialShelf"></div></div>
+        <div class="shelf"><div class="shelf-title"><span>중성 shelf</span><span>tap to highlight</span></div><div class="chips" id="vowelShelf"></div></div>
+        <div class="shelf"><div class="shelf-title"><span>받침 shelf</span><span>∅ means no final consonant</span></div><div class="chips" id="finalShelf"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Syllable cabinet</h2>
+      <div class="aside">Every distinct syllable once, ordered by abundance. The common ones crowd the front.</div>
+    </div>
+    <div class="freq-grid" id="frequency"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>What the song is made of</h2>
+      <div class="aside">These stay structural counts. The blue links on the lyrics board are a separate pronunciation overlay. They never change the structural counts.</div>
+    </div>
+    <div class="bars">
+      <div class="bar-panel"><div class="bar-title">초성</div><div id="initialBars"></div></div>
+      <div class="bar-panel"><div class="bar-title">중성</div><div id="vowelBars"></div></div>
+      <div class="bar-panel"><div class="bar-title">받침</div><div id="finalBars"></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>One more track</h2>
+      <div class="aside">Drop in Korean text and rebuild the lab around it.</div>
+    </div>
+    <div class="editor-grid">
+      <textarea id="sourceText" spellcheck="false"></textarea>
+      <div class="editor-side">
+        <div>
+          <p>Hangul is counted and analyzed; English, punctuation, and parentheses stay on the lyrics board. Pronunciation runs are detected locally from the Hangul text.</p>
+          <div class="input-status" id="inputStatus" aria-live="polite"></div>
+        </div>
+        <button class="apply" id="applyText">spin another track</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="closing-note">
+    <div>Made as a small Hangul counting + listening machine · opening sample: IU — <i>Someday</i>.</div>
+    <div class="tiny">365 little blocks can accidentally look like a year.</div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div>© 2026 Pilemma</div>
+  <a href="https://menu.pilemma.org" rel="noopener noreferrer">back to cafe</a>
+</footer>
+
+<script>
+const ORIGINAL = `언젠간 이 눈물이 멈추길
+언젠간 이 어둠이 걷히고
+따스한 햇살이 이 눈물을 말려주길
+지친 내 모습이 조금씩 지겨워지는 걸 느끼면
+다 버리고 싶죠 힘들게 지켜오던 꿈을
+가진 것보다는 부족한 것이 너무나도 많은 게
+느껴질 때마다 다리에 힘이 풀려서 난 주저앉죠
+언젠간 이 눈물이 멈추길
+언젠간 이 어둠이 걷히고
+따스한 햇살이 이 눈물을 말려주길
+괜찮을 거라고 내 스스로를 위로하며 버티는
+하루하루가 날 조금씩 두렵게 만들고 wow
+나를 믿으라고 말하면서도 믿지 못하는 나는
+이제 얼마나 더 오래 버틸 수 있을지 모르겠어요
+기다리면 언젠간 오겠지 (오겠지)
+밤이 길어도 해는 뜨듯이
+아픈 내 가슴도 언젠간 다 낫겠지
+날 이젠 도와주길 하늘이 제발 도와주길
+나 혼자서만 이겨내기가 점점 더 자신이 없어져요
+언젠간 이 눈물이 멈추길 (언젠간)
+언젠간 이 어둠이 걷히고
+따스한 햇살이 이 눈물을 말려주길 (이 눈물을 말려주길)
+기다리면 언젠가 오겠지
+밤이 길어도 해는 뜨듯이
+이 아픈 내 가슴도 언젠간 다 낫겠지 yeah
+언젠간
+언젠간`;
+
+const INITIALS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const VOWELS = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const FINALS = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+let data = null;
+let selectedChar = '언';
+let activePart = null;
+let pronunciationMode = 'run';
+
+function isHangulSyllable(ch){
+  const c = ch.charCodeAt(0);
+  return c >= 0xAC00 && c <= 0xD7A3;
+}
+
+function decompose(ch){
+  const code = ch.charCodeAt(0) - 0xAC00;
+  if(code < 0 || code > 11171) return null;
+  const i = Math.floor(code / 588);
+  const v = Math.floor((code % 588) / 28);
+  const f = code % 28;
+  return {initial: INITIALS[i], vowel: VOWELS[v], final: FINALS[f], finalIndex:f};
+}
+
+function inc(map,key){ map.set(key,(map.get(key)||0)+1); }
+function sortMap(map){ return [...map.entries()].sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0],'ko')); }
+
+function analyze(text){
+  const chars = [...text].filter(isHangulSyllable);
+  const syllables = new Map(), initials = new Map(), vowels = new Map(), finals = new Map();
+  let batchim = 0;
+  for(const ch of chars){
+    const d = decompose(ch);
+    inc(syllables,ch); inc(initials,d.initial); inc(vowels,d.vowel); inc(finals,d.final || '∅');
+    if(d.final) batchim++;
+  }
+  const soundEvents = collectSoundEvents(text);
+  const soundRuns = collectSoundRuns(text);
+  return {text, chars, syllables, initials, vowels, finals, batchim, unique:syllables.size, soundEvents, soundRuns};
+}
+
+const COMPLEX_FINALS = new Set(['ㄳ','ㄵ','ㄶ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅄ']);
+const H_FINALS = new Set(['ㅎ','ㄶ','ㅀ']);
+const K_FINALS = new Set(['ㄱ','ㄲ','ㅋ','ㄳ','ㄺ']);
+const T_FINALS = new Set(['ㄷ','ㅅ','ㅆ','ㅈ','ㅊ','ㅌ','ㅎ']);
+const P_FINALS = new Set(['ㅂ','ㅍ','ㄼ','ㄿ','ㅄ']);
+const OBSTRUENT_FINALS = new Set([...K_FINALS,...T_FINALS,...P_FINALS]);
+const TENSE_ONSETS = new Set(['ㄱ','ㄷ','ㅂ','ㅅ','ㅈ']);
+const TENSE_MAP = {'ㄱ':'ㄲ','ㄷ':'ㄸ','ㅂ':'ㅃ','ㅅ':'ㅆ','ㅈ':'ㅉ'};
+const ASPIRATE_MAP = {'ㄱ':'ㅋ','ㄷ':'ㅌ','ㅈ':'ㅊ','ㅂ':'ㅍ'};
+const LIAISON_ONSET = {'ㄱ':'ㄱ','ㄲ':'ㄲ','ㄴ':'ㄴ','ㄷ':'ㄷ','ㄹ':'ㄹ','ㅁ':'ㅁ','ㅂ':'ㅂ','ㅅ':'ㅅ','ㅆ':'ㅆ','ㅈ':'ㅈ','ㅊ':'ㅊ','ㅋ':'ㅋ','ㅌ':'ㅌ','ㅍ':'ㅍ'};
+const COMPLEX_LIAISON = {
+  'ㄳ':['ㄱ','ㅆ'], 'ㄵ':['ㄴ','ㅈ'], 'ㄺ':['ㄹ','ㄱ'], 'ㄻ':['ㄹ','ㅁ'], 'ㄼ':['ㄹ','ㅂ'],
+  'ㄽ':['ㄹ','ㅆ'], 'ㄾ':['ㄹ','ㅌ'], 'ㄿ':['ㄹ','ㅍ'], 'ㅄ':['ㅂ','ㅆ']
+};
+
+function compose(initial,vowel,final=''){
+  const i=INITIALS.indexOf(initial), v=VOWELS.indexOf(vowel), f=FINALS.indexOf(final);
+  if(i<0 || v<0 || f<0) return '';
+  return String.fromCharCode(0xAC00 + i*588 + v*28 + f);
+}
+function surfacePair(A,B,leftFinal,rightInitial){
+  return [compose(A.initial,A.vowel,leftFinal), compose(rightInitial,B.vowel,B.final)];
+}
+function representativeFinal(f){
+  if(K_FINALS.has(f)) return 'ㄱ';
+  if(T_FINALS.has(f)) return 'ㄷ';
+  if(P_FINALS.has(f)) return 'ㅂ';
+  return f;
+}
+function eventResult(type,label,note,A,B,leftFinal,rightInitial,certainty='likely'){
+  const [surfaceLeft,surfaceRight]=surfacePair(A,B,leftFinal,rightInitial);
+  return {type,label,note,certainty,leftFinal,rightInitial,surfaceLeft,surfaceRight,surfaceText:surfaceLeft+surfaceRight};
+}
+
+const LEXICAL_OVERRIDES = {
+  '햇|살': {
+    type:'된소리', label:'사이시옷 + 된소리',
+    note:'In 햇살, the 사이시옷 cues a tense ㅆ: 햇살 is pronounced [해쌀].',
+    leftFinal:'', rightInitial:'ㅆ'
+  }
+};
+
+function detectSoundShift(a,b,word=''){
+  const A=decompose(a), B=decompose(b);
+  if(!A || !B || !A.final) return null;
+  const f=A.final, onset=B.initial, vowel=B.vowel;
+
+  // A tiny explicit lexicon handles cases that cannot be inferred safely from adjacent blocks alone.
+  const override=LEXICAL_OVERRIDES[`${a}|${b}`];
+  if(override){
+    return eventResult(override.type,override.label,override.note,A,B,override.leftFinal,override.rightInitial);
+  }
+
+  // Vowel-initial following syllable: liaison / cluster resolution / h-loss / palatalization.
+  if(onset==='ㅇ'){
+    if(f==='ㅎ'){
+      return eventResult('ㅎ','ㅎ 탈락','A final ㅎ before a vowel-initial following syllable is normally not carried forward.',A,B,'','ㅇ');
+    }
+    if(f==='ㄶ'){
+      return eventResult('ㅎ','ㅎ 탈락 + 연음','In ㄶ before a vowel, ㅎ drops and ㄴ connects forward.',A,B,'','ㄴ');
+    }
+    if(f==='ㅀ'){
+      return eventResult('ㅎ','ㅎ 탈락 + 연음','In ㅀ before a vowel, ㅎ drops and ㄹ connects forward.',A,B,'','ㄹ');
+    }
+    if((f==='ㄷ' || f==='ㅌ') && vowel==='ㅣ'){
+      return eventResult('구개음화','구개음화',`${f} before 이 shifts forward and is palatalized in connected pronunciation.`,A,B,'',f==='ㄷ'?'ㅈ':'ㅊ');
+    }
+    if(f==='ㄾ' && vowel==='ㅣ'){
+      return eventResult('구개음화','겹받침 + 구개음화','The ㄹ stays as coda while the ㅌ part moves forward and becomes ㅊ before 이.',A,B,'ㄹ','ㅊ');
+    }
+    if(COMPLEX_LIAISON[f]){
+      const [leftFinal,rightInitial]=COMPLEX_LIAISON[f];
+      return eventResult('겹받침','겹받침 연음','With a complex 받침 before a vowel, one consonant stays behind while the other moves to the next syllable.',A,B,leftFinal,rightInitial);
+    }
+    if(LIAISON_ONSET[f]){
+      return eventResult('연음','연음','The 받침 is heard as the onset of the following vowel-initial syllable.',A,B,'',LIAISON_ONSET[f]);
+    }
+  }
+
+  // Final obstruent + ㅎ: aspiration. ㄷ/ㅌ + 히 also surfaces with palatalization (걷히 → 거치).
+  if(onset==='ㅎ' && OBSTRUENT_FINALS.has(f)){
+    let base = K_FINALS.has(f) ? 'ㄱ' : P_FINALS.has(f) ? 'ㅂ' : 'ㄷ';
+    let aspirated = ASPIRATE_MAP[base];
+    if(aspirated==='ㅌ' && vowel==='ㅣ') aspirated='ㅊ';
+    return eventResult('ㅎ','ㅎ interaction',`The coda and ㅎ combine into an aspirated sound${vowel==='ㅣ' && aspirated==='ㅊ'?' with palatalization before 이':''}.`,A,B,'',aspirated);
+  }
+
+  // ㅎ-type 받침 before ㄱ/ㄷ/ㅈ: keep ㄴ/ㄹ if present, lose ㅎ, aspirate the next onset.
+  if(H_FINALS.has(f) && ['ㄱ','ㄷ','ㅈ'].includes(onset)){
+    const leftFinal = f==='ㄶ' ? 'ㄴ' : f==='ㅀ' ? 'ㄹ' : '';
+    return eventResult('ㅎ','ㅎ interaction','The ㅎ component combines with the following consonant and makes it aspirated.',A,B,leftFinal,ASPIRATE_MAP[onset]);
+  }
+
+  // Nasal assimilation.
+  if(['ㄴ','ㅁ'].includes(onset)){
+    if(K_FINALS.has(f)) return eventResult('비음화','비음화','A ㄱ-type coda before ㄴ/ㅁ is nasalized to ㅇ.',A,B,'ㅇ',onset);
+    if(T_FINALS.has(f)) return eventResult('비음화','비음화','A ㄷ-type coda before ㄴ/ㅁ is nasalized to ㄴ.',A,B,'ㄴ',onset);
+    if(P_FINALS.has(f)) return eventResult('비음화','비음화','A ㅂ-type coda before ㄴ/ㅁ is nasalized to ㅁ.',A,B,'ㅁ',onset);
+  }
+
+  // ㄴ + ㄹ / ㄹ + ㄴ liquid assimilation.
+  if((f==='ㄴ' && onset==='ㄹ') || (f==='ㄹ' && onset==='ㄴ')){
+    return eventResult('유음화','유음화','At this boundary ㄴ and ㄹ commonly assimilate to an ㄹㄹ sequence.',A,B,'ㄹ','ㄹ');
+  }
+
+  // Following ㄹ becomes ㄴ after several codas; obstruent codas nasalize as part of the surface result.
+  if(onset==='ㄹ' && (K_FINALS.has(f) || P_FINALS.has(f) || ['ㅁ','ㅇ'].includes(f))){
+    const leftFinal=K_FINALS.has(f)?'ㅇ':P_FINALS.has(f)?'ㅁ':f;
+    return eventResult('ㄹ 비음화','ㄹ 비음화','A following ㄹ is realized as ㄴ here; an obstruent coda also nasalizes.',A,B,leftFinal,'ㄴ');
+  }
+
+  // Obstruent coda + plain stop/fricative/affricate: following onset becomes tense.
+  if(OBSTRUENT_FINALS.has(f) && TENSE_ONSETS.has(onset)){
+    return eventResult('된소리','된소리되기','After an obstruent 받침, the following ㄱ/ㄷ/ㅂ/ㅅ/ㅈ is commonly pronounced tense.',A,B,representativeFinal(f),TENSE_MAP[onset]);
+  }
+  return null;
+}
+
+function wordsFromLine(line){
+  // Pronunciation links never jump across Latin text, punctuation, digits, or other non-Hangul separators.
+  const runs=line.match(/[가-힣]+/g) || [];
+  return runs.map(raw=>({raw,chars:[...raw]}));
+}
+
+function displayTokensFromLine(line){
+  // Keep the lyric surface intact enough to sing from it: whitespace separates visual words,
+  // while each word is split into Hangul runs and literal non-Hangul pieces.
+  // Only the Hangul runs are analyzed.
+  const tokens=line.match(/\S+/g) || [];
+  return tokens.map(raw=>({raw,pieces:raw.match(/[가-힣]+|[^가-힣]+/g) || [raw]}));
+}
+
+function collectSoundEvents(text){
+  const events=[];
+  text.split('\n').forEach((line,lineIndex)=>{
+    wordsFromLine(line).forEach(({raw,chars},wordIndex)=>{
+      for(let i=0;i<chars.length-1;i++){
+        const event=detectSoundShift(chars[i],chars[i+1],raw);
+        if(event) events.push({...event,left:chars[i],right:chars[i+1],word:raw,lineIndex,wordIndex,boundaryIndex:i});
+      }
+    });
+  });
+  return events;
+}
+
+function soundPairsForWord(raw,chars){
+  const pairs=[];
+  for(let i=0;i<chars.length-1;i++){
+    const event=detectSoundShift(chars[i],chars[i+1],raw);
+    if(event) pairs.push({start:i,end:i+1,original:chars[i]+chars[i+1],surface:event.surfaceText,event});
+  }
+  return pairs;
+}
+
+function soundRunsForWord(raw,chars){
+  const boundaryEvents=[];
+  for(let i=0;i<chars.length-1;i++){
+    const event=detectSoundShift(chars[i],chars[i+1],raw);
+    if(event) boundaryEvents.push({boundaryIndex:i,event});
+  }
+  const runs=[];
+  let current=null;
+  boundaryEvents.forEach(item=>{
+    if(!current || item.boundaryIndex!==current.endBoundary+1){
+      if(current) runs.push(current);
+      current={startBoundary:item.boundaryIndex,endBoundary:item.boundaryIndex,events:[item]};
+    } else {
+      current.endBoundary=item.boundaryIndex;
+      current.events.push(item);
+    }
+  });
+  if(current) runs.push(current);
+  return runs.map(run=>{
+    const start=run.startBoundary;
+    const end=run.endBoundary+1;
+    const original=chars.slice(start,end+1).join('');
+    const states=chars.slice(start,end+1).map(ch=>({...decompose(ch)}));
+    run.events.forEach(({boundaryIndex,event})=>{
+      const local=boundaryIndex-start;
+      states[local].final=event.leftFinal;
+      states[local+1].initial=event.rightInitial;
+    });
+    const surface=states.map(x=>compose(x.initial,x.vowel,x.final)).join('');
+    return {...run,start,end,original,surface};
+  });
+}
+
+function collectSoundRuns(text){
+  const runs=[];
+  text.split('\n').forEach((line,lineIndex)=>{
+    wordsFromLine(line).forEach(({raw,chars},wordIndex)=>{
+      soundRunsForWord(raw,chars).forEach(run=>runs.push({...run,word:raw,lineIndex,wordIndex}));
+    });
+  });
+  return runs;
+}
+
+function renderStats(){
+  const total=data.chars.length;
+  const pct=total ? (data.batchim/total*100).toFixed(1) : '0.0';
+  const vals=[
+    [total,'Hangul blocks'],[data.unique,'different syllables'],[data.batchim,`with 받침 · ${pct}%`],[data.soundRuns.length,'pronunciation runs'],[total+data.batchim,'consonant slots']
+  ];
+  document.getElementById('stats').innerHTML=vals.map(([n,l])=>`<div class="stat"><div class="num">${n}</div><div class="lab">${l}</div></div>`).join('');
+}
+
+function renderField(){
+  const field=document.getElementById('field'); field.innerHTML='';
+  document.getElementById('soundReadout').classList.remove('show');
+  document.getElementById('soundReadout').innerHTML='';
+  const lines=data.text.split('\n');
+  lines.forEach((line,lineIndex)=>{
+    const row=document.createElement('div'); row.className='lyric-line';
+    const displayTokens=displayTokensFromLine(line);
+    let hangulRunIndex=0;
+
+    displayTokens.forEach(({raw,pieces})=>{
+      const token=document.createElement('span');
+      token.className='word';
+
+      pieces.forEach(piece=>{
+        if(/^[가-힣]+$/.test(piece)){
+          const chars=[...piece];
+          const segment=document.createElement('span');
+          segment.className='hangul-segment';
+
+          chars.forEach((ch,i)=>{
+            const d=decompose(ch);
+            const b=document.createElement('button');
+            b.className='tile';
+            b.textContent=ch;
+            b.dataset.char=ch; b.dataset.initial=d.initial; b.dataset.vowel=d.vowel; b.dataset.final=d.final||'∅';
+            b.dataset.wordIndex=hangulRunIndex; b.dataset.charIndex=i;
+            b.title=`${ch} = ${d.initial} + ${d.vowel}${d.final?' + '+d.final:''}`;
+            b.addEventListener('click',()=>selectChar(ch));
+            segment.appendChild(b);
+          });
+
+          if(pronunciationMode==='run'){
+            soundRunsForWord(piece,chars).forEach(run=>{
+              const bar=document.createElement('button');
+              bar.className='sound-run run-mode';
+              bar.dataset.sound='true';
+              bar.dataset.start=run.start;
+              bar.dataset.span=run.end-run.start+1;
+              bar.style.setProperty('--start',run.start);
+              bar.style.setProperty('--span',run.end-run.start+1);
+              bar.dataset.types=run.events.map(x=>x.event.type).join(',');
+              const labels=[...new Set(run.events.map(x=>x.event.label))].join(' + ');
+              bar.title=`${labels}: ${run.original} → ${run.surface}`;
+              bar.setAttribute('aria-label',`Pronunciation change ${run.original} to ${run.surface}`);
+              bar.addEventListener('click',()=>showSoundRun(bar,run,segment));
+              segment.appendChild(bar);
+            });
+          } else {
+            soundPairsForWord(piece,chars).forEach(pair=>{
+              const bar=document.createElement('button');
+              bar.className='sound-run pair-mode';
+              bar.dataset.sound='true';
+              bar.dataset.start=pair.start;
+              bar.dataset.span=2;
+              bar.style.setProperty('--start',pair.start);
+              bar.style.setProperty('--span',2);
+              bar.dataset.types=pair.event.type;
+              bar.title=`${pair.event.label}: ${pair.original} → ${pair.surface}`;
+              bar.setAttribute('aria-label',`Pronunciation change ${pair.original} to ${pair.surface}`);
+              bar.addEventListener('click',()=>showSoundPair(bar,pair,segment));
+              segment.appendChild(bar);
+            });
+          }
+          token.appendChild(segment);
+          hangulRunIndex++;
+        } else {
+          const literal=document.createElement('span');
+          const hasLatin=/[A-Za-z]/.test(piece);
+          const punctOnly=!hasLatin && /^[^A-Za-z0-9가-힣]+$/.test(piece);
+          literal.className='lyric-extra'+(hasLatin?' latin':'')+(punctOnly?' punct':'');
+          literal.textContent=piece;
+          token.appendChild(literal);
+        }
+      });
+      row.appendChild(token);
+    });
+    field.appendChild(row);
+  });
+  applyHighlight();
+}
+
+function renderSoundSummary(){
+  const el=document.getElementById('soundSummary');
+  const counts=new Map();
+  data.soundEvents.forEach(e=>inc(counts,e.type));
+  const pieces=sortMap(counts).map(([type,n])=>`<span>${type} ${n}</span>`).join('<span>·</span>');
+  const boundaries=data.soundEvents.length;
+  const runs=data.soundRuns.length;
+  if(pronunciationMode==='run'){
+    el.innerHTML=`<span class="sound-key"><span class="sound-dot"></span><b>${runs}</b> sing-along run${runs===1?'':'s'} <span>covering ${boundaries} changing boundar${boundaries===1?'y':'ies'} · one tap per connected stretch</span></span>${pieces ? '<span>—</span>'+pieces : ''}`;
+  } else {
+    el.innerHTML=`<span class="sound-key"><span class="sound-dot pair"></span><b>${boundaries}</b> pair link${boundaries===1?'':'s'} <span>· one sound change at a time</span></span>${pieces ? '<span>—</span>'+pieces : ''}`;
+  }
+}
+
+function clearSoundEvent(){
+  document.querySelectorAll('.sound-run').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tile').forEach(t=>{
+    t.classList.remove('sound-neighbor','pair-neighbor','phonetic');
+    t.textContent=t.dataset.char;
+  });
+  const readout=document.getElementById('soundReadout');
+  readout.classList.remove('show','run-readout','pair-readout');
+  readout.innerHTML='';
+}
+
+function showSoundRun(node,run,word){
+  const wasActive=node.classList.contains('active');
+  clearSoundEvent();
+  if(wasActive) return;
+  node.classList.add('active');
+  const tiles=[...word.querySelectorAll('.tile')];
+  const surfaceChars=[...run.surface];
+  for(let i=run.start;i<=run.end;i++){
+    const tile=tiles[i];
+    if(!tile) continue;
+    tile.classList.add('sound-neighbor','phonetic');
+    tile.textContent=surfaceChars[i-run.start] || tile.dataset.char;
+  }
+  const labels=[...new Set(run.events.map(x=>x.event.label))];
+  const notes=run.events.map(x=>x.event.note);
+  const readout=document.getElementById('soundReadout');
+  readout.classList.add('run-readout');
+  readout.innerHTML=`<strong>${run.original} → [${run.surface}]</strong><span>${labels.join(' · ')}</span><br>${notes.join(' ')}`;
+  readout.classList.add('show');
+}
+
+function showSoundPair(node,pair,word){
+  const wasActive=node.classList.contains('active');
+  clearSoundEvent();
+  if(wasActive) return;
+  node.classList.add('active');
+  const tiles=[...word.querySelectorAll('.tile')];
+  const surfaceChars=[...pair.surface];
+  for(let i=pair.start;i<=pair.end;i++){
+    const tile=tiles[i];
+    if(!tile) continue;
+    tile.classList.add('pair-neighbor','phonetic');
+    tile.textContent=surfaceChars[i-pair.start] || tile.dataset.char;
+  }
+  const readout=document.getElementById('soundReadout');
+  readout.classList.add('pair-readout');
+  readout.innerHTML=`<strong>${pair.original} → [${pair.surface}]</strong><span>${pair.event.label}</span><br>${pair.event.note}`;
+  readout.classList.add('show');
+}
+
+function renderShelves(){
+  buildShelf('initialShelf',sortMap(data.initials),'initial');
+  buildShelf('vowelShelf',sortMap(data.vowels),'vowel');
+  buildShelf('finalShelf',sortMap(data.finals),'final');
+}
+function buildShelf(id,entries,type){
+  const el=document.getElementById(id); el.innerHTML='';
+  entries.forEach(([j,c])=>{
+    const b=document.createElement('button'); b.className='chip'; b.innerHTML=`${j}<small>${c}</small>`;
+    b.dataset.type=type; b.dataset.value=j;
+    b.addEventListener('click',()=>{ activePart = activePart && activePart.type===type && activePart.value===j ? null : {type,value:j}; renderShelves(); applyHighlight(); });
+    if(activePart && activePart.type===type && activePart.value===j) b.classList.add('active');
+    el.appendChild(b);
+  });
+}
+
+function renderFrequency(){
+  const el=document.getElementById('frequency'); el.innerHTML='';
+  sortMap(data.syllables).forEach(([ch,c])=>{
+    const b=document.createElement('button'); b.className='freq-item';
+    b.innerHTML=`<div class="freq-char">${ch}</div><div class="freq-count">${c}×</div>`;
+    b.addEventListener('click',()=>selectChar(ch)); el.appendChild(b);
+  });
+}
+
+function renderBars(){
+  buildBars('initialBars',sortMap(data.initials));
+  buildBars('vowelBars',sortMap(data.vowels));
+  buildBars('finalBars',sortMap(data.finals));
+}
+function buildBars(id,entries){
+  const el=document.getElementById(id); el.innerHTML='';
+  const max=Math.max(1,...entries.map(x=>x[1]));
+  entries.forEach(([k,v])=>{
+    const row=document.createElement('div'); row.className='bar-row';
+    row.innerHTML=`<div>${k}</div><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%"></div></div><div class="bar-count">${v}</div>`;
+    el.appendChild(row);
+  });
+}
+
+function selectChar(ch){
+  // Selection is a true toggle and is independent of the pronunciation overlay.
+  if(selectedChar===ch){
+    selectedChar='';
+    activePart=null;
+    renderShelves();
+    applyHighlight();
+    document.getElementById('bigChar').textContent='—';
+    document.getElementById('partInitial').textContent='—';
+    document.getElementById('partVowel').textContent='—';
+    document.getElementById('partFinal').textContent='—';
+    document.getElementById('lensNote').textContent='Click a Hangul block to crack it open.';
+    return;
+  }
+
+  selectedChar=ch;
+  const d=decompose(ch); if(!d) return;
+  document.getElementById('bigChar').textContent=ch;
+  document.getElementById('partInitial').textContent=d.initial;
+  document.getElementById('partVowel').textContent=d.vowel;
+  document.getElementById('partFinal').textContent=d.final || '∅';
+  const count=data.syllables.get(ch)||0;
+  document.getElementById('lensNote').textContent=`${ch} appears ${count} time${count===1?'':'s'} in the current text. ${d.final?'It carries a 받침.':'It has no 받침.'}`;
+  activePart=null;
+  renderShelves();
+  applyHighlight();
+}
+
+function applyHighlight(){
+  const tiles=[...document.querySelectorAll('.tile')];
+  tiles.forEach(t=>{t.classList.remove('dim','match');});
+  if(activePart){
+    tiles.forEach(t=>{
+      const ok=t.dataset[activePart.type]===activePart.value;
+      t.classList.toggle('match',ok); t.classList.toggle('dim',!ok);
+    });
+  }
+  document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('selected',t.dataset.char===selectedChar));
+}
+
+function setGlobalFilter(mode){
+  activePart=null; renderShelves();
+  const tiles=[...document.querySelectorAll('.tile')];
+  const joints=[...document.querySelectorAll('.sound-run')];
+  clearSoundEvent();
+  tiles.forEach(t=>t.classList.remove('dim','match'));
+  joints.forEach(j=>j.classList.remove('dim'));
+  if(mode==='batchim'){
+    tiles.forEach(t=>{ const ok=t.dataset.final!=='∅'; t.classList.toggle('match',ok); t.classList.toggle('dim',!ok); });
+    joints.forEach(j=>j.classList.add('dim'));
+  } else if(mode==='nobatchim'){
+    tiles.forEach(t=>{ const ok=t.dataset.final==='∅'; t.classList.toggle('match',ok); t.classList.toggle('dim',!ok); });
+    joints.forEach(j=>j.classList.add('dim'));
+  } else if(mode==='sound'){
+    tiles.forEach(t=>t.classList.add('dim'));
+    document.querySelectorAll('.sound-run').forEach(run=>{
+      const word=run.parentElement;
+      const wordTiles=[...word.querySelectorAll('.tile')];
+      const left=parseInt(run.dataset.start||'0',10);
+      const count=parseInt(run.dataset.span||'0',10);
+      wordTiles.slice(left,left+count).forEach(t=>t.classList.remove('dim'));
+    });
+  }
+  if(mode==='reset'){ selectedChar=''; clearSoundEvent(); tiles.forEach(t=>t.classList.remove('selected','dim','match')); joints.forEach(j=>j.classList.remove('dim')); }
+}
+
+document.getElementById('pronModeToggle').addEventListener('click',()=>{
+  pronunciationMode = pronunciationMode==='run' ? 'pair' : 'run';
+  const toggle=document.getElementById('pronModeToggle');
+  toggle.dataset.mode=pronunciationMode;
+  toggle.setAttribute('aria-label', pronunciationMode==='run' ? 'Switch to pair-by-pair pronunciation mode' : 'Switch to sing-along pronunciation mode');
+  document.getElementById('boardAside').textContent = pronunciationMode==='run'
+    ? 'Click a block to crack it open. Soft blue bars mark connected stretches where the written blocks and spoken form part ways. Tap once to flip the whole stretch into a pronunciation spelling.'
+    : 'Click a block to crack it open. Orange links isolate one changing boundary at a time, so you can inspect the sound rule pair by pair.';
+  clearSoundEvent();
+  renderField();
+  renderSoundSummary();
+  const activeFilter=document.querySelector('.control.active');
+  if(activeFilter) setGlobalFilter(activeFilter.dataset.filter);
+});
+
+document.querySelectorAll('.control').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.control').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
+  setGlobalFilter(btn.dataset.filter);
+}));
+
+document.getElementById('applyText').addEventListener('click',()=>{
+  const t=document.getElementById('sourceText').value;
+  const next=analyze(t);
+  const status=document.getElementById('inputStatus');
+  status.classList.remove('error');
+  if(!next.chars.length){
+    status.textContent='No Hangul syllable blocks found. Add some precomposed Korean text (가–힣) and try again.';
+    status.classList.add('error');
+    return;
+  }
+  data=next; selectedChar=data.chars[0]; activePart=null; renderAll();
+  document.getElementById('sampleLabel').innerHTML='Current sample · custom text';
+  const ignored=[...t].filter(ch=>!isHangulSyllable(ch) && !/\s/.test(ch)).length;
+  status.textContent=ignored ? `Loaded ${data.chars.length} Hangul blocks. ${ignored} non-Hangul character${ignored===1?' stays':'s stay'} on the lyrics board but outside the counts.` : `Loaded ${data.chars.length} Hangul blocks.`;
+});
+
+function renderAll(){
+  renderStats(); renderField(); renderSoundSummary(); renderShelves(); renderFrequency(); renderBars();
+  if(selectedChar) selectChar(selectedChar);
+}
+
+document.getElementById('sourceText').value=ORIGINAL;
+data=analyze(ORIGINAL);
+renderAll();
+</script>
+</body>
+</html>
