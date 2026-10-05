@@ -1,0 +1,3814 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chi Char — Korean × Hanja Playground</title>
+  <style>
+    :root{
+      --cream:#ebe3d4;
+      --forest:#173b31;
+      --moss:#73794f;
+      --lilac:#b79bc8;
+      --mustard:#c88c34;
+      --charcoal:#48494a;
+      --blush:#c99395;
+      --paper:#fffaf1;
+      --soft:#f3eee4;
+      --ink:#272727;
+      --muted:#716c66;
+      --line:rgba(39,39,39,.16);
+      --radius:24px;
+
+      /* semantic theme — English default */
+      --theme-deep:#454844;
+      --theme-pale:#ebe3d4;
+      --practical:#73794f;
+      --practical-text:#ffffff;
+      --practical-pale:#e3e7d8;
+      --lucky:#c99395;
+      --lucky-text:#2a252b;
+      --lucky-deep:#7f5559;
+      --lucky-accent:#d8a9aa;
+      --eum-pale:#dfe5db;
+      --eum-ink:#173b31;
+      --hun-pale:#ddd1e5;
+      --hun-ink:#674b79;
+      --weird-bg:#c88c34;
+      --weird-ink:#281f15;
+      --jar-bg:#48494a;
+      --send-bg:#c99395;
+      --draw-bg:#c88c34;
+      --original-bg:#ebe3d4;
+    }
+
+    body[data-language="zh"]{
+      --theme-deep:#8d322b;
+      --theme-pale:#f1d9d3;
+
+      /* same relationship, Chinese palette: jade ↔ cinnabar */
+      --practical:#4d705e;
+      --practical-text:#ffffff;
+      --practical-pale:#dfe9e2;
+      --lucky:#b75b4d;
+      --lucky-text:#fffaf5;
+      --lucky-deep:#7e3d35;
+      --lucky-accent:#d98d7f;
+      --eum-pale:#dce8e0;
+      --eum-ink:#355847;
+      --hun-pale:#efd9d4;
+      --hun-ink:#7f342f;
+      --weird-bg:#d28b5c;
+      --weird-ink:#3b2922;
+      --jar-bg:#395247;
+      --send-bg:#e5aea4;
+      --draw-bg:#d39a45;
+      --original-bg:#f2e3dc;
+    }
+
+    body[data-language="ko"]{
+      --theme-deep:#2f4f79;
+      --theme-pale:#dce6f0;
+
+      /* hue-rotated relationship: indigo ↔ amber */
+      --practical:#4a648d;
+      --practical-text:#ffffff;
+      --practical-pale:#dfe7f2;
+      --lucky:#b77a3e;
+      --lucky-text:#fffaf3;
+      --lucky-deep:#7d542e;
+      --lucky-accent:#d6a66f;
+      --eum-pale:#dce5f0;
+      --eum-ink:#354f74;
+      --hun-pale:#eedfca;
+      --hun-ink:#7b542d;
+      --weird-bg:#c89b56;
+      --weird-ink:#281f15;
+      --jar-bg:#3e4b63;
+      --send-bg:#ddc39f;
+      --draw-bg:#c89b56;
+      --original-bg:#e7edf4;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:#f5f1e8;
+      color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
+        "Apple SD Gothic Neo","Noto Sans KR","PingFang SC","Microsoft YaHei",sans-serif;
+    }
+    button,textarea{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,textarea:focus-visible{
+      outline:3px solid #61785f;
+      outline-offset:3px;
+    }
+    .page{
+      width:min(1120px,calc(100% - 28px));
+      margin:24px auto 56px;
+    }
+    .hero{
+      position:relative;
+      display:block;
+      margin-bottom:14px;
+    }
+    .brand{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:30px;
+      padding:30px 390px 30px 30px;
+      background:var(--theme-pale);
+      min-height:300px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      overflow:visible;
+    }
+    .language-tabs{
+      position:absolute;
+      top:86px;
+      right:-1px;
+      display:flex;
+      gap:0;
+      border:1px solid rgba(39,39,39,.18);
+      border-right:0;
+      border-radius:14px 0 0 14px;
+      overflow:hidden;
+      background:rgba(255,250,241,.84);
+      backdrop-filter:blur(8px);
+    }
+    .lang-tab{
+      min-height:38px;
+      border:0;
+      border-right:1px solid rgba(39,39,39,.12);
+      background:transparent;
+      color:var(--ink);
+      padding:6px 10px;
+      font-size:.75rem;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .lang-tab:last-child{border-right:0}
+    .lang-tab.active{
+      background:var(--theme-deep);
+      color:white;
+    }
+    .eyebrow{
+      text-transform:uppercase;
+      letter-spacing:.19em;
+      font-size:.72rem;
+      font-weight:750;
+      opacity:.68;
+    }
+    h1{
+      margin:14px 0 0;
+      font-size:clamp(3.5rem,9vw,7rem);
+      line-height:.82;
+      letter-spacing:-.07em;
+    }
+    .hero-copy{
+      margin-top:24px;
+      max-width:720px;
+      line-height:1.7;
+      font-size:1rem;
+    }
+    .door-card{
+      position:absolute;
+      z-index:3;
+      top:142px;
+      right:28px;
+      width:340px;
+      border-radius:20px;
+      background:transparent;
+      color:var(--ink);
+      padding:0;
+      border:0;
+      display:flex;
+      align-items:center;
+    }
+    .play-mode-wrap{
+      width:100%;
+    }
+    .play-mode-label{
+      text-transform:uppercase;
+      letter-spacing:.17em;
+      font-size:.66rem;
+      font-weight:800;
+      opacity:.55;
+      margin:0 0 8px 4px;
+    }
+    .play-mode{
+      position:relative;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:0;
+      padding:5px;
+      border-radius:999px;
+      background:#e7e3dc;
+      border:1px solid rgba(39,39,39,.16);
+      overflow:hidden;
+      isolation:isolate;
+      min-height:62px;
+    }
+    .play-mode::before{
+      content:"";
+      position:absolute;
+      z-index:0;
+      top:5px;
+      bottom:5px;
+      left:5px;
+      width:calc(50% - 5px);
+      border-radius:999px;
+      background:#1f1f1f;
+      transition:transform .22s ease;
+    }
+    body[data-play-mode="focus"] .play-mode::before{
+      transform:translateX(100%);
+    }
+    .play-mode button{
+      position:relative;
+      z-index:1;
+      min-height:52px;
+      border:0;
+      border-radius:999px;
+      background:transparent;
+      color:#57534e;
+      padding:10px 18px;
+      text-align:center;
+      transition:color .18s ease;
+    }
+    .play-mode button.active{
+      background:transparent;
+      color:white;
+      box-shadow:none;
+      font-weight:850;
+    }
+    .play-mode strong{
+      display:block;
+      font-size:.86rem;
+      letter-spacing:.02em;
+      line-height:1.2;
+    }
+    .play-mode small{
+      display:block;
+      margin-top:4px;
+      font-size:.64rem;
+      line-height:1.2;
+      opacity:.72;
+    }
+    body.focus-mode .routes{
+      grid-template-columns:1fr;
+    }
+    body.focus-mode .route.hun,
+    body.focus-mode .weird{
+      display:none;
+    }
+    .panel{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:white;
+    }
+    .hidden{display:none!important}
+    .english-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+    }
+    .english-copy{padding:28px;background:var(--paper)}
+    .english-copy.dark{background:var(--charcoal);color:white}
+    .english-copy h2{font-size:1.7rem;line-height:1.2;margin:8px 0 0}
+    .english-copy p{line-height:1.75;margin:18px 0 0}
+    .examples{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .example{
+      border-radius:20px;
+      padding:18px;
+      min-height:140px;
+    }
+    .example .main{font-size:1.35rem;font-weight:850;margin-top:9px}
+    .example .sub{font-size:.86rem;line-height:1.45;margin-top:8px;opacity:.72}
+    .entry-panel{
+      margin-top:18px;
+      padding:20px 4px 4px;
+      background:transparent;
+      border:0;
+      border-top:1px solid var(--line);
+      border-radius:0;
+    }
+    .entry-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:30px;
+      margin-top:14px;
+    }
+    .entry{
+      border:0;
+      border-radius:0;
+      min-height:auto;
+      padding:10px 0 12px;
+      text-align:left;
+      background:transparent!important;
+      color:var(--ink)!important;
+      border-bottom:1px solid transparent;
+    }
+    .entry:hover{
+      border-bottom-color:var(--ink);
+    }
+    .entry strong{
+      font-size:1.08rem;
+      font-weight:850;
+    }
+    .entry span{
+      display:block;
+      font-size:.8rem;
+      line-height:1.45;
+      margin-top:4px;
+      opacity:.66;
+    }
+    @media (min-width:721px){
+      body[data-language="zh"] .hero,
+      body[data-language="ko"] .hero{
+        margin-bottom:0;
+      }
+
+      body[data-language="zh"] .brand,
+      body[data-language="ko"] .brand{
+        border-bottom-left-radius:0;
+        border-bottom-right-radius:0;
+      }
+
+      body[data-language="zh"] .mode-grid,
+      body[data-language="ko"] .mode-grid{
+        gap:0;
+        margin-top:-1px;
+      }
+
+      body[data-language="zh"] #practicalTab,
+      body[data-language="ko"] #practicalTab{
+        border-radius:0 0 0 24px;
+      }
+
+      body[data-language="zh"] #luckyTab,
+      body[data-language="ko"] #luckyTab{
+        border-radius:0 0 24px 0;
+      }
+
+      /* English stays as the original rounded Chi Char box with breathing room below. */
+      body[data-language="en"] .brand{
+        border-radius:30px;
+      }
+
+      body[data-language="en"] .hero{
+        margin-bottom:14px;
+      }
+    }
+    @media (min-width:721px){
+      #enterKo{
+        text-align:right;
+      }
+    }
+    .mode-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:0 0 14px;
+      padding:0;
+      border:0;
+      background:transparent;
+    }
+    .mode{
+      position:relative;
+      border:0;
+      min-height:138px;
+      padding:21px 22px 22px;
+      text-align:left;
+      transition:opacity .14s ease, filter .14s ease;
+      overflow:hidden;
+    }
+    #practicalTab,
+    #luckyTab{
+      border-radius:24px;
+    }
+    .mode.practical-mode{
+      background:var(--practical);
+      color:var(--practical-text);
+    }
+    .mode.lucky-mode{
+      background:var(--lucky);
+      color:var(--lucky-text);
+    }
+    .mode:not(.active){
+      opacity:.74;
+      filter:saturate(.86);
+    }
+    .mode.active{
+      outline:0;
+      filter:saturate(1.04);
+    }
+    .mode-game{
+      display:block;
+      font-size:.64rem;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      opacity:.64;
+    }
+    .mode-title{
+      display:block;
+      font-size:1.4rem;
+      font-weight:850;
+      margin-top:5px;
+    }
+    .mode-sub{
+      display:block;
+      font-size:.9rem;
+      line-height:1.45;
+      margin-top:4px;
+      opacity:.76;
+    }
+    .mode-flow{
+      display:block;
+      margin-top:13px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,255,255,.34);
+      font-size:.72rem;
+      font-weight:820;
+      letter-spacing:.015em;
+      opacity:.72;
+    }
+    .io-grid{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+    }
+    .block{padding:24px}
+    .original{background:var(--practical-pale)}
+    .my-version{background:var(--practical);color:var(--practical-text)}
+    .block-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .block-title{font-size:1.05rem;font-weight:850;margin-top:3px}
+    textarea{
+      width:100%;
+      min-height:130px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.78);
+      padding:15px 16px;
+      line-height:1.75;
+      font-size:16px;
+      color:var(--ink);
+    }
+    .helper{
+      font-size:.8rem;
+      line-height:1.55;
+      color:var(--muted);
+      margin:10px 0 0;
+    }
+    .sample-source{
+      font-size:.79rem;
+      line-height:1.45;
+      color:var(--muted);
+      margin-top:8px;
+    }
+    .quote-example-label{
+      display:block;
+      min-height:20px;
+      margin:2px 0 7px;
+      font-size:.76rem;
+      line-height:20px;
+      font-weight:850;
+      color:var(--muted);
+      letter-spacing:.02em;
+    }
+    .script-toggle{
+      display:inline-grid;
+      grid-template-columns:1fr 1fr;
+      gap:2px;
+      padding:3px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,250,241,.78);
+    }
+    .script-toggle button{
+      min-width:38px;
+      min-height:30px;
+      padding:4px 9px;
+      border:0;
+      border-radius:999px;
+      background:transparent;
+      color:var(--muted);
+      font-size:.75rem;
+      font-weight:850;
+    }
+    .script-toggle button.active{
+      background:var(--theme-deep);
+      color:white;
+    }
+    .quote-strip{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:10px;
+      min-height:25px;
+    }
+    .quote-gallery-label{
+      font-size:.67rem;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .quote-dots{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      flex-wrap:wrap;
+    }
+    .quote-dot{
+      width:11px;
+      height:11px;
+      min-width:11px;
+      padding:0;
+      border-radius:50%;
+      border:1.5px solid #242424;
+      background:transparent;
+    }
+    .quote-dot.active{background:#242424}
+    .quote-dot:hover{transform:scale(1.12)}
+    .btn:disabled{
+      opacity:.38;
+      cursor:default;
+    }
+    .prototype-note{
+      margin-top:14px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px 20px;
+      background:#f0eadf;
+    }
+    .prototype-note p{
+      margin:7px 0 0;
+      font-size:.8rem;
+      line-height:1.6;
+      color:var(--muted);
+    }
+    .output{
+      min-height:130px;
+      font-size:1.35rem;
+      line-height:1.9;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .route-log{
+      min-height:19px;
+      margin-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      align-items:center;
+    }
+    .route-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:6px 9px 6px 6px;
+      border:1px solid rgba(255,255,255,.28);
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      font-size:.72rem;
+      line-height:1.1;
+      white-space:nowrap;
+    }
+    .route-chip-num{
+      display:inline-grid;
+      place-items:center;
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:rgba(255,255,255,.9);
+      color:#2d342f;
+      font-size:.62rem;
+      font-weight:900;
+      flex:none;
+    }
+    .route-chip-route{
+      font-size:.62rem;
+      font-weight:900;
+      opacity:.72;
+      letter-spacing:.06em;
+    }
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px 18px;
+      margin-top:16px;
+      align-items:center;
+    }
+    .btn{
+      min-height:44px;
+      border-radius:13px;
+      padding:10px 15px;
+      border:1px solid var(--line);
+      font-weight:800;
+    }
+    .btn.white{background:white;color:var(--ink)}
+    .btn.ghost{background:transparent;color:inherit}
+    .text-action{
+      appearance:none;
+      border:0;
+      background:transparent;
+      color:inherit;
+      padding:0;
+      min-height:auto;
+      border-radius:0;
+      font-size:.75rem;
+      font-weight:760;
+      letter-spacing:.015em;
+      opacity:.78;
+      cursor:pointer;
+    }
+    .text-action:hover{
+      opacity:1;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .text-action:disabled{
+      opacity:.28;
+      cursor:default;
+      text-decoration:none;
+    }
+    .dig{
+      padding:24px;
+      background:var(--paper);
+      border-top:1px solid var(--line);
+    }
+    .dig-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:end;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .dig-tools{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .answer-link{
+      border:0;
+      background:transparent;
+      padding:5px 1px;
+      color:var(--ink);
+      font-size:.74rem;
+      font-weight:820;
+      opacity:.62;
+      cursor:pointer;
+    }
+    .answer-link:hover{
+      opacity:1;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .answer-reveal{
+      min-height:34px;
+      margin:9px 0 3px;
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      font-size:.78rem;
+    }
+    .answer-ticket{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:var(--eum-pale);
+      color:var(--eum-ink);
+      border:1px solid color-mix(in srgb, var(--eum-ink) 22%, transparent);
+    }
+    .answer-ticket.weird-answer{
+      background:var(--weird-bg);
+      color:var(--weird-ink);
+      border-color:rgba(0,0,0,.08);
+    }
+    .answer-kind{
+      font-size:.6rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      opacity:.62;
+    }
+    .answer-weird-btn{
+      border:0;
+      background:transparent;
+      padding:5px 2px;
+      color:var(--weird-ink);
+      font-size:.72rem;
+      font-weight:820;
+      opacity:.7;
+      cursor:pointer;
+    }
+    .answer-weird-btn:hover{
+      opacity:1;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .found{
+      border-radius:999px;
+      padding:7px 12px;
+      background:#eee7db;
+      font-size:.78rem;
+      min-height:29px;
+    }
+    .play{
+      display:flex;
+      flex-wrap:wrap;
+      gap:3px;
+      align-items:center;
+    }
+    .hangul{
+      min-width:44px;
+      min-height:48px;
+      border-radius:13px;
+      border:1px solid transparent;
+      background:#fffaf2;
+      padding:0 10px;
+      font-size:1.2rem;
+    }
+    .hangul:hover,.hangul.selected{
+      border-color:#8e887f;
+      background:#f2ebdd;
+    }
+    .locked{
+      display:inline-flex;
+      align-items:center;
+      min-height:48px;
+      padding:0 2px;
+      color:#858078;
+    }
+    button.locked.unlockable{
+      border:0;
+      background:transparent;
+      font:inherit;
+      padding:0;
+      cursor:pointer;
+    }
+    button.locked.unlockable:hover{
+      opacity:.62;
+      text-decoration:underline;
+      text-decoration-style:dotted;
+      text-underline-offset:4px;
+    }
+    .hangul.grammar-override{
+      box-shadow:inset 0 -2px 0 rgba(0,0,0,.16);
+    }
+    .replacement{
+      min-height:48px;
+      border-radius:13px;
+      padding:0 13px;
+      font-size:1.22rem;
+    }
+    .replacement.route-eum{
+      border:1px solid color-mix(in srgb, var(--eum-ink) 34%, transparent);
+      background:var(--eum-pale);
+      color:var(--eum-ink);
+    }
+    .replacement:hover{
+      text-decoration:line-through;
+      text-decoration-thickness:1px;
+      text-underline-offset:3px;
+    }
+    .replacement.route-hun{
+      border:1px solid color-mix(in srgb, var(--hun-ink) 34%, transparent);
+      background:var(--hun-pale);
+      color:var(--hun-ink);
+    }
+    .routes{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      border-top:1px solid var(--line);
+    }
+    .route{
+      padding:22px 24px;
+      min-width:0;
+    }
+    .route.eum{background:var(--eum-pale)}
+    .route.hun{background:var(--hun-pale)}
+    .route-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:start;
+      gap:12px;
+    }
+    .route-mark{
+      font-size:1.55rem;
+      font-weight:900;
+      margin-right:7px;
+    }
+    .route-label{
+      font-size:.72rem;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+      font-weight:800;
+    }
+    .route-title{font-weight:850;margin-top:3px}
+    .route-micro{font-size:.74rem;opacity:.62;text-align:right}
+    .candidates{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:16px;
+    }
+    .candidate{
+      min-width:64px;
+      min-height:64px;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.15);
+      background:#fffdf8;
+      padding:8px 9px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+    }
+    .candidate.route-eum{
+      background:color-mix(in srgb, var(--eum-pale) 76%, white);
+      border-color:color-mix(in srgb, var(--eum-ink) 28%, transparent);
+      color:var(--eum-ink);
+    }
+    .candidate.route-hun{
+      background:color-mix(in srgb, var(--hun-pale) 78%, white);
+      border-color:color-mix(in srgb, var(--hun-ink) 28%, transparent);
+      color:var(--hun-ink);
+    }
+    .candidate.route-eum:hover{
+      border-color:color-mix(in srgb, var(--eum-ink) 58%, transparent);
+    }
+    .candidate.route-hun:hover{
+      border-color:color-mix(in srgb, var(--hun-ink) 58%, transparent);
+    }
+    .candidate.selected-choice{
+      box-shadow:inset 0 0 0 2px currentColor;
+    }
+    .candidate .big{font-size:1.58rem;line-height:1}
+    .candidate small{
+      font-size:.64rem;
+      line-height:1.2;
+      color:currentColor;
+      opacity:.72;
+      text-align:center;
+    }
+    .candidate.word{
+      min-width:120px;
+      align-items:flex-start;
+      justify-content:center;
+    }
+    .candidate.word .big{font-size:1.5rem;font-weight:850}
+    .candidate.word .src{
+      font-size:.7rem;
+      color:currentColor;
+      opacity:.72;
+      margin-top:3px;
+    }
+    .divider{
+      width:100%;
+      font-size:.67rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:#69635d;
+      margin-top:4px;
+    }
+    @supports not (background: color-mix(in srgb, black 50%, white)){
+      .candidate.route-eum{background:var(--eum-pale);border-color:var(--eum-ink)}
+      .candidate.route-hun{background:var(--hun-pale);border-color:var(--hun-ink)}
+      .replacement.route-eum{border-color:var(--eum-ink)}
+      .replacement.route-hun{border-color:var(--hun-ink)}
+    }
+    .candidate.deep-candidate{
+      opacity:.72;
+      border-style:dashed;
+    }
+    .more-candidates{
+      border:0;
+      background:transparent;
+      color:inherit;
+      padding:8px 2px 2px;
+      font-size:.74rem;
+      font-weight:780;
+      opacity:.62;
+      cursor:pointer;
+      text-align:left;
+    }
+    .more-candidates:hover{
+      opacity:1;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+    .route-note{
+      margin:11px 0 0;
+      font-size:.78rem;
+      line-height:1.5;
+      color:#625d57;
+    }
+    .weird{
+      padding:19px 24px;
+      background:var(--weird-bg);
+      color:var(--weird-ink);
+      border-top:1px solid rgba(0,0,0,.10);
+    }
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+    .chip{
+      border-radius:999px;
+      padding:5px 9px;
+      background:rgba(255,255,255,.55);
+      font-size:.77rem;
+    }
+    .weird p{font-size:.85rem;line-height:1.55;margin:10px 0 0;opacity:.8}
+.weird-intro{
+      max-width:850px;
+      font-size:.88rem;
+      line-height:1.65;
+      margin:10px 0 16px;
+      opacity:.86;
+    }
+    .weird-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px;
+    }
+    .weird-card{
+      min-width:0;
+      padding:12px 13px 11px;
+      border-radius:15px;
+      background:rgba(255,255,255,.44);
+      border:1px solid rgba(0,0,0,.10);
+    }
+    .weird-ko{
+      font-size:.84rem;
+      font-weight:850;
+      line-height:1.2;
+    }
+    .weird-meaning{
+      margin-top:3px;
+      font-size:.72rem;
+      font-style:italic;
+      line-height:1.25;
+      opacity:.72;
+    }
+    .weird-formula{
+      margin-top:5px;
+      font-size:.66rem;
+      opacity:.62;
+      line-height:1.25;
+    }
+    .weird-result{
+      margin-top:10px;
+      font-size:1.6rem;
+      font-weight:700;
+      line-height:1.08;
+      letter-spacing:.01em;
+    }
+    @media(min-width:801px){
+      .weird-desktop-only .weird-grid{
+        margin-top:22px;
+      }
+      .weird-desktop-only .weird-footnote{
+        border-top:0;
+        padding-top:0;
+      }
+      .weird-desktop-only .weird-result{
+        font-size:1.78rem;
+        font-weight:600;
+        line-height:1.08;
+        letter-spacing:.035em;
+        font-family:inherit;
+      }
+    }
+    .weird-literal{
+      margin-top:6px;
+      font-size:.64rem;
+      line-height:1.2;
+      opacity:.64;
+    }
+    .weird-footnote{
+      margin-top:13px;
+      padding-top:10px;
+      border-top:1px solid rgba(0,0,0,.12);
+      font-size:.68rem;
+      line-height:1.45;
+      letter-spacing:.035em;
+      opacity:.62;
+    }
+
+    .poetic-card{
+      min-height:138px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      background:rgba(255,255,255,.38);
+    }
+    .poetic-word{
+      font-size:1.42rem;
+      line-height:1.1;
+      font-weight:700;
+      letter-spacing:-.01em;
+    }
+    @media(min-width:801px){
+      .weird-desktop-only .poetic-word{
+        font-size:1.56rem;
+        font-weight:600;
+        line-height:1.14;
+        letter-spacing:-.005em;
+        font-family:inherit;
+      }
+    }
+    .poetic-note{
+      margin-top:auto;
+      padding-top:13px;
+      font-size:.72rem;
+      line-height:1.5;
+      opacity:.72;
+    }
+    .weird-zh-only,
+    .weird-ko-only{
+      display:none !important;
+    }
+    body[data-language="zh"] .weird-zh-only{
+      display:block !important;
+    }
+    body[data-language="zh"] .weird-ko-only{
+      display:none !important;
+    }
+    body[data-language="ko"] .weird-ko-only{
+      display:block !important;
+    }
+    body[data-language="ko"] .weird-zh-only{
+      display:none !important;
+    }
+    .weird-desktop-only{display:block}
+    .weird-mobile-only{display:none}
+    .lucky-top{
+      display:grid;
+      grid-template-columns:.85fr 1.15fr;
+    }
+    .jar{padding:24px;background:var(--lucky-deep);color:white}
+    .words{padding:24px;background:var(--soft)}
+    .counts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+    .count{
+      width:46px;height:46px;border-radius:50%;
+      border:1px solid rgba(255,255,255,.45);
+      background:transparent;color:white;font-weight:850;
+    }
+    .count.active{background:white;color:var(--lucky-deep)}
+    .draw{
+      margin-top:18px;
+      min-height:48px;
+      border:0;
+      border-radius:14px;
+      padding:11px 18px;
+      background:var(--lucky-accent);
+      color:#2b211d;
+      font-weight:850;
+    }
+    .word-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+    .word-card{
+      border-radius:17px;
+      background:#fffaf2;
+      border:1px solid var(--line);
+      padding:14px;
+      min-height:115px;
+      cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease;
+    }
+    .word-card:hover{
+      transform:translateY(-1px);
+      border-color:rgba(39,39,39,.34);
+    }
+    .word-card:focus-visible{
+      outline:2px solid var(--ink);
+      outline-offset:3px;
+    }
+    .word-ko{font-size:1.25rem;font-weight:850}
+    .peek{
+      margin-top:13px;
+      min-height:38px;
+      border-radius:11px;
+      border:1px solid var(--line);
+      background:white;
+      padding:7px 11px;
+    }
+    .answer{margin-top:9px}
+    .answer .hanja{font-size:1.55rem}
+    .answer .kind{font-size:.72rem;color:var(--muted);margin-left:8px}
+    .lucky-bottom{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      border-top:1px solid var(--line);
+    }
+    .sentence{padding:24px;background:white}
+    .send{padding:24px;background:color-mix(in srgb, var(--lucky) 58%, white);color:#2e2526}
+    @supports not (background: color-mix(in srgb, black 50%, white)){
+      .send{background:var(--send-bg)}
+    }
+    .wide{
+      display:block;
+      width:100%;
+      min-height:48px;
+      border-radius:14px;
+      padding:11px 14px;
+      border:1px solid rgba(0,0,0,.18);
+      font-weight:850;
+    }
+    .send .wide:first-of-type{background:white;border-color:white;margin-top:13px}
+    .send .wide+.wide{background:transparent;margin-top:9px}
+    @media(max-width:800px){
+      .weird-desktop-only{display:none}
+      .weird-mobile-only{display:block}
+      .page{width:min(100% - 18px,1120px);margin-top:9px}
+      .hero{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:14px;
+        margin-bottom:14px;
+      }
+      .mode-grid{
+        gap:12px;
+        margin-bottom:14px;
+      }
+      #practicalTab,
+      #luckyTab{
+        border-radius:24px;
+      }
+      .english-grid,.examples,.entry-grid,.mode-grid,.io-grid,.routes,.lucky-top,.lucky-bottom{grid-template-columns:1fr}
+      .entry-grid{gap:4px}
+      #enterKo{text-align:left}
+      .brand{min-height:205px;padding:23px}
+      .dig-head{align-items:flex-start}
+      .dig-tools{max-width:48%}
+      .language-tabs{
+        top:76px;
+        right:-1px;
+      }
+      .lang-tab{padding:6px 8px;font-size:.7rem}
+      .door-card{
+        position:static;
+        width:auto;
+        border-radius:20px;
+        background:rgba(243,238,228,.72);
+        padding:20px;
+        border:1px solid var(--line);
+      }
+      .door-row{grid-template-columns:1fr}
+      .examples{gap:9px}
+      .route{border-top:1px solid var(--line)}
+      .word-grid{grid-template-columns:1fr}
+    }
+  
+    .site-footer{
+      margin-top:72px;
+      padding:48px 20px 50px;
+      background:var(--theme-deep);
+      color:rgba(255,255,255,.86);
+      text-align:center;
+      font-size:.86rem;
+      line-height:1.7;
+      letter-spacing:.01em;
+      transition:background .18s ease,color .18s ease;
+    }
+    .site-footer a{
+      color:#fff;
+      text-decoration:none;
+      border-bottom:1px solid rgba(255,255,255,.42);
+    }
+    .site-footer a:hover{
+      border-bottom-color:#fff;
+    }
+    @media(max-width:800px){
+      .site-footer{
+        margin-top:48px;
+        padding:36px 16px 38px;
+        font-size:.82rem;
+      }
+    }
+</style>
+</head>
+<body data-language="en" data-play-mode="free">
+<main class="page" id="app">
+  <section class="hero">
+    <div class="brand">
+      <nav class="language-tabs" aria-label="Language">
+        <button type="button" class="lang-tab" data-door="zh">← 中文</button>
+        <button type="button" class="lang-tab active" data-door="en">EN</button>
+        <button type="button" class="lang-tab" data-door="ko">한국어 →</button>
+      </nav>
+      <div>
+        <div class="eyebrow">pilemma · little language instrument</div>
+        <h1>chi<br>char</h1>
+      </div>
+      <div id="heroCopy" class="hero-copy"></div>
+    </div>
+
+    <aside class="door-card">
+      <div class="play-mode-wrap">
+        <div class="play-mode-label">play mode</div>
+        <div class="play-mode" aria-label="Play mode">
+          <button type="button" class="active" data-play-mode="free">
+            <strong id="freeModeTitle">FREE · eum (音) + hun (訓)</strong>
+            <small id="freeModeSub">Sino · gloss</small>
+          </button>
+          <button type="button" data-play-mode="focus">
+            <strong id="focusModeTitle">FOCUS · eum (音)</strong>
+            <small id="focusModeSub">Sino only</small>
+          </button>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section id="englishLanding">
+    <div class="panel english-grid">
+      <div class="english-copy">
+        <div id="engKicker" class="eyebrow">what is chi char?</div>
+        <h2 id="engHeadline">Korean is written in Hangul. Its words can still carry older character histories.</h2>
+        <p id="engP1"></p>
+        <p id="engP2"></p>
+      </div>
+
+      <div class="english-copy dark">
+        <div id="engDarkKicker" class="eyebrow">two routes</div>
+        <p id="engDarkP1"></p>
+        <p id="engDarkP2"></p>
+      </div>
+    </div>
+
+    <div class="examples">
+      <div id="engExample1" class="example" style="background:#dfe5db">
+        <div id="engExample1Label" class="eyebrow"></div>
+        <div id="engExample1Main" class="main"></div>
+        <div id="engExample1Sub" class="sub"></div>
+      </div>
+      <div id="engExample2" class="example" style="background:#ddd1e5">
+        <div id="engExample2Label" class="eyebrow"></div>
+        <div id="engExample2Main" class="main"></div>
+        <div id="engExample2Sub" class="sub"></div>
+      </div>
+      <div id="engExample3" class="example" style="background:var(--mustard)">
+        <div id="engExample3Label" class="eyebrow"></div>
+        <div id="engExample3Main" class="main"></div>
+        <div id="engExample3Sub" class="sub"></div>
+      </div>
+      <div id="engExample4" class="example" style="background:var(--blush)">
+        <div id="engExample4Label" class="eyebrow"></div>
+        <div id="engExample4Main" class="main"></div>
+        <div id="engExample4Sub" class="sub"></div>
+      </div>
+    </div>
+
+    <div class="entry-panel">
+      <div class="eyebrow">try the workbench</div>
+      <div class="entry-grid">
+        <button id="enterZh" type="button" class="entry">
+          <strong>← 中文</strong>
+          <span>给会中文的韩语学习者玩的日常汉字实验室</span>
+        </button>
+        <button id="enterKo" type="button" class="entry">
+          <strong>한국어 →</strong>
+          <span>한자가 궁금할 때 가볍게 들러 보는 작은 실험실</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="workbench" class="hidden">
+    <section class="mode-grid" aria-label="Games">
+      <button id="practicalTab" type="button" class="mode practical-mode active">
+        <span class="mode-game">GAME 01 · PRACTICAL</span>
+        <span id="pTitle" class="mode-title"></span>
+        <span id="pSub" class="mode-sub"></span>
+        <span id="pFlow" class="mode-flow"></span>
+      </button>
+      <button id="luckyTab" type="button" class="mode lucky-mode">
+        <span class="mode-game">GAME 02 · LUCKY</span>
+        <span id="lTitle" class="mode-title"></span>
+        <span id="lSub" class="mode-sub"></span>
+        <span id="lFlow" class="mode-flow"></span>
+      </button>
+    </section>
+
+    <section id="practicalPanel" class="panel">
+      <div class="io-grid">
+        <div class="block original">
+          <div class="block-head">
+            <div>
+              <div class="eyebrow">original</div>
+              <div id="pasteTitle" class="block-title"></div>
+            </div>
+            <div class="actions" style="margin-top:0">
+              <button id="clearBtn" type="button" class="btn ghost">clear</button>
+              <button id="openBtn" type="button" class="btn white"></button>
+            </div>
+          </div>
+          <div id="quoteExampleLabel" class="quote-example-label">例：</div>
+          <textarea id="source"></textarea>
+          <div class="quote-strip">
+            <div class="quote-gallery-label">dialogue gallery</div>
+            <div id="quoteDots" class="quote-dots" aria-label="Dialogue gallery"></div>
+          </div>
+          <div id="sampleSource" class="sample-source"></div>
+          <p id="grammarNote" class="helper"></p>
+        </div>
+
+        <div class="block my-version">
+          <div class="eyebrow">my version</div>
+          <div id="output" class="output"></div>
+          <div id="routeLog" class="route-log"></div>
+          <div class="actions" aria-label="Version actions">
+            <button id="downloadBtn" type="button" class="text-action">download .text</button>
+            <button id="undoBtn" type="button" class="text-action" disabled>undo</button>
+            <button id="redoBtn" type="button" class="text-action" disabled>redo</button>
+            <button id="resetBtn" type="button" class="text-action">reset all</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dig">
+        <div class="dig-head">
+          <div>
+            <div class="eyebrow">dig here</div>
+            <div id="tapTitle" class="block-title"></div>
+          </div>
+          <div class="dig-tools">
+            <button id="answerBtn" type="button" class="answer-link hidden"></button>
+            <div id="scriptToggle" class="script-toggle hidden" aria-label="Hanja script">
+              <button type="button" class="active" data-zh-script="hans">简</button>
+              <button type="button" data-zh-script="hant">繁</button>
+            </div>
+          </div>
+        </div>
+        <div id="answerReveal" class="answer-reveal hidden"></div>
+        <div id="play" class="play"></div>
+      </div>
+
+      <div class="routes">
+        <section class="route eum">
+          <div class="route-head">
+            <div>
+              <div>
+                <span class="route-mark">音</span>
+                <span id="eumLabel" class="route-label">eum</span>
+              </div>
+              <div id="eumTitle" class="route-title"></div>
+            </div>
+            <div id="soundTrust" class="route-micro"></div>
+          </div>
+          <div id="eumBox" class="candidates"></div>
+          <p id="eumNote" class="route-note"></p>
+        </section>
+
+        <section class="route hun">
+          <div class="route-head">
+            <div>
+              <div>
+                <span class="route-mark">訓</span>
+                <span id="hunLabel" class="route-label">hun</span>
+              </div>
+              <div id="hunTitle" class="route-title"></div>
+            </div>
+            <div id="meaningTrust" class="route-micro"></div>
+          </div>
+          <div id="hunBox" class="candidates"></div>
+          <p id="hunNote" class="route-note"></p>
+        </section>
+      </div>
+
+      <div class="weird">
+        <div class="eyebrow">
+          <span class="weird-zh-only">weirdly readable</span>
+          <span class="weird-ko-only">말의 결</span>
+        </div>
+
+        <!-- 中文版：韩语拼贴词 → 汉字 -->
+        <div class="weird-zh-only">
+          <div class="weird-desktop-only">
+            <p id="weirdHint" class="weird-intro"></p>
+            <div class="weird-grid" aria-label="Playful semantic rewrites">
+              <div class="weird-card">
+                <div class="weird-ko">물고기</div>
+                <div class="weird-meaning">fish</div>
+                <div class="weird-formula">물 + 고기</div>
+                <div class="weird-result" data-weird-hanja="水肉">水肉</div>
+                <div class="weird-literal">water + meat</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">여우비</div>
+                <div class="weird-meaning">sun shower</div>
+                <div class="weird-formula">여우 + 비</div>
+                <div class="weird-result" data-weird-hanja="狐雨">狐雨</div>
+                <div class="weird-literal">fox + rain</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">별똥별</div>
+                <div class="weird-meaning">shooting star</div>
+                <div class="weird-formula">별 + 똥 + 별</div>
+                <div class="weird-result" data-weird-hanja="星糞星">星糞星</div>
+                <div class="weird-literal">star + poop + star</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">꽃비</div>
+                <div class="weird-meaning">flower rain · shower of petals</div>
+                <div class="weird-formula">꽃 + 비</div>
+                <div class="weird-result" data-weird-hanja="花雨">花雨</div>
+                <div class="weird-literal">flower + rain</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">도깨비불</div>
+                <div class="weird-meaning">will-o'-the-wisp</div>
+                <div class="weird-formula">도깨비 + 불</div>
+                <div class="weird-result" data-weird-hanja="鬼火">鬼火</div>
+                <div class="weird-literal">goblin + fire</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">물안개</div>
+                <div class="weird-meaning">water mist · sea fog</div>
+                <div class="weird-formula">물 + 안개</div>
+                <div class="weird-result" data-weird-hanja="水霧">水霧</div>
+                <div class="weird-literal">water + mist</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">눈물</div>
+                <div class="weird-meaning">tears</div>
+                <div class="weird-formula">눈 + 물</div>
+                <div class="weird-result" data-weird-hanja="目水">目水</div>
+                <div class="weird-literal">eye + water</div>
+              </div>
+              <div class="weird-card">
+                <div class="weird-ko">손목</div>
+                <div class="weird-meaning">wrist</div>
+                <div class="weird-formula">손 + 목</div>
+                <div class="weird-result" data-weird-hanja="手頸">手頸</div>
+                <div class="weird-literal">hand + neck</div>
+              </div>
+            </div>
+            <div class="weird-footnote">
+              the compounds are real Korean · only the character spellings are invented
+            </div>
+          </div>
+
+          <div class="weird-mobile-only">
+            <div class="chips">
+              <span class="chip">눈물 → <span data-weird-hanja="目水">目水</span></span>
+              <span class="chip">물고기 → <span data-weird-hanja="水肉">水肉</span></span>
+              <span class="chip">여우비 → <span data-weird-hanja="狐雨">狐雨</span></span>
+              <span class="chip">별똥별 → <span data-weird-hanja="星糞星">星糞星</span></span>
+              <span class="chip">꽃비 → <span data-weird-hanja="花雨">花雨</span></span>
+              <span class="chip">손목 → <span data-weird-hanja="手頸">手頸</span></span>
+            </div>
+            <p class="mobile-weird-copy">
+              这些词本来就这样活在韩语里。我们只是把其中的固有语部件换成汉字；奇怪的是，换完以后居然还看得懂。
+            </p>
+          </div>
+        </div>
+
+        <!-- 한국어판: 시적이고 결이 좋은 한국어 낱말 -->
+        <div class="weird-ko-only">
+          <div class="weird-desktop-only">
+            <p id="weirdHintKo" class="weird-intro">
+              한자를 잠깐 내려놓고, 한국어 자체의 결을 들여다봅니다. 뜻도 좋지만 소리와 모양만으로 오래 남는 말들을 작은 서랍에 모았습니다.
+            </p>
+            <div class="weird-grid poetic-grid" aria-label="Poetic Korean words">
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">윤슬</div>
+                <div class="weird-meaning">shimmering light on water</div>
+                <div class="poetic-note">햇빛이나 달빛을 받아 반짝이는 잔물결.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">노을</div>
+                <div class="weird-meaning">sunset glow</div>
+                <div class="poetic-note">해 질 무렵 하늘에 번지는 붉은 빛.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">여울</div>
+                <div class="weird-meaning">shallow rapids · riffle</div>
+                <div class="poetic-note">물이 얕고 빠르게 흐르는 곳.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">물비늘</div>
+                <div class="weird-meaning">glittering ripples</div>
+                <div class="poetic-note">빛을 받아 비늘처럼 반짝이는 물결.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">바람결</div>
+                <div class="weird-meaning">a passing current of wind</div>
+                <div class="poetic-note">살갗을 스쳐 가는 바람의 결.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">꽃보라</div>
+                <div class="weird-meaning">a shower of petals</div>
+                <div class="poetic-note">바람에 한꺼번에 흩날리는 꽃잎.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">아스라이</div>
+                <div class="weird-meaning">faintly · far away</div>
+                <div class="poetic-note">아득하고 희미하게.</div>
+              </div>
+              <div class="weird-card poetic-card">
+                <div class="poetic-word">고즈넉하다</div>
+                <div class="weird-meaning">quiet · secluded · still</div>
+                <div class="poetic-note">고요하고 아늑한 기운이 있다.</div>
+              </div>
+            </div>
+            <div class="weird-footnote">뜻보다 먼저 결이 남는 말들.</div>
+          </div>
+
+          <div class="weird-mobile-only">
+            <div class="chips">
+              <span class="chip">윤슬 · 물 위의 빛</span>
+              <span class="chip">노을 · 저녁빛</span>
+              <span class="chip">여울 · 얕은 물살</span>
+              <span class="chip">물비늘 · 반짝이는 물결</span>
+              <span class="chip">바람결 · 스치는 바람</span>
+            </div>
+            <p>뜻보다 먼저 소리와 결이 남는 말들.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="luckyPanel" class="panel hidden">
+      <div class="lucky-top">
+        <div class="jar">
+          <div class="eyebrow">lucky jar</div>
+          <div id="howMany" class="mode-title"></div>
+          <div class="counts">
+            <button type="button" class="count active" data-count="1">1</button>
+            <button type="button" class="count" data-count="2">2</button>
+            <button type="button" class="count" data-count="3">3</button>
+            <button type="button" class="count" data-count="4">4</button>
+          </div>
+          <button id="drawBtn" type="button" class="draw"></button>
+        </div>
+
+        <div class="words">
+          <div class="eyebrow">today's words</div>
+          <div id="luckyWords" class="word-grid"></div>
+        </div>
+      </div>
+
+      <div class="lucky-bottom">
+        <div class="sentence">
+          <label id="makeSentence" for="sentenceText" class="block-title"></label>
+          <textarea id="sentenceText" placeholder="예: 윤슬을 보니 마음이 조금 좋아졌다."></textarea>
+        </div>
+        <div class="send">
+          <div id="readyText" class="block-title"></div>
+          <button id="sendBtn" type="button" class="wide"></button>
+          <button id="practiceDownload" type="button" class="wide">download practice .txt</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="prototype-note">
+      <div class="eyebrow">prototype note</div>
+      <p id="prototypeNoteText"></p>
+    </aside>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div>© 2026 Pilemma</div>
+  <a href="https://menu.pilemma.org" rel="noopener noreferrer">menu.pilemma.org</a>
+</footer>
+
+
+
+<script>
+/*
+  Hanja reading cabinet:
+  - broad local Korean reading table derived from the xetexko Hanja/Hangul table
+  - restricted here to the Korean EUC-KR unified Hanja repertoire (4,620 characters)
+  - hand-curated cards and common modern Sino-Korean words are ranked first
+*/
+(() => {
+  const app = document.getElementById("app");
+  const $ = s => app.querySelector(s);
+  const $$ = s => Array.from(app.querySelectorAll(s));
+
+  const UI = {
+    zh: {
+      hero:"帮助会中文的韩语学习者，在玩耍中不知不觉地从中级走向高级的日常汉字实验室。",
+      heroFree:"把韩语贴进来，在音和訓两条路之间来回挖。一个音节可以翻出同音汉字，一个词也可以按意思重新画。",
+      heroFocus:"今天只相信声音。点一个韩语音节，只看读作这个音的汉字；訓和整词语义玩法暂时关门。",
+      pt:"挖你自己的句子",
+      ps:"Free：音是汉字的韩语读音；訓是解释这个汉字意义的韩语训释，也可以拿来做整词语义游戏。",
+      pflow:"贴一句 → 点开 → 换字",
+      lt:"抽几个词来玩",
+      ls:"造句子，再送回去挖。",
+    lflow:"抽幾個 → 拼一句 → 再挖",
+      lflow:"抽几个 → 拼一句 → 再挖",
+      paste:"贴一段韩语",
+      open:"开始挖",
+      grammar:"不会提前告诉你哪些是“真正的汉字词”。普通词汇保持神秘；明确的助词和语尾才锁住。",
+      tap:"点一个没有被语法锁住的音节",
+      sound:"相信声音",
+      meaning:"相信意思",
+      pick:"先点一个音节",
+      enote:"音：这些字的韩语汉字音就是你点的音节。",
+      hnote:"訓：会同时给你单个意义候选和整词候选。",
+      weird:"这些词本来就这样活在韩语里。我们没有重新发明词义，只是把它们的固有语部件换成了汉字。奇怪的是，换完以后，它们居然像某种不存在、却偏偏读得懂的汉字词。",
+      how:"今天抽几个？",
+      draw:"从罐子里抽几个",
+      make:"把这几个词，拼成一句。",
+      ready:"写好了就送回去挖：",
+      send:"送去 Practical →",
+      peek:"看汉字",
+      hide:"收起",
+      piece:"单字",
+      whole:"整词",
+      empty:"空柜",
+      showAnswer:"看答案",
+      answerKind:"答案",
+      weirdAnswer:"搞怪一下",
+      weirdKind:"搞怪",
+      moreChars:"再翻一层",
+      deepChars:"扩展字柜",
+      deepOnlySound:"只收录韩语读音",
+      focusTap:"点一个没有被语法锁住的音节，只看音读候选",
+      focusENote:"Focus：只保留 eum（音）——汉字的韩语音读；hun（訓）和整词语义玩法暂时收起来。",
+      focusLucky:"Focus 模式只从音读词里抽。",
+      prototype:"主字柜先放有解释的字，或者至少在常见汉字词里出现过的字。更偏一点的留在扩展字柜，需要的时候再翻。以后再按教育用基础汉字和常用词慢慢补，暂时不追求一打开就是满柜子的生僻字。数据均加载到浏览器本地：离线紧致，有限覆盖。语法锁目前也只做个大概：偶尔该灰没灰、该亮却灰的地方，就当作我们对预感的天然自信。",
+      freeModeTitle:"FREE · 音 + 訓",
+      freeModeSub:"汉字音 · 训释",
+      focusModeTitle:"FOCUS · 音",
+      focusModeSub:"只看汉字音",
+      eumLabel:"音读",
+      hunLabel:"训释",
+      modeIntro:"先选今天要打开多少层字柜。"
+    },
+    ko: {
+      hero:"한자가 궁금할 때 가볍게 들러 볼 수 있는 작은 실험실.",
+      heroFree:"한국어를 붙여 넣고 한자음과 훈, 두 길을 오가며 파봅니다. 한 음절에서는 같은 한자음을 가진 글자를, 한 단어에서는 뜻으로 다시 그린 한자를 만날 수 있어요.",
+      heroFocus:"오늘은 소리만 믿습니다. 한국어 음절 하나를 눌러 그 한자음으로 읽는 글자만 봅니다. 훈과 단어 전체 의미 놀이는 잠시 닫아 둡니다.",
+      pt:"내 문장을 직접 파보기",
+      ps:"Free에서는 음(音)과 훈(訓)을 함께 열어 둡니다.",
+      pflow:"붙이기 → 눌러 보기 → 바꾸기",
+      lt:"단어 몇 개 뽑기",
+      ls:"문장을 만들고, 다시 보내 파보세요.",
+      lflow:"뽑기 → 한 문장 → 다시 파기",
+      paste:"한국어를 붙여 넣으세요",
+      open:"이 문장 파보기",
+      grammar:"어떤 단어가 진짜 한자어인지 미리 알려 주지 않습니다. 일반 어휘는 열어 두고, 분명한 조사·어미만 잠급니다.",
+      tap:"문법으로 잠기지 않은 음절을 눌러 보세요",
+      sound:"소리를 믿기",
+      meaning:"뜻을 믿기",
+      pick:"먼저 음절을 누르세요",
+      enote:"음(音): 이 한자들은 실제로 이 음절을 한자음으로 씁니다.",
+      hnote:"훈(訓): 한 음절의 뜻 후보와 단어 전체 후보를 함께 보여 줍니다.",
+      weird:"한자를 잠깐 내려놓고, 한국어 자체의 결을 들여다봅니다. 뜻도 좋지만 소리와 모양만으로 오래 남는 말들을 작은 서랍에 모았습니다.",
+      how:"오늘 몇 개?",
+      draw:"단어 뽑기",
+      make:"이 말들로 한 문장.",
+      ready:"문장이 마음에 들면:",
+      send:"Practical로 보내기 →",
+      peek:"보기",
+      hide:"숨기기",
+      piece:"piece",
+      whole:"whole word",
+      empty:"empty shelf",
+      showAnswer:"정답 보기",
+      answerKind:"정답",
+      weirdAnswer:"장난 답",
+      weirdKind:"장난",
+      moreChars:"more",
+      moreChars:"더 꺼내기",
+      deepChars:"확장 서랍",
+      deepOnlySound:"한자음만 수록",
+      focusTap:"문법으로 잠기지 않은 음절을 눌러 音 후보만 봅니다",
+      focusENote:"Focus에서는 음(音), 즉 한자음만 남기고 훈(訓)과 의미 놀이는 잠시 접어 둡니다.",
+      focusLucky:"Focus에서는 音 항목만 뽑습니다.",
+      prototype:"기본 서랍에는 뜻풀이가 있거나, 적어도 자주 쓰는 한자어에서 실제로 보이는 글자부터 넣었습니다. 조금 더 드문 글자는 확장 서랍에 두고 필요할 때만 꺼냅니다. 앞으로 교육용 기초 한자와 자주 쓰는 말을 따라 천천히 더 채울 예정입니다. 처음부터 희귀한 글자로 서랍을 꽉 채울 생각은 없습니다. 데이터는 브라우저 안에 둡니다. 오프라인이고, 작고, 다 들어 있지는 않습니다. 문법 잠금은 아직 대충 합니다. 가끔 회색이어야 할 게 안 회색이거나 그 반대라면, 감에 대한 우리의 타고난 자신감이라고 해 둡니다.",
+      freeModeTitle:"FREE · 음(音) + 훈(訓)",
+      freeModeSub:"한자음 · 훈",
+      focusModeTitle:"FOCUS · 음(音)",
+      focusModeSub:"한자음만",
+      eumLabel:"음",
+      hunLabel:"훈",
+      modeIntro:"오늘은 어느 정도까지 열어 볼지 먼저 골라 봅니다."
+    }
+  };
+
+  const ZH_HANS = {...UI.zh};
+  const ZH_HANT = {
+    hero:"幫助會中文的韓語學習者，在玩耍中不知不覺地從中級走向高級的日常漢字實驗室。",
+    heroFree:"把韓語貼進來，在音和訓兩條路之間來回挖。一個音節可以翻出同音漢字，一個詞也可以按意思重新畫。",
+    heroFocus:"今天只相信聲音。點一個韓語音節，只看讀作這個音的漢字；訓和整詞語義玩法暫時關門。",
+    pt:"挖你自己的句子",
+    ps:"Free：音是漢字的韓語讀音；訓是解釋這個漢字意義的韓語訓釋，也可以拿來做整詞語義遊戲。",
+    pflow:"貼一句 → 點開 → 換字",
+    lt:"抽幾個詞來玩",
+    ls:"造句子，再送回去挖。",
+    lflow:"抽幾個 → 拼一句 → 再挖",
+    paste:"貼一段韓語",
+    open:"開始挖",
+    grammar:"不會提前告訴你哪些是「真正的漢字詞」。普通詞彙保持神祕；明確的助詞和語尾才鎖住。",
+    tap:"點一個沒有被語法鎖住的音節",
+    sound:"相信聲音",
+    meaning:"相信意思",
+    pick:"先點一個音節",
+    enote:"音：這些字的韓語漢字音就是你點的音節。",
+    hnote:"訓：會同時給你單個意義候選和整詞候選。",
+    weird:"這些詞本來就這樣活在韓語裡。我們沒有重新發明詞義，只是把它們的固有語部件換成了漢字。奇怪的是，換完以後，它們居然像某種不存在、卻偏偏讀得懂的漢字詞。",
+    how:"今天抽幾個？",
+    draw:"從罐子裡抽幾個",
+    make:"把這幾個詞，拼成一句。",
+    ready:"寫好了就送回去挖：",
+    send:"送去 Practical →",
+    peek:"看漢字",
+    hide:"收起",
+    piece:"單字",
+    whole:"整詞",
+    empty:"空櫃",
+    showAnswer:"看答案",
+    answerKind:"答案",
+    weirdAnswer:"搞怪一下",
+    weirdKind:"搞怪",
+    moreChars:"再翻一層",
+    deepChars:"擴展字櫃",
+    deepOnlySound:"只收錄韓語讀音",
+    focusTap:"點一個沒有被語法鎖住的音節，只看音讀候選",
+    focusENote:"Focus：只保留音——漢字的韓語音讀；訓和整詞語義玩法暫時收起來。",
+    focusLucky:"Focus 模式只從音讀詞裡抽。",
+    prototype:"主字櫃先放有解釋的字，或者至少在常見漢字詞裡出現過的字。更偏一點的留在擴展字櫃，需要的時候再翻。以後再按教育用基礎漢字和常用詞慢慢補，暫時不追求一打開就是滿櫃子的生僻字。資料均載入到瀏覽器本地：離線緊緻，有限覆蓋。語法鎖目前也只做個大概：偶爾該灰沒灰、該亮卻灰的地方，就當作我們對預感的天然自信。",
+    freeModeTitle:"FREE · 音 + 訓",
+    freeModeSub:"漢字音 · 訓釋",
+    focusModeTitle:"FOCUS · 音",
+    focusModeSub:"只看漢字音",
+    eumLabel:"音讀",
+    hunLabel:"訓釋",
+    modeIntro:"先選今天要打開多少層字櫃。"
+  };
+
+  const MODE_TERMS = {
+    en:{
+      freeModeTitle:"FREE",
+      freeModeSub:"Sino reading + Korean gloss",
+      focusModeTitle:"FOCUS",
+      focusModeSub:"Sino reading only",
+      eumLabel:"eum",
+      hunLabel:"hun"
+    },
+    zh:{
+      freeModeTitle:"FREE · 音 + 訓",
+      freeModeSub:"汉字音 · 训释",
+      focusModeTitle:"FOCUS · 音",
+      focusModeSub:"只看汉字音",
+      eumLabel:"音读",
+      hunLabel:"训释"
+    },
+    zhHant:{
+      freeModeTitle:"FREE · 音 + 訓",
+      freeModeSub:"漢字音 · 訓釋",
+      focusModeTitle:"FOCUS · 音",
+      focusModeSub:"只看漢字音",
+      eumLabel:"音讀",
+      hunLabel:"訓釋"
+    },
+    ko:{
+      freeModeTitle:"FREE",
+      freeModeSub:"한자음 · 훈",
+      focusModeTitle:"FOCUS",
+      focusModeSub:"한자음만",
+      eumLabel:"음",
+      hunLabel:"훈"
+    }
+  };
+
+  const COMMON_HANJA = "一丁七万丈三上下不丑且丕世丘丙丞中串丸丹主乂乃久之乍乎乏乖乘乙九乞也乫乭乳乶乷乾亂了予事二于亐云互五井亘些亞亡亢交亥亦亨享京亭亮亶人什仁仄仇今介仍仔仕他仗付仙仝仟代令以仰仲件价任企伉伊伋伍伎伏伐休伯伴伶伸伺似伽佃但佇佈位低住佐佑何余佚佛作佩佯佰佳佶佺佾使侁侃侄來侈侊例侍侏侑侖侘供依侮侯侵侶便係促俄俉俊俎俑俓俔俗俚保俟俠信修俯俱俳俵俸俺倂倆倉個倍們倒倖候倚倜倞借倡倣値倦倧倨倪倫倬倭倻偃假偈偉偏偕做停健側偵偶偸傀傅傍傑傘備催傭傲傳債傷傾僅僉僊像僑僕僖僚僞僥僧僭價僻僿儀儁億儆儉儒償儡優儲儷儺儼兀允元兄充兆兇先光克兌免兎兒兜兢入內全兩兪八公六兮共兵其具典兼冀円冊再冒冕冗冠冥冪冬冶冷冽凄准凉凋凌凍凜凝凞凡凰凱凶凸凹出函刀刃分切刈刊刎刑列初判別利刪刮到制刷券刹刺刻剃則削剋剌前剔剖剛剝剡剩剪副割創剽剿劃劇劈劉劍劑劒力功加劣劤助努劫劾勁勃勅勇勉勍勒動勖勘務勛勝勞募勢勣勤勳勵勸勺勻勾勿包匈匍匏匐匕化北匙匠匡匣匪匯匹匿區十千卄升午卉半卍卑卒卓協南博卜卞占卦卨卯印危却卵卷卽卿厄厓厘厚原厠厥厦厭去參又叉及友反叔取受叛叡叢口古句叩只叫召叭可台叱史右司吃各合吉吊同名后吏吐向君吝吟吠否吩含吳吸吹吻吼吾呂呈告呑周呪呱味呵呻呼命咀咆和咎咐咤咨咫咬咳咸咽哀品哄哈哉員哥哨哭哮哲哺唄唆唇唎唐唜唯唱唵唾啄商問啓啖啞啣啼喀善喆喇喉喊喘喙喚喜喝喧喩喪喫喬單嗅嗇嗔嗚嗜嗟嗣嗤嗽嗾嘆嘉嘔嘗嘯嘲嘴嘶噓器噫噴嚆嚥嚬嚮嚴嚼囊囍囑囚四回因困囹固圃圄圈國圍園圓圖團土在圭地圻址坂均坊坍坎坐坑坡坤坦坪坮坰坵坼垂垈型垓垠垢垣埃埇埈埋城域埠埰埴執培基埼堀堂堅堆堈堉堊堞堡堤堧堪堯堰報場堵堺塊塋塏塑塔塗塘塚塞塡塢塤塵塹塼塾境墅墉墓墜增墟墨墩墮墳墺墻墾壁壅壇壎壑壓壕壘壙壞壟壤士壬壯壹壺壻壽夏夔夕外夙多夜夢大天太夫夭央失夷夾奄奇奈奉奎奏奐契奔奕套奚奠奢奧奪奫奬奭奮女奴奸好如妃妄妊妓妖妗妙妥妨妬妹妻妾姃姆姉始姐姑姓委姙姚姜姝姦姨姪姬姮姸姻姿威娃娑娘娛娜娟娠娥娩娶娼婁婆婉婚婢婦媒媚媛媤嫁嫂嫄嫉嫌嫡嫦嫩嬅嬉嬋嬌嬖嬪孀孃子孑孔孕字存孚孜孝孟季孤孩孫孰孱孵學孺孼宅宇守安宋完宏宓宕宖宗官宙定宛宜客宣室宥宦宬宮宰害宴宵家宸容宿寀寂寃寄寅密寇富寐寒寓寔寗寞察寡寢寤寥實寧寨審寫寬寮寯寵寶寸寺封射將專尉尊尋對導小少尖尙尤尨就尸尹尺尻尼尾尿局居屆屈屋屍屎屑展屛屠屢層履屬屯山屹岐岑岡岩岫岬岱岳岵岷岸岺岾峀峙峠峨峯峰峴島峻峽崇崍崎崑崔崖崗崙崧崩嵋嵌嵐嵩嵬嵯嶇嶋嶝嶠嶢嶪嶸嶺嶼嶽巍巒巖川州巡巢工左巧巨巫差己已巳巴巷巽巾市布帆希帑帖帙帛帝帥師席帳帶常帽帿幀幄幅幇幌幕幟幡幢幣干平年幷幸幹幻幼幽幾庄庇床序底店庚府庠度座庫庭庵庶康庸庾廂廈廉廊廐廓廖廚廛廟廠廢廣廬廳延廷建廻弁弄弊式弑弓弔引弗弘弛弟弦弧弩弱張强弼彈彊彌彎彖彗彙彛形彦彧彩彪彫彬彭彰影彷役彼彿往征待徇徊律後徐徑徒得徘徙從徠御徨復循微徵德徹徽心必忌忍忖志忘忙忠快念忽忿怏怒怖怜思怠怡急性怨怪怯恁恂恃恍恐恒恕恙恝恢恣恤恥恨恩恪恬恭息恰悅悉悌悍悔悖悚悛悟悠患悤悧悰悲悳悴悶悸悼悽情惇惑惚惜惟惠惡惰惱想惶惹惺惻愁愆愈愉愍愎意愕愚愛感愧愰愴愷愼愾愿慂慄慇慈慊態慌慓慕慘慙慝慟慢慣慤慧慨慫慮慰慶慷慽慾憁憂憊憎憐憑憔憘憙憚憤憧憩憫憬憮憲憶憺憾懃懇懈應懊懋懦懲懶懷懸懺懼懿戀戇戈戊戌戍戎成我戒或戚戟戡截戮戰戱戴戶戾房所扁扇扈扉手才打托扮扱扶批扼承技抄抉把抑抒投抗折抛披抱抵抹押抽拂拇拈拉拌拍拏拐拒拓拔拖拗拘拙招拜括拭拮拯拱拳拷拾拿持指按挑挫振挺挻挽挾捉捌捏捐捕捧捨据捲捷捺捻捿掃授掉掌排掖掘掛掠採探接控推掩措揀揄揆描提揖揚換握揭揮援揶揷損搏搔搖搗搜搢搬搭携搾摘摠摩摯摸摹摺撈撑撒撓撚撞撤撥撫播撮撰撲撻擁擄擅擇擊操擎擒擔擘據擡擢擥擦擧擬擲擴擺擾攀攄攘攝攣攪攫攬支收攷攸改攻放政故效敍敎敏救敖敗敞敢散敦敬敭敲整敵敷數敾斂斃斅文斌斐斑斗料斛斜斟斡斤斥斧斫斬斯新斷方於施旁旅旋旌族旒旗无旣日旦旨早旬旭旱旴旺旻旼旽旿昆昇昉昊昌明昏昐昑易昔昕昞星映春昧昨昭是昰昱昴昶昺昻晁時晃晄晉晋晏晙晛晝晞晟晤晥晦晧晨晩晫普景晳晴晶晷晸智暄暇暈暉暎暐暑暖暗暘暝暠暢暫暮暲暳暴暹暻暾曄曆曇曉曖曙曜曝曠曦曰曲曳更曷書曹曺曼曾替最會月有朋服朔朕朗望朝朞期朦朧木未末本札朮朱朴朶机朽杆杉李杏材村杓杖杜杞束杭杯杰東杳杵杷杻松板枇枉枋枏析枓枕林枚果枝枯枰枳架枷枸枾柄柏某柑柒染柔柚柝柩柬柯柰柱柳柴柵柶査柾栒栓栖栗校栢株栯核根格栽桀桁桂桃案桎桐桑桓桔桭桶桿梁梅梏梓梔梗條梟梡梢梧梨梭梯械梱梳梵梶棄棅棉棋棍棒棕棗棘棚棟棠棧棨森棲棹棺椀椅植椎椒椧椰椽椿楊楓楔楕楗楙楚楞楠楡楢楣楨楫業楮楯極楷楸楹榕榛榜榥榧榮榴榻槁槃構槌槍槐槨槪槻槽槿樂樊樑樓樗標樞樟模樣樵樸樹樺樽橄橈橋橒橓橘橙機橡橫檀檄檉檍檎檗檜檢檣檳檻櫂櫃櫓櫚櫛櫶櫻欄權欌欒欖欠次欣欲欺欽款歆歇歌歎歐歟歡止正此步武歪歲歷歸死歿殃殄殆殉殊殖殘殞殮殯殲段殷殺殼殿毁毅毆毋母每毒毓比毖毗毘毛毫毬氈氏民氓氣水氷永氾汀汁求汎汐汕汗汚汝汞江池汨汪汭汰汲汶決汽汾沁沂沃沅沆沇沈沌沐沒沓沔沕沖沙沚沛沫沮河沸油治沼沽沾沿況泂泄泉泊泌泓法泗泛泡波泣泥注泫泮泯泰泳洋洌洑洗洙洛洞津洧洩洪洲洵洶洸洹活洽派流浙浚浜浣浦浩浪浬浮浴海浸浹浿涅涇消涉涌涍涎涑涓涕涯液涵淀淃淄淅淆淇淋淏淑淘淙淚淞淡淨淪淫淮深淳淵混淸淹淺添渗渙渚減渟渠渡渣渤渥渦渫測渭港渲渴渶游渺渼渽渾湃湄湊湍湖湘湛湜湞湟湧湫湮湯湲湳湺源準溜溝溟溢溥溪溫溯溱溶溺滂滄滅滉滋滌滎滑滓滔滯滴滸滾滿漁漂漆漏漑演漕漠漢漣漫漬漱漲漸漿潁潑潔潗潘潚潛潞潟潢潤潭潮潰潺潼潽潾澁澄澈澍澎澐澔澗澣澤澧澮澯澱澳澹澾激濁濂濃濊濕濚濟濠濡濤濩濫濬濯濱濾瀁瀅瀆瀉瀋瀏瀑瀕瀘瀚瀛瀜瀝瀞瀟瀣瀧瀨瀯瀷瀾灌灐灑灘灝灣火灰灸灼災炅炊炎炒炘炙炚炡炤炫炬炭炯炳炷炸点烈烋烏烘烙烝烟烱烹烽焄焉焌焙焚焞無焦焰然煇煉煊煌煎煐煖煙煜煞煤煥煦照煩煬煮煽熄熉熊熏熒熔熙熟熢熬熱熹熺熾燁燃燈燉燎燐燒燔燕營燥燦燧燭燮燻燼燾燿爀爆爐爛爪爬爭爰爲爵父爺爻爽爾牀牆片版牌牒牘牙牛牝牟牡牢牧物牲特牽犀犁犢犧犬犯狀狂狄狎狐狗狙狡狩狸狹狼狽猊猖猛猜猝猥猩猪猫猶猷猾猿獄獅獐獒獗獨獪獰獲獵獸獺獻玄玆率玉王玎玔玖玗玘玟玧玩玭玲玳玹珀珂珉珊珌珍珏珖珙珝珞珠珣珤珥珦珩珪班珷珹珽現琁球琅理琇琉琓琛琠琡琢琥琦琨琪琫琬琮琯琰琳琴琵琶琸琺琿瑀瑁瑃瑄瑋瑕瑗瑙瑚瑛瑜瑞瑟瑠瑢瑤瑥瑨瑩瑪瑯瑾璂璃璇璉璋璘璜璞璟璡璣璥璧璨璪環璲璵璹璽璿瓆瓊瓏瓔瓘瓚瓜瓠瓢瓣瓦瓮瓷甁甄甑甕甘甚甛生産甥甦用甫甬田由甲申男甸町畇界畏畑畓畔留畛畜畝畢略畦番畯異畵當畸畺畿疆疇疊疋疎疏疑疝疥疫疱疲疳疵疸疹疼疽疾痂病症痍痒痔痕痘痙痛痢痰痲痴痺痼瘀瘍瘙瘟瘠瘡瘢瘤瘦瘻療癌癎癒癖癡癤癩癬癰癲癸登發白百的皆皇皎皐皓皮皺皿盂盃盆盈益盒盖盛盜盞盟盡監盤盧目盲直相盼盾省眄眈眉看眞眠眩眷眸眺眼着睍睛睡督睦睫睹睾睿瞋瞑瞞瞥瞬瞭瞰瞳瞻瞼瞿矗矛矜矢矣知矩短矮矯石砂砒砥砦砧砬砲破硅硏硝硫硬硯硼碁碇碌碍碎碑碗碣碧碩確碻碼磁磅磊磋磎磐磨磬磯磵磻礁礎礖礪礫礬示社祀祁祇祈祉祐祖祗祚祛祜祝神祠祥票祭祺祿禁禍禎福禑禦禧禪禮禱禳禹禽禾禿秀私秉秊秋科秒秕秘租秤秦秧秩移稀稅稈程稍稔稗稙稚稜稟稠種稱稶稷稻稼稽稿穀穆穉積穎穗穡穢穩穫穰穴究穹空穽穿突窄窈窒窓窕窘窟窩窪窮窯窺竄竅竇竊立竗站竝竟章竣童竪竭端競竹竺竿笏笑笙笛笞笠符第笭笹筆等筋筌筍筏筐筑筒答策筠筬筮筵筽箇箋箏箔箕算箚箝管箭箱箴箸節篁範篆篇築篒篠篤篩簇簒簞簡簧簪簫簽簾簿籃籌籍籠籤籬米粃粉粒粕粗粘粟粥粧粮粱粲粳粹精糊糖糞糟糠糧系糾紀紂約紅紆紇紈紊紋納紐純紗紘紙級紛素紡索紫紬紮累細紳紵紹紺終絃組絅絆結絞絡絢給絨絪絮統絲絳絶絹絿綎綏經綜綠綢綬維綱網綴綵綸綺綻綽綾綿緇緊緋緖緘線緝緞締緡緣編緩緬緯練緻縉縊縕縛縝縞縟縡縣縫縮縯縱縷總績繁繃繆繇繒織繕繞繡繩繪繫繭繰繹繼纂續纏纓纖纘纛纜缶缸缺罌罐罔罕罪罫置罰署罵罷罹羅羈羊羌美羔羚羞群羨義羲羸羹羽翁翅翊翌翎習翔翕翟翠翡翩翫翰翹翼耀老考者耆耉而耐耕耗耘耭耳耶耽耿聃聆聊聖聘聚聞聯聰聲聳職聽聾聿肄肅肆肇肉肋肌肖肛肝股肢肥肩肪肯肱育肴肺胃胄背胎胚胛胞胡胤胥胱胴胸能脂脅脆脇脈脊脘脚脛脣脩脫脯脹脾腋腎腐腑腔腕腥腦腫腰腱腸腹腺腿膀膈膊膏膚膜膝膠膣膨膳膵膺膽膾膿臀臂臆臍臘臟臣臥臧臨自臭至致臺臻臼臾舅與興舊舌舍舒舛舜舞舟舡航舫般舵舶舷船艀艅艇艙艤艦艮良艱色艶艸艾芋芍芎芒芙芚芝芟芥芦芩芬芭芮芯花芳芷芸芹芻芼芽芿苑苒苔苕苗苛苞苟苡若苦苧英苽苾茁茂范茄茅茉茗茨茫茯茱茴茵茶茸茹荀荇草荊荏荑荒荳荷荻莉莊莎莖莘莞莢莩莪莫莽菁菅菉菊菌菓菖菜菩菫華菰菱菲菴菹菽萃萄萊萌萍萎萩萬萱萸落葉著葛葡董葦葫葬葯葵葺蒐蒔蒙蒜蒡蒲蒸蒻蒼蒿蓀蓂蓄蓆蓉蓋蓍蓑蓚蓬蓮蓴蓼蔑蔓蔔蔗蔘蔚蔞蔡蔣蔥蔬蔭蔯蔽蔿蕁蕃蕉蕎蕓蕙蕣蕨蕩蕪蕭薄薇薏薑薔薛薦薨薩薪薯薰薺藁藉藍藎藏藕藜藝藤藥藩藪藷藺藻藿蘂蘆蘇蘊蘖蘗蘚蘭蘿虎虐虔處虛虜虞號虧虹蚊蚌蚓蚣蚤蚩蛇蛋蛔蛙蛛蛟蛤蛭蛾蜀蜂蜃蜈蜘蜚蜜蝎蝕蝗蝟蝦蝨蝴蝶蝸螂融螟螢螳螺蟄蟠蟬蟯蟲蟹蟻蟾蠅蠟蠢蠣蠱蠶蠻血衆行衍衒術街衙衛衝衡衢衣表衫衰衲衷衾衿袁袂袈袋袍袒袖袗袞被袴裁裂裏裔裕裙補裝裟裡裨裳裴裵裸製複褐褒褓褘褙褥褪褶褸褻襁襄襟襤襪襲西要覃覆覇見規覓視覡覩親覲覺覽觀角解觴觸言訂訃計訊訌討訓訖託記訛訝訟訣訥訪設許訴訶診註詐詔評詛詞詠詢詣試詩詭詮詰話該詳詵詹誅誇誌認誓誕誘語誠誡誣誤誥誦誨說誰課誹誼誾調諂諄談請諍諏諒論諛諜諡諦諧諪諫諭諮諱諶諷諸諺諾謀謁謂謄謎謐謔謖謗謙謚講謝謠謨謫謬謳謹譁證譎譏識譚譜警譬譯議譴護譽讀變讐讒讓讖讚谷谿豁豆豈豊豌豕豚象豪豫豹豺貂貊貌貝貞負財貢貧貨販貪貫責貯貰貳貴貶買貸費貼貽貿賀賁賂賃賄資賈賊賑賓賚賜賞賠賢賣賤賦質賭賴賻購賽贄贅贇贈贊贍贓贖赤赦赫走赳赴起超越趙趣趨足趺趾跆跋跌跏跛距跡跣跨路跳踊踏踐踞踪踰踵蹂蹄蹇蹈蹉蹊蹙蹟蹠蹴蹶躁躇躊躍躪身躬軀車軋軌軍軒軟軫軸軻軾較輅載輒輓輔輕輛輜輝輞輟輦輧輩輪輯輳輸輹輻輾輿轄轅轉轍轎轝轟轢辛辜辣辦辨辭辯辰辱農迂迅迎近返迦迪迫迭述迲迷迹追退送适逃逅逆逈逋逍透逐逑途逕逗這通逝逞速造逡逢連逮週進逵逸逼逾遁遂遇遊運遍過遐遑道達違遙遜遝遞遠遡遣適遭遮遯遲遵遷選遺遼遽避邀邁邂邃還邇邈邊邏邑邕邙邢那邦邨邪邯邰邱邵邸郁郊郞郡部郭郵都鄂鄒鄕鄙鄧鄭鄲酉酊酋酌配酎酒酢酩酪酬酵酷酸醇醉醋醍醒醜醫醬醮醯醱醴醵釀采釉釋里重野量釐金釗釘釜針釣釧釪釵鈍鈐鈑鈒鈗鈞鈴鈺鈿鉀鉅鉉鉗鉛鉞鉢鉤鉥鉦銀銃銅銑銓銖銘銜銳銶銷銹鋌鋏鋒鋤鋪鋸鋼錄錐錘錚錞錟錠錡錢錤錦錨錫錮錯鍈鍊鍋鍍鍔鍛鍮鍵鍼鍾鎌鎔鎖鎚鎣鎧鎬鎭鎰鏃鏑鏞鏡鏤鏶鐄鐘鐥鐫鐵鐸鑄鑑鑒鑛鑽鑿長門閃閉開閏閑閒間閔閘閣閤閥閨閭閱閻閼闇闊闔闕闖關闡闢阜阡阪阮防阻阿陀陂附陋陌降限陛陜陝陞陟院陣除陪陰陳陵陶陷陸陽隅隆隊隋隍階隔隕隘隙際障隣隧隨險隱隷隻雀雁雄雅集雇雉雋雌雍雎雕雖雙雛雜離難雨雩雪雯雰雲零雷雹電需霆震霑霓霖霙霜霞霧霰露霹霽靂靄靈靑靖靜非靡面革靭靴靷靺鞋鞍鞏鞠鞨鞫鞭韆韋韓韜音韶韻響頀頁頂頃項順須頊頌預頑頒頓頗領頭頰頸頹頻顆題額顎顔願顚類顥顧顫顯風颯颱飄飇飛飜食飡飢飭飮飯飴飼飽飾餃餉養餌餐餓餘餞餠館饅饉饋饌饍饑饒饔饗首香馝馥馨馬馭馮馱馳馴馹駁駐駑駒駕駙駝駟駭駱駿騁騈騎騏騙騫騰騶騷驀驃驅驍驕驗驚驛驟驢驥驩驪骨骸髓體高髥髮鬚鬧鬪鬱鬼魁魂魃魄魅魏魔魚魯鮎鮑鮟鮫鮮鯉鯖鯤鯨鰍鰐鰒鰕鰥鰲鰻鱇鱉鱗鳥鳧鳩鳳鳴鳶鴉鴛鴦鴨鴻鵑鵝鵠鵡鵬鵲鶩鶯鶴鷄鷗鷲鷸鷹鷺鸚鸞鹵鹹鹽鹿麒麓麗麝麟麥麴麵麻麾黃黍黎黑黔默黛黜點黨黴鼇鼈鼎鼓鼠鼻齊齋齎齒齟齡齧齪齬齷龍龐龕龜";
+  const COMMON_HANJA_READINGS = "일정칠만장삼상하부축차비세구병승중곶환단주예내구지사호핍괴승을구걸야갈돌유볼살건난요여사이우울운호오정긍사아망항교해역형향경정양단인십인측구금개잉자사타장부선동천대영이앙중건개임기항이급오기복벌휴백반령신사사가전단저포위저주좌우하여일불작패양백가길전일사신간질내치광예시주유륜차공의모후침려변계촉아오준조용경현속리보사협신수부구배표봉엄병량창개배문도행후의척경차창방치권종거예윤탁왜야언가게위편해주정건측정우투괴부방걸산비최용오전채상경근첨선상교복희요위요승참가벽사의준억경검유상뢰우저려나엄올윤원형충조흉선광극태면토아두긍입내전양유팔공육혜공병기구전겸기엔책재모면용관명멱동야냉렬처준양조능동늠응희범황개흉철요출함도인분절예간문형열초판별이산괄도제쇄권찰자각체칙삭극랄전척부강박섬잉전부할창표초획극벽유검제검역공가열근조노겁핵경발칙용면경늑동욱감무훈승노모세적근훈여권작균구물포흉포포복비화북시장광갑비회필익구십천입승오훼반만비졸탁협남박복변점괘설묘인위각난권즉경액애리후원측궐하염거참우차급우반숙취수반예총구고구고지규소팔가태질사우사흘각합길적동명후이토향군인음폐부분함오흡취문후오여정고탄주주고미가신호명저포화구부타자지교해함열애품홍합재원가초곡효철포패사진리당말유창암타탁상문계담아함제객선철나후함천훼환희갈훤유상끽교단후색진오기차사치수주탄가구상소조취시허기희분효연빈향엄작낭희촉수사회인곤영고포어권국위원원도단토재규지기지판균방담감좌갱파곤탄평대경구탁수대형해은구원애용준매성역부채식집배기기굴당견퇴강육악첩보제연감요언보장도계괴영개소탑도당총새전오훈진참전숙경서용묘추증허묵돈타분오장간벽옹단훈학압호누광괴농양사임장일호서수하기석외숙다야몽대천태부요앙실이협엄기내봉규주환계분혁투해전사오탈윤장석분여노간호여비망임기요금묘타방투매처첩정모자시저고성위임요강주간이질희항연인자위왜사낭오나연신아만취창루파완혼비부매미원시가수원질혐적항눈화희선교폐빈상양자혈공잉자존부자효맹계고해손숙잔부학유얼택우수안송완굉복탕횡종관주정완의객선실유환성궁재해연소가신용숙채적원기인밀구부매한우식녕막찰과침오요실영채심사관요준총보촌사봉사장전위존심대도소소첨상우방취시윤척고니미요국거계굴옥시시설전병도누층이속둔산흘기잠강암수갑대악호민안령점수치상아봉봉현도준협숭래기곤최애강윤숭붕미감남숭외차구도등교요업영영서악외만암천주순소공좌교거무차기이사파항손건시포범희탕첩질백제수사석장대상모후정악폭방황막치번당폐간평연병행간환유유기장비상서저점경부상도좌고정암서강용유상하염낭구곽료주전묘창폐광여청연정건회변농폐식시궁조인불홍이제현호노약장강필탄강미만단혜휘이형언욱채표조빈팽창영방역피불왕정대순회율후서경도득배사종래어황복순미징덕철휘심필기인촌지망망충쾌염홀분앙노포영사태이급성원괴겁임순시황공항서양괄회자휼치한은각념공식흡열실제한회패송전오유환총리종비덕췌민계도처정돈혹홀석유혜악타뇌상황야성측수건유유민퍅의악우애감괴황창개신개원용율은자겸태황표모참참특통만관각혜개종려위경강척욕총우비증연빙초희희탄분동게민경무헌억담감근간해응오무나징나회현참구의연당과무술수융성아계혹척극감절육전희대호려방소편선호비수재타탁분급부비액승기초결파억서투항절포피포저말압추불무념납반박나괴거척발타요구졸초배괄식길증공권고습나지지안도좌진정연만협착팔날연포봉사거권첩날염서소수도장배액굴괘약채탐접공추엄조간유규묘제읍양환악게휘원야삽손박소요도수진반탑휴착적총마지모모접로탱살요연당철발무파촬찬박달옹노천택격조경금담벽거대탁람찰거의척확파요반터양섭련교확람지수고유개공방정고효서교민구오패창감산돈경양고정적부수선렴폐효문빈비반두요곡사짐알근척부작참사신단방어시방여선정족류기무기일단지조순욱한우왕민민돈오곤승방호창명혼분금역석흔병성영춘매작소시하욱묘창병앙조시황황진진안준현주희성오환회호신만탁보경석청정귀정지훤가훈휘영위서난암양명고창잠모장혜폭섬경돈엽역담효애서요폭광희왈곡예경갈서조조만증체최회월유붕복삭짐낭망조기기몽롱목미말본찰출주박타궤후간삼이행재촌표장두기속항배걸동묘저파유송판비왕방남석두침임매과지고평지가가구시병백모감칠염유유탁구간가내주유시책사사정순전서율교백주욱핵근격재걸항계도안질동상환길진통간양매곡재치경조효완초오이사제계곤소범미기병면기곤봉종조극붕동당잔계삼서도관완의식추초명야연춘양풍설타건무초릉남유유미정즙업저순극해추영용진방황비영류탑고반구퇴창괴곽개규조근악번량누저표추장모양초박수화준감요교운순귤등기상횡단격정억금벽회검장빈함도궤노려즐헌앵난권장란람흠차흔욕기흠관흠헐가탄구여환지정차보무왜세역귀사몰앙진태순수식잔운염빈섬단은살각전훼의구무모매독육비비비비모호구전씨민맹기수빙영범정즙구범석산한오여홍강지골왕예태급문결기분심기옥원항연침돈목몰답면물충사지패말저하비유치소고첨연황형설천박비홍법사범포파읍이주현반민태영양렬보세수낙동진유설홍주순흉광원활흡파유절준빈완포호낭리부욕해침협패열경소섭용효연속연체애액함정권치석효기임호숙도종누송담정윤음회심순연혼청엄천첨삼환저감정거도사발악와설측위항선갈영유묘미재혼배미주단호상담식정황용추인탕원남보원준유구명일부계온소진용익방창멸황자척형활재도체적호곤만어표칠누개연조막한연만지수창점장영발결집반숙잠로석황윤담조궤잔동보린삽징철주팽운호간한택례회찬전오담달격탁렴농예습영제호유도호남준탁빈여양형독사심류폭빈로한영융력정소해롱뢰영익란관형쇄탄호만화회구작재경취염초흔자광정소현거탄형병주작점열휴오홍낙증연경팽봉훈언준배분돈무초염연휘연훤황전영난연욱살매환후조번양자선식운웅훈형용희숙봉오열희희치엽연등돈요인소번연영조찬수촉섭훈신도요혁폭노난조파쟁원위작부야효상이상장편판패첩독아우빈모모뇌목물생특견서리독희견범상광적압호구저교수리협낭패예창맹시졸외성저묘유유활원옥사장오궐독회영획엽수달헌현자솔옥왕정천구우기민윤완빈영대현박가민산필진각광공후낙주순보이향형규반무성정현선구랑이수유완침전숙탁호기곤기봉완종관염림금비파탁법혼우모춘선위하원노호영유서슬류용요온진형마랑근기리선연장인황박경진기경벽찬조환수여숙새선질경롱영관찬과호표판와옹자병견증옹감심첨생산생소용보용전유갑신남전정균계외전답반유진축무필약휴번준이화당기강기강주첩필소소의산개역포피감자달진동저질가병증이양치흔두경통이담마치비고어양소온척창반류수루요암간유벽치절나선옹전계등발백백적개황교고호피추명우배분영익합개성도잔맹진감반노목맹직상반순성면탐미간진면현권모조안착현정수독목첩도고예진명만별순료감동첨검구촉모긍시의지구단왜교석사비지채침립포파규연초유경연붕기정녹애쇄비완갈벽석확확마자방뇌차계반마경기간반초초여여력반시사사기기기지우조지조거호축신사상표제기녹금화정복우어희선예도양우금화독수사병연추과초비비조칭진앙질이희세간정초임패직치능품조종칭욱직도가계고곡목치적영수색예온확양혈구궁공정천돌착요질창조군굴와와궁요규찬규두절입묘참병경장준동수갈단경죽축간홀소생적태입부제령세필등근전순벌광축통답책균성서연오개전쟁박기산차겸관전상잠저절황범전편축식소독사족찬단간황잠소첨염부람주적농첨리미비분입박조점속죽장량량찬갱수정호당분조강양계규기주약홍우흘환문문납유순사굉지급분소방색자주찰누세신저소감종현조경반결교락현급융인서통사강절견구정수경종녹주수유강망철채륜기탄작능면치긴비서함선집단체민연편완면위연치진액온박진호욕재현봉축연종누총적번붕무요증직선요수승회계견조역계찬속전영섬찬독람부항결앵관망한죄괘치벌서매파이나기양강미고영수군선의희리갱우옹시익익령습상흡적취비편완한교익요노고자기구이내경모운기이야탐경담영료성빙취문연총성용직청농율이숙사조육늑기초항간고지비견방긍굉육효폐위주배태배갑포호윤서광동흉능지협취협맥척완각경순수탈포창비액신부부강완성뇌종요건장복선퇴방격박고부막슬교질팽선췌응담회농둔비억제납장신와장임자취지치대진구유구여흥구설사서천순무주강항방반타박현선부여정창의함간양간색염초애우작궁망부둔지삼개호금분파예심화방지운근추모아잉원염태초묘가포구이약고저영고필줄무범가모말명자망복수회인다용여순행초형임이황두하적리장사경신완협부아막망청관녹국균과창채보근화고능비암저숙췌도래맹평위추만훤유낙엽저갈포동위호장약규즙수시몽산방포증약창호손명축석용개시사수봉연순요멸만복자삼울루채장총소음진폐위담번초교운혜순궐탕무소박미의강장설천훙살신서훈제고자남신장우려예등약번수저인조곽예노소온얼벽선난나호학건처허노우호휴홍문방인공조치사단회와주교합질아촉봉신오지비밀갈식황위하슬호접와랑융명형당나칩반선요충해의섬승납준려고잠만혈중행연현술가아위충형구의표삼쇠납충금금원몌가대포단수진곤피고재열이예유군보장사이비상배배나제복갈포보위배욕퇴습루설강양금남말습서요담복패견규멱시격도친근각람관각해상촉언정부계신홍토훈흘탁기와아송결눌방설허소가진주사조평저사영순예시시궤전힐화해상선첨주과지인서탄유어성계무오고송회설수과비의은조첨순담청쟁추양논유첩시체해정간유자휘심풍제언낙모알위등미밀학속방겸익강사요모적류구근화증휼기식담보경비역의견호예독변수참양참찬곡계활두기풍완시돈상호예표시초맥모패정부재공빈화판탐관책저세이귀폄매대비첩이무하분뇌임회자가적진빈뢰사상배현매천부질도뢰부구새지취윤증찬섬장속적사혁주규부기초월조취추족부지태발질가파거적선과노도용답천거종유종유제건도차혜축적척축궐조저주약린신궁구차알궤군헌연진축가식교로재첩만보경량치휘망철연병배윤집주수복복전여할원전철교여굉역신고랄판변사변진욕농우신영근반가적박질술겁미적추퇴송괄도후역형포소투축구도경두저통서령속조준봉연체주진규일핍유둔수우유운편과하황도달위요손답체원소견적조차둔지준천선유요거피요매해수환이막변나읍옹망형나방촌사감태구소저욱교랑군부곽우도악추향비등정단유정추작배주주초명낙수효혹산순취초제성추의장초혜발예갹양채유석이중야양리김쇠정부침조천우채둔검판삽윤균영옥전갑거현겸연월발구술정은총동선전수명함예구소수정협봉서포거강녹추추쟁순담정기전기금묘석고착영연과도악단유건침종겸용쇄추형개호진일족적용경루집횡종선전철탁주감감광찬착장문섬폐개윤한한간민갑각합벌규여열염알암활합궐틈관천벽부천판완방조아타피부누맥강한폐합섬승척원진제배음진능도함육양우융대수황계격운애극제장인수수험은례척작안웅아집고치준자옹저조수쌍추잡이난우우설문분운영뇌박전수정진점예림영상하무산노벽제력애영청정정비미면혁인화인말혜안공국갈국편천위한도음소운향호혈정경항순수욱송예완반돈파영두협경퇴빈과제액악안원전유호고전현풍삽태표표비번식손기칙음반이사포식교향양이찬아여전병관만근궤찬선기요옹향수향필복형마어풍타치순일박주노구가부타사해낙준빙병기기편건등추소맥표구효교험경역취려기환여골해수체고염발수료투울귀괴혼발백매위마어노점포안교선리청곤경추악복하환오만강별인조부구봉명연아원앙압홍견아곡무붕작목앵학계구취휼응노앵난로함염녹기록여사인맥국면마휘황서여흑검묵대출점당미오별정고서비제재재치저령설착어악용방감구";
+  const COMMON_HANJA_HANS = "一丁七万丈三上下不丑且丕世丘丙丞中串丸丹主乂乃久之乍乎乏乖乘乙九乞也乫乭乳乶乷干乱了予事二于亐云互五井亘些亚亡亢交亥亦亨享京亭亮亶人什仁仄仇今介仍仔仕他仗付仙仝仟代令以仰仲件价任企伉伊伋伍伎伏伐休伯伴伶伸伺似伽佃但伫布位低住佐佑何余佚佛作佩佯佰佳佶佺佾使侁侃侄来侈侊例侍侏侑仑侘供依侮侯侵侣便系促俄俉俊俎俑俓伣俗俚保俟侠信修俯具俳俵俸俺倂俩仓个倍们倒幸候倚倜倞借倡仿値倦倧倨倪伦倬倭倻偃假偈伟偏偕做停健侧侦偶偸傀傅傍杰伞备催佣傲传债伤倾仅佥僊像侨仆僖僚伪侥僧僭价僻僿仪儁亿儆俭儒偿儡优储俪傩俨兀允元兄充兆凶先光克兑免兎儿兜兢入内全两兪八公六兮共兵其具典兼冀円册再冒冕冗冠冥幂冬冶冷冽凄准凉凋凌冻凛凝凞凡凰凯凶凸凹出函刀刃分切刈刊刎刑列初判别利删刮到制刷券刹刺刻剃则削克剌前剔剖刚剥剡剩剪副割创剽剿划剧劈刘剑剂劒力功加劣劤助努劫劾劲勃勅勇勉勍勒动勖勘务勋胜劳募势𪟝勤勋励劝勺匀勾勿包匈匍匏匐匕化北匙匠匡匣匪汇匹匿区十千卄升午卉半卍卑卒卓协南博卜卞占卦卨卯印危却卵卷卽卿厄厓厘厚原厕厥厦厌去参又叉及友反叔取受叛叡丛口古句叩只叫召叭可台叱史右司吃各合吉吊同名后吏吐向君吝吟吠否吩含吴吸吹吻吼吾吕呈告呑周呪呱味呵呻呼命咀咆和咎咐咤咨咫咬咳咸咽哀品哄哈哉员哥哨哭哮哲哺呗唆唇唎唐唜唯唱唵唾啄商问启啖哑啣啼喀善喆喇喉喊喘喙唤喜喝喧喩丧吃乔单嗅啬嗔呜嗜嗟嗣嗤嗽嗾叹嘉呕尝啸嘲嘴嘶嘘器噫喷嚆咽嚬向严嚼囊禧嘱囚四回因困囹固圃圄圈国围园圆图团土在圭地圻址坂均坊坍坎坐坑坡坤坦坪坮坰坵坼垂垈型垓垠垢垣埃埇埈埋城域埠采埴执培基埼堀堂坚堆堈堉垩堞堡堤堧堪尧堰报场堵堺块茔垲塑塔涂塘冢塞塡坞埙尘堑塼塾境墅墉墓坠增墟墨墩堕坟墺墙垦壁壅坛埙壑压壕垒圹坏垄壤士壬壮壹壶壻寿夏夔夕外夙多夜梦大天太夫夭央失夷夹奄奇奈奉奎奏奂契奔奕套奚奠奢奥夺奫奖奭奋女奴奸好如妃妄妊妓妖妗妙妥妨妬妹妻妾姃姆姉始姐姑姓委姙姚姜姝奸姨侄姬姮姸姻姿威娃娑娘娱娜娟娠娥娩娶娼娄婆婉婚婢妇媒媚媛媤嫁嫂嫄嫉嫌嫡嫦嫩嬅嬉婵娇嬖嫔孀娘子孑孔孕字存孚孜孝孟季孤孩孙孰孱孵学孺孼宅宇守安宋完宏宓宕宖宗官宙定宛宜客宣室宥宦宬宫宰害宴宵家宸容宿寀寂寃寄寅密寇富寐寒寓寔寗寞察寡寝寤寥实宁寨审写宽寮寯宠宝寸寺封射将专尉尊寻对导小少尖尙尤尨就尸尹尺尻尼尾尿局居届屈屋尸屎屑展屛屠屡层履属屯山屹岐岑冈岩岫岬岱岳岵岷岸岺岾峀峙峠峨峯峰岘岛峻峡崇崃崎昆崔崖岗仑崧崩嵋嵌岚嵩嵬嵯岖嶋嶝峤峣嶪嵘岭屿嶽巍峦岩川州巡巢工左巧巨巫差己已巳巴巷巽巾市布帆希帑帖帙帛帝帅师席帐带常帽帿帧幄幅幇幌幕帜幡幢币干平年幷幸干幻幼幽几庄庇床序底店庚府庠度座库庭庵庶康庸庾厢厦廉廊廐廓廖厨廛庙厂废广庐厅延廷建回弁弄弊式弑弓吊引弗弘弛弟弦弧弩弱张强弼弹彊弥弯彖彗汇彛形彦彧彩彪彫彬彭彰影彷役彼佛往征待徇徊律后徐径徒得徘徙从徕御徨复循微征德彻徽心必忌忍忖志忘忙忠快念忽忿怏怒怖怜思怠怡急性怨怪怯恁恂恃恍恐恒恕恙恝恢恣恤耻恨恩恪恬恭息恰悦悉悌悍悔悖悚悛悟悠患悤悧悰悲德悴闷悸悼凄情惇惑惚惜惟惠恶惰恼想惶惹惺恻愁愆愈愉愍愎意愕愚爱感愧愰怆恺愼忾愿慂栗殷慈慊态慌慓慕惨慙慝恸慢惯悫慧慨怂虑慰庆慷慽欲憁忧惫憎怜凭憔憘憙惮愤憧憩悯憬怃宪忆憺憾勤恳懈应懊懋懦惩懒怀悬忏惧懿恋戆戈戊戌戍戎成我戒或戚戟戡截戮战戯戴户戾房所扁扇扈扉手才打托扮扱扶批扼承技抄抉把抑抒投抗折抛披抱抵抹押抽拂拇拈拉拌拍拏拐拒拓拔拖拗拘拙招拜括拭拮拯拱拳拷拾拿持指按挑挫振挺挻挽挟捉捌捏捐捕捧舍据卷捷捺捻捿扫授掉掌排掖掘挂掠采探接控推掩措拣揄揆描提揖扬换握揭挥援揶揷损搏搔摇捣搜搢搬搭携榨摘摠摩挚摸摹折捞撑撒挠捻撞撤拨抚播撮撰扑挞拥掳擅择击操擎擒担擘据擡擢擥擦擧拟掷扩摆扰攀摅攘摄挛搅攫揽支收攷攸改攻放政故效敍敎敏救敖败敞敢散敦敬敭敲整敌敷数敾敛毙斅文斌斐斑斗料斛斜斟斡斤斥斧斫斩斯新断方于施旁旅旋旌族旒旗无旣日旦旨早旬旭旱旴旺旻旼旽旿昆升昉昊昌明昏昐昑易昔昕昞星映春昧昨昭是昰昱昴昶昺昻晁时晃晄晋晋晏晙𬀪昼晞晟晤晥晦晧晨晩晫普景晳晴晶晷晸智暄暇晕晖暎𬀩暑暖暗旸暝暠畅暂暮暲暳暴暹暻暾晔历昙晓暧曙曜曝旷曦曰曲曳更曷书曹曺曼曾替最会月有朋服朔朕朗望朝朞期朦胧木未末本札朮朱朴朶机朽杆杉李杏材村杓杖杜杞束杭杯杰东杳杵杷杻松板枇枉枋枏析枓枕林枚果枝枯枰枳架枷枸枾柄柏某柑柒染柔柚柝柩柬柯柰柱柳柴栅柶査柾栒栓栖栗校栢株栯核根格栽桀桁桂桃案桎桐桑桓桔桭桶杆梁梅梏梓栀梗条枭梡梢梧梨梭梯械梱梳梵梶弃棅棉棋棍棒棕枣棘棚栋棠栈棨森栖棹棺椀椅植椎椒椧椰椽椿杨枫楔楕楗楙楚楞楠楡楢楣桢楫业楮楯极楷楸楹榕榛榜榥榧荣榴榻槁槃构槌枪槐椁槪槻槽槿乐樊梁楼樗标枢樟模样樵朴树桦樽橄桡桥橒橓橘橙机橡横檀檄柽檍檎檗桧检樯槟槛櫂柜橹榈栉櫶樱栏权欌栾榄欠次欣欲欺钦款歆歇歌叹欧欤欢止正此步武歪岁历归死殁殃殄殆殉殊殖残殒殓殡歼段殷杀壳殿毁毅殴毋母每毒毓比毖毗毘毛毫球毡氏民氓气水氷永泛汀汁求泛汐汕汗汚汝汞江池汨汪汭汰汲汶决汽汾沁沂沃沅沆沇沈沌沐没沓沔沕冲沙沚沛沫沮河沸油治沼沽沾沿况泂泄泉泊泌泓法泗泛泡波泣泥注泫泮泯泰泳洋洌洑洗洙洛洞津洧泄洪洲洵汹洸洹活洽派流浙浚浜浣浦浩浪浬浮浴海浸浃𬇙涅泾消涉涌涍涎涑涓涕涯液涵淀淃淄淅淆淇淋淏淑淘淙泪淞淡净沦淫淮深淳渊混淸淹浅添渗涣渚减渟渠渡渣渤渥涡渫测渭港渲渴渶游渺渼渽浑湃湄凑湍湖湘湛湜浈湟涌湫湮汤湲湳湺源准溜沟溟溢溥溪温溯溱溶溺滂沧灭滉滋涤荥滑滓滔滞滴浒滚满渔漂漆漏漑演漕漠汉涟漫渍漱涨渐浆颍泼洁潗潘潚潜潞潟潢润潭潮溃潺潼潽潾澁澄澈澍澎沄澔涧澣泽澧浍澯淀澳澹澾激浊濂浓濊湿溁济濠濡涛濩滥浚濯滨滤瀁滢渎泻沈浏瀑濒泸瀚瀛瀜沥瀞潇瀣泷濑瀯瀷澜灌灐洒滩灏湾火灰灸灼灾炅炊炎炒炘炙炚炡炤炫炬炭炯炳炷炸点烈烋乌烘烙烝烟烱烹烽焄焉焌焙焚焞无焦焰然煇炼煊煌煎煐煖烟煜煞煤焕煦照烦炀煮煽熄熉熊熏荧熔熙熟熢熬热熹熺炽烨燃灯炖燎磷烧燔燕营燥灿燧烛燮熏烬焘耀爀爆炉烂爪爬争爰为爵父爷爻爽尔床墙片版牌牒牍牙牛牝牟牡牢牧物牲特牵犀犁犊牺犬犯状狂狄狎狐狗狙狡狩狸狭狼狈猊猖猛猜猝猥猩猪猫犹猷猾猿狱狮獐獒獗独狯狞获猎兽獭献玄玆率玉王玎玔玖玗玘玟玧玩玭玲玳玹珀珂珉珊珌珍珏珖珙珝珞珠珣珤珥珦珩珪班珷珹珽现琁球琅理琇琉琓琛琠琡琢琥琦琨琪琫琬琮琯琰琳琴琵琶琸珐珲瑀瑁瑃瑄玮瑕瑗瑙瑚瑛瑜瑞瑟瑠瑢瑶瑥瑨莹玛琅瑾璂璃璇琏璋璘璜璞璟琎玑璥璧璨璪环璲玙璹玺璿瓆琼珑璎瓘瓒瓜瓠瓢瓣瓦瓮瓷甁甄甑瓮甘甚甛生产甥甦用甫甬田由甲申男甸町畇界畏畑畓畔留畛畜亩毕略畦番畯异畵当畸畺畿疆畴叠疋疎疏疑疝疥疫疱疲疳疵疸疹疼疽疾痂病症痍痒痔痕痘痉痛痢痰痲痴痺痼瘀疡瘙瘟瘠疮瘢瘤瘦瘘疗癌癎愈癖痴疖癞癣痈癫癸登发白百的皆皇皎皐皓皮皱皿盂杯盆盈益盒盖盛盗盏盟尽监盘卢目盲直相盼盾省眄眈眉看真眠眩眷眸眺眼着𪾢睛睡督睦睫睹睾睿瞋瞑瞒瞥瞬了瞰瞳瞻睑瞿矗矛矜矢矣知矩短矮矫石砂砒砥砦砧砬炮破硅研硝硫硬砚硼碁碇碌碍碎碑碗碣碧硕确碻码磁磅磊磋磎磐磨磬矶磵磻礁础礖砺砾矾示社祀祁祇祈祉祐祖祗祚祛祜祝神祠祥票祭祺禄禁祸祯福禑御禧禅礼祷禳禹禽禾秃秀私秉秊秋科秒秕秘租秤秦秧秩移稀税秆程稍稔稗稙稚棱禀稠种称稶稷稻稼稽稿谷穆穉积颖穗穑秽稳获穰穴究穹空穽穿突窄窈窒窓窕窘窟窝洼穷窑窥窜窍窦窃立竗站竝竟章竣童竖竭端竞竹竺竿笏笑笙笛笞笠符第笭笹笔等筋筌笋筏筐筑筒答策筠筬筮筵筽个笺筝箔箕算箚钳管箭箱箴箸节篁范篆篇筑篒篠笃筛簇簒箪简簧簪箫签帘簿篮筹籍笼签篱米粃粉粒粕粗粘粟粥妆粮粱粲粳粹精糊糖粪糟糠粮系纠纪纣约红纡纥纨紊纹纳纽纯纱纮纸级纷素纺索紫䌷扎累细绅纻绍绀终弦组䌹绊结绞络绚给绒𬘡絮统丝绛绝绢絿𬘩绥经综绿绸绶维纲网缀彩纶绮绽绰绫绵缁紧绯緖缄线缉缎缔缗缘编缓缅纬练致缙缢缊缚缜缟缛縡县缝缩𬙂纵缕总绩繁绷缪繇缯织缮绕绣绳绘系茧缲绎继纂续缠缨纤缵纛缆缶缸缺罂罐罔罕罪罫置罚署骂罢罹罗羁羊羌美羔羚羞群羡义羲羸羹羽翁翅翊翌翎习翔翕翟翠翡翩玩翰翘翼耀老考者耆耉而耐耕耗耘耭耳耶耽耿聃聆聊圣聘聚闻联聪声耸职听聋聿肄肃肆肇肉肋肌肖肛肝股肢肥肩肪肯肱育肴肺胃胄背胎胚胛胞胡胤胥胱胴胸能脂胁脆脇脉脊脘脚胫唇脩脱脯胀脾腋肾腐腑腔腕腥脑肿腰腱肠腹腺腿膀膈膊膏肤膜膝胶膣膨膳膵膺胆脍脓臀臂臆脐腊脏臣卧臧临自臭至致台臻臼臾舅与兴旧舌舍舒舛舜舞舟舡航舫般舵舶舷船艀艅艇舱舣舰艮良艰色艶艸艾芋芍芎芒芙芚芝芟芥芦芩芬芭芮芯花芳芷芸芹刍芼芽芿苑苒苔苕苗苛苞苟苡若苦苎英苽苾茁茂范茄茅茉茗茨茫茯茱茴茵茶茸茹荀荇草荆荏荑荒豆荷荻莉庄莎茎莘莞荚莩莪莫莽菁菅菉菊菌果菖菜菩菫华菰菱菲菴菹菽萃萄莱萌萍萎萩万萱萸落叶着葛葡董苇葫葬药葵葺搜莳蒙蒜蒡蒲蒸蒻苍蒿荪蓂蓄席蓉盖蓍蓑蓚蓬莲蓴蓼蔑蔓卜蔗蔘蔚蒌蔡蒋葱蔬荫蔯蔽𫇭荨蕃蕉荞芸蕙蕣蕨荡芜萧薄薇薏姜蔷薛荐薨萨薪薯薰荠藁借蓝荩藏藕藜艺藤药藩薮薯蔺藻藿蘂芦苏蕴蘖蘗藓兰萝虎虐虔处虚虏虞号亏虹蚊蚌蚓蚣蚤蚩蛇蛋蛔蛙蛛蛟蛤蛭蛾蜀蜂蜃蜈蜘蜚蜜蝎蚀蝗猬虾虱蝴蝶蜗螂融螟萤螳螺蛰蟠蝉蛲虫蟹蚁蟾蝇蜡蠢蛎蛊蚕蛮血众行衍衒术街衙卫冲衡衢衣表衫衰衲衷衾衿袁袂袈袋袍袒袖袗衮被绔裁裂里裔裕裙补装裟里裨裳裴裵裸制复褐褒褓袆褙褥褪褶褛亵襁襄襟褴袜袭西要覃覆覇见规觅视觋覩亲觐觉览观角解觞触言订讣计讯讧讨训讫托记讹讶讼诀讷访设许诉诃诊注诈诏评诅词咏询诣试诗诡诠诘话该详诜詹诛夸志认誓诞诱语诚诫诬误诰诵诲说谁课诽谊訚调谄谆谈请诤诹谅论谀谍谥谛谐諪谏谕谘讳谌讽诸谚诺谋谒谓誊谜谧谑谡谤谦谥讲谢谣谟谪谬讴谨哗证谲讥识谭谱警譬译议谴护誉读变讐谗让谶赞谷谿豁豆岂豊豌豕豚象豪豫豹豺貂貊貌贝贞负财贡贫货贩贪贯责贮贳贰贵贬买贷费贴贻贸贺贲赂赁贿资贾贼赈宾赉赐赏赔贤卖贱赋质赌赖赙购赛贽赘赟赠赞赡赃赎赤赦赫走赳赴起超越赵趣趋足趺趾跆跋跌跏跛距迹跣跨路跳踊踏践踞踪逾踵蹂蹄蹇蹈蹉蹊蹙迹蹠蹴蹶躁躇踌跃躏身躬躯车轧轨军轩软轸轴轲轼较辂载辄挽辅轻辆辎辉辋辍辇輧辈轮辑辏输輹辐辗舆辖辕转辙轿舆轰轹辛辜辣办辨辞辩辰辱农迂迅迎近返迦迪迫迭述迲迷迹追退送适逃逅逆逈逋逍透逐逑途迳逗这通逝逞速造逡逢连逮周进逵逸逼逾遁遂遇游运遍过遐遑道达违遥逊遝递远遡遣适遭遮遁迟遵迁选遗辽遽避邀迈邂邃还迩邈边逻邑邕邙邢那邦邨邪邯邰邱邵邸郁郊郞郡部郭邮都鄂邹鄕鄙邓郑郸酉酊酋酌配酎酒酢酩酪酬酵酷酸醇醉醋醍醒丑医酱醮醯酦醴醵酿采釉释里重野量厘金钊钉釜针钓钏釪钗钝钤钣钑鈗钧铃钰钿钾钜铉钳铅钺钵钩𬬸钲银铳铜铣铨铢铭衔锐𨱇销锈铤铗锋锄铺锯钢录锥锤铮𬭚锬锭锜钱𫓹锦锚锡锢错锳炼锅镀锷锻鍮键鍼钟鎌镕锁锤蓥铠镐鎭镒镞镝镛镜镂鏶𨱑钟鐥镌铁铎铸鉴鉴鑛钻凿长门闪闭开闰闲闲间闵闸阁閤阀闺闾阅阎阏暗阔阖阙闯关阐辟阜阡坂阮防阻阿陀陂附陋陌降限陛陜陕升陟院阵除陪阴陈陵陶陷陆阳隅隆队隋隍阶隔陨隘隙际障隣隧随险隐隷只雀雁雄雅集雇雉隽雌雍雎雕虽双雏杂离难雨雩雪雯雰云零雷雹电需霆震沾霓霖霙霜霞雾霰露霹霁雳霭灵靑靖静非靡面革靭靴纼靺鞋鞍巩鞠鞨鞫鞭韆韦韩韬音韶韵响頀页顶顷项顺须顼颂预顽颁顿颇领头颊颈颓频颗题额颚颜愿顚类颢顾颤显风飒台飘飇飞飜食飡饥饬飮饭饴饲饱饰饺饷养饵餐饿余饯餠馆馒馑馈馔饍饥饶饔飨首香馝馥馨马驭冯驮驰驯驲驳驻驽驹驾驸驼驷骇骆骏骋騈骑骐骗骞腾驺骚蓦骠驱骁骄验惊驿骤驴骥驩骊骨骸髓体高髥发须闹鬪郁鬼魁魂魃魄魅魏魔鱼鲁鲇鲍𩽾鲛鲜鲤鲭鲲鲸鳅鳄鳆鰕鳏鳌鳗𩾌鳖鳞鸟凫鸠凤鸣鸢鸦鸳鸯鸭鸿鹃鹅鹄鹉鹏鹊鹜莺鹤鸡鸥鹫鹬鹰鹭鹦鸾卤咸盐鹿麒麓丽麝麟麦麹面麻麾黄黍黎黑黔默黛黜点党霉鳌鳖鼎鼓鼠鼻齐斋赍齿龃龄啮龊龉龌龙庞龛龟";
+  const COMMON_HANJA_HANT = "一丁七萬丈三上下不醜且丕世丘丙丞中串丸丹主乂乃久之乍乎乏乖乘乙九乞也乫乭乳乶乷乾亂了予事二於亐雲互五井亙些亞亡亢交亥亦亨享京亭亮亶人什仁仄仇今介仍仔仕他仗付仙仝仟代令以仰仲件價任企伉伊伋伍伎伏伐休伯伴伶伸伺似伽佃但佇佈位低住佐佑何余佚佛作佩佯佰佳佶佺佾使侁侃侄來侈侊例侍侏侑侖侘供依侮侯侵侶便係促俄俉俊俎俑俓俔俗俚保俟俠信修俯俱俳俵俸俺倂倆倉個倍們倒倖候倚倜倞借倡倣値倦倧倨倪倫倬倭倻偃假偈偉偏偕做停健側偵偶偸傀傅傍傑傘備催傭傲傳債傷傾僅僉僊像僑僕僖僚僞僥僧僭價僻僿儀儁億儆儉儒償儡優儲儷儺儼兀允元兄充兆兇先光克兌免兎兒兜兢入內全兩兪八公六兮共兵其具典兼冀円冊再冒冕冗冠冥冪冬冶冷冽淒准涼凋凌凍凜凝凞凡凰凱凶凸凹出函刀刃分切刈刊刎刑列初判別利刪刮到制刷券剎刺刻剃則削剋剌前剔剖剛剝剡剩剪副割創剽剿劃劇劈劉劍劑劒力功加劣劤助努劫劾勁勃勅勇勉勍勒動勖勘務勛勝勞募勢勣勤勳勵勸勺勻勾勿包匈匍匏匐匕化北匙匠匡匣匪匯匹匿區十千卄升午卉半卍卑卒卓協南博卜卞占卦卨卯印危卻卵卷卽卿厄厓釐厚原厠厥廈厭去參又叉及友反叔取受叛叡叢口古句叩只叫召叭可台叱史右司吃各合吉吊同名後吏吐向君吝吟吠否吩含吳吸吹吻吼吾呂呈告呑周呪呱味呵呻呼命咀咆和咎咐吒咨咫咬咳咸咽哀品哄哈哉員哥哨哭哮哲哺唄唆唇唎唐唜唯唱唵唾啄商問啓啖啞啣啼喀善喆喇喉喊喘喙喚喜喝喧喩喪喫喬單嗅嗇嗔嗚嗜嗟嗣嗤嗽嗾嘆嘉嘔嘗嘯嘲嘴嘶噓器噫噴嚆嚥嚬嚮嚴嚼囊囍囑囚四回因困囹固圃圄圈國圍園圓圖團土在圭地圻址阪均坊坍坎坐坑坡坤坦坪坮坰坵坼垂垈型垓垠垢垣埃埇埈埋城域埠埰埴執培基埼堀堂堅堆堈堉堊堞堡堤堧堪堯堰報場堵堺塊塋塏塑塔塗塘塚塞塡塢塤塵塹塼塾境墅墉墓墜增墟墨墩墮墳墺墻墾壁壅壇壎壑壓壕壘壙壞壟壤士壬壯壹壺壻壽夏夔夕外夙多夜夢大天太夫夭央失夷夾奄奇奈奉奎奏奐契奔奕套奚奠奢奧奪奫奬奭奮女奴奸好如妃妄妊妓妖妗妙妥妨妬妹妻妾姃姆姉始姐姑姓委姙姚姜姝姦姨姪姬姮姸姻姿威娃娑娘娛娜娟娠娥娩娶娼婁婆婉婚婢婦媒媚媛媤嫁嫂嫄嫉嫌嫡嫦嫩嬅嬉嬋嬌嬖嬪孀孃子孑孔孕字存孚孜孝孟季孤孩孫孰孱孵學孺孼宅宇守安宋完宏宓宕宖宗官宙定宛宜客宣室宥宦宬宮宰害宴宵家宸容宿寀寂寃寄寅密寇富寐寒寓寔寗寞察寡寢寤寥實寧寨審寫寬寮寯寵寶寸寺封射將專尉尊尋對導小少尖尙尤尨就屍尹尺尻尼尾尿局居屆屈屋屍屎屑展屛屠屢層履屬屯山屹岐岑岡岩岫岬岱嶽岵岷岸岺岾峀峙峠峨峯峰峴島峻峽崇崍崎崑崔崖崗崙崧崩嵋嵌嵐嵩嵬嵯嶇嶋嶝嶠嶢嶪嶸嶺嶼嶽巍巒巖川州巡巢工左巧巨巫差己已巳巴巷巽巾市布帆希帑帖帙帛帝帥師席帳帶常帽帿幀幄幅幇幌幕幟幡幢幣乾平年幷幸幹幻幼幽幾莊庇床序底店庚府庠度座庫庭庵庶康庸庾廂廈廉廊廐廓廖廚廛廟廠廢廣廬廳延廷建廻弁弄弊式弒弓弔引弗弘弛弟弦弧弩弱張強弼彈彊彌彎彖彗彙彛形彥彧彩彪彫彬彭彰影徬役彼彿往徵待徇徊律後徐徑徒得徘徙從徠御徨復循微徵德徹徽心必忌忍忖志忘忙忠快念忽忿怏怒怖憐思怠怡急性怨怪怯恁恂恃恍恐恆恕恙恝恢恣恤恥恨恩恪恬恭息恰悅悉悌悍悔悖悚悛悟悠患悤悧悰悲悳悴悶悸悼悽情惇惑惚惜惟惠惡惰惱想惶惹惺惻愁愆愈愉愍愎意愕愚愛感愧愰愴愷愼愾願慂慄慇慈慊態慌慓慕慘慙慝慟慢慣慤慧慨慫慮慰慶慷慽慾憁憂憊憎憐憑憔憘憙憚憤憧憩憫憬憮憲憶憺憾懃懇懈應懊懋懦懲懶懷懸懺懼懿戀戇戈戊戌戍戎成我戒或戚戟戡截戮戰戱戴戶戾房所扁扇扈扉手才打托扮扱扶批扼承技抄抉把抑抒投抗折拋披抱抵抹押抽拂拇拈拉拌拍拏拐拒拓拔拖拗拘拙招拜括拭拮拯拱拳拷拾拿持指按挑挫振挺挻輓挾捉捌捏捐捕捧捨據捲捷捺捻捿掃授掉掌排掖掘掛掠採探接控推掩措揀揄揆描提揖揚換握揭揮援揶揷損搏搔搖搗搜搢搬搭攜搾摘摠摩摯摸摹摺撈撐撒撓撚撞撤撥撫播撮撰撲撻擁擄擅擇擊操擎擒擔擘據擡擢擥擦擧擬擲擴擺擾攀攄攘攝攣攪攫攬支收攷攸改攻放政故效敍敎敏救敖敗敞敢散敦敬敭敲整敵敷數敾斂斃斅文斌斐斑鬥料斛斜斟斡斤斥斧斫斬斯新斷方於施旁旅旋旌族旒旗無旣日旦旨早旬旭旱旴旺旻旼旽旿昆昇昉昊昌明昏昐昑易昔昕昞星映春昧昨昭是昰昱昴昶昺昻晁時晃晄晉晉晏晙晛晝晞晟晤晥晦晧晨晩晫普景晳晴晶晷晸智暄暇暈暉暎暐暑暖暗暘暝暠暢暫暮暲暳暴暹暻暾曄曆曇曉曖曙曜曝曠曦曰曲曳更曷書曹曺曼曾替最會月有朋服朔朕朗望朝朞期朦朧木未末本札朮朱樸朶機朽桿杉李杏材村杓杖杜杞束杭杯傑東杳杵杷杻松板枇枉枋枏析枓枕林枚果枝枯枰枳架枷枸枾柄柏某柑柒染柔柚柝柩柬柯柰柱柳柴柵柶査柾栒栓棲栗校栢株栯核根格栽桀桁桂桃案桎桐桑桓桔桭桶桿梁梅梏梓梔梗條梟梡梢梧梨梭梯械梱梳梵梶棄棅棉棋棍棒棕棗棘棚棟棠棧棨森棲棹棺椀椅植椎椒椧椰椽椿楊楓楔楕楗楙楚楞楠楡楢楣楨楫業楮楯極楷楸楹榕榛榜榥榧榮榴榻槁槃構槌槍槐槨槪槻槽槿樂樊樑樓樗標樞樟模樣樵樸樹樺樽橄橈橋橒橓橘橙機橡橫檀檄檉檍檎檗檜檢檣檳檻櫂櫃櫓櫚櫛櫶櫻欄權欌欒欖欠次欣欲欺欽款歆歇歌歎歐歟歡止正此步武歪歲歷歸死歿殃殄殆殉殊殖殘殞殮殯殲段殷殺殼殿毀毅毆毋母每毒毓比毖毗毘毛毫毬氈氏民氓氣水氷永氾汀汁求汎汐汕汗汚汝汞江池汨汪汭汰汲汶決汽汾沁沂沃沅沆沇沈沌沐沒沓沔沕沖沙沚沛沫沮河沸油治沼沽沾沿況泂洩泉泊泌泓法泗泛泡波泣泥注泫泮泯泰泳洋洌洑洗洙洛洞津洧洩洪洲洵洶洸洹活洽派流浙浚浜浣浦浩浪浬浮浴海浸浹浿涅涇消涉湧涍涎涑涓涕涯液涵澱淃淄淅淆淇淋淏淑淘淙淚淞淡淨淪淫淮深淳淵混淸淹淺添滲渙渚減渟渠渡渣渤渥渦渫測渭港渲渴渶游渺渼渽渾湃湄湊湍湖湘湛湜湞湟湧湫湮湯湲湳湺源準溜溝溟溢溥溪溫溯溱溶溺滂滄滅滉滋滌滎滑滓滔滯滴滸滾滿漁漂漆漏漑演漕漠漢漣漫漬漱漲漸漿潁潑潔潗潘潚潛潞潟潢潤潭潮潰潺潼潽潾澁澄澈澍澎澐澔澗澣澤澧澮澯澱澳澹澾激濁濂濃濊濕濚濟濠濡濤濩濫濬濯濱濾瀁瀅瀆瀉瀋瀏瀑瀕瀘瀚瀛瀜瀝瀞瀟瀣瀧瀨瀯瀷瀾灌灐灑灘灝灣火灰灸灼災炅炊炎炒炘炙炚炡炤炫炬炭炯炳炷炸點烈烋烏烘烙烝煙烱烹烽焄焉焌焙焚焞無焦焰然煇煉煊煌煎煐煖煙煜煞煤煥煦照煩煬煮煽熄熉熊熏熒熔熙熟熢熬熱熹熺熾燁燃燈燉燎燐燒燔燕營燥燦燧燭燮燻燼燾燿爀爆爐爛爪爬爭爰爲爵父爺爻爽爾牀牆片版牌牒牘牙牛牝牟牡牢牧物牲特牽犀犁犢犧犬犯狀狂狄狎狐狗狙狡狩狸狹狼狽猊猖猛猜猝猥猩豬貓猶猷猾猿獄獅獐獒獗獨獪獰獲獵獸獺獻玄玆率玉王玎玔玖玗玘玟玧玩玭玲玳玹珀珂珉珊珌珍珏珖珙珝珞珠珣珤珥珦珩珪班珷珹珽現琁球琅理琇琉琓琛琠琡琢琥琦琨琪琫琬琮琯琰琳琴琵琶琸琺琿瑀瑁瑃瑄瑋瑕瑗瑙瑚瑛瑜瑞瑟瑠瑢瑤瑥瑨瑩瑪瑯瑾璂璃璇璉璋璘璜璞璟璡璣璥璧璨璪環璲璵璹璽璿瓆瓊瓏瓔瓘瓚瓜瓠瓢瓣瓦甕瓷甁甄甑甕甘甚甛生産甥甦用甫甬田由甲申男甸町畇界畏畑畓畔留畛畜畝畢略畦番畯異畵當畸畺畿疆疇疊疋疎疏疑疝疥疫皰疲疳疵疸疹疼疽疾痂病症痍癢痔痕痘痙痛痢痰痲痴痺痼瘀瘍瘙瘟瘠瘡瘢瘤瘦瘻療癌癎癒癖癡癤癩癬癰癲癸登發白百的皆皇皎皐皓皮皺皿盂盃盆盈益盒蓋盛盜盞盟盡監盤盧目盲直相盼盾省眄眈眉看眞眠眩眷眸眺眼著睍睛睡督睦睫睹睪睿瞋瞑瞞瞥瞬瞭瞰瞳瞻瞼瞿矗矛矜矢矣知矩短矮矯石砂砒砥砦砧砬砲破硅硏硝硫硬硯硼碁碇碌礙碎碑碗碣碧碩確碻碼磁磅磊磋磎磐磨磬磯磵磻礁礎礖礪礫礬示社祀祁祇祈祉祐祖祗祚祛祜祝神祠祥票祭祺祿禁禍禎福禑禦禧禪禮禱禳禹禽禾禿秀私秉秊秋科秒秕秘租秤秦秧秩移稀稅稈程稍稔稗稙稚稜稟稠種稱稶稷稻稼稽稿穀穆穉積穎穗穡穢穩穫穰穴究穹空穽穿突窄窈窒窓窕窘窟窩窪窮窯窺竄竅竇竊立竗站竝竟章竣童竪竭端競竹竺竿笏笑笙笛笞笠符第笭笹筆等筋筌筍筏筐築筒答策筠筬筮筵筽箇箋箏箔箕算箚箝管箭箱箴箸節篁範篆篇築篒篠篤篩簇簒簞簡簧簪簫簽簾簿籃籌籍籠籤籬米粃粉粒粕粗粘粟粥粧糧粱粲粳粹精糊糖糞糟糠糧系糾紀紂約紅紆紇紈紊紋納紐純紗紘紙級紛素紡索紫紬紮累細紳紵紹紺終絃組絅絆結絞絡絢給絨絪絮統絲絳絶絹絿綎綏經綜綠綢綬維綱網綴綵綸綺綻綽綾綿緇緊緋緖緘線緝緞締緡緣編緩緬緯練緻縉縊縕縛縝縞縟縡縣縫縮縯縱縷總績繁繃繆繇繒織繕繞繡繩繪繫繭繰繹繼纂續纏纓纖纘纛纜缶缸缺罌罐罔罕罪罫置罰署罵罷罹羅羈羊羌美羔羚羞群羨義羲羸羹羽翁翅翊翌翎習翔翕翟翠翡翩翫翰翹翼耀老考者耆耉而耐耕耗耘耭耳耶耽耿聃聆聊聖聘聚聞聯聰聲聳職聽聾聿肄肅肆肇肉肋肌肖肛肝股肢肥肩肪肯肱育肴肺胃胄背胎胚胛胞胡胤胥胱胴胸能脂脅脆脇脈脊脘腳脛脣脩脫脯脹脾腋腎腐腑腔腕腥腦腫腰腱腸腹腺腿膀膈膊膏膚膜膝膠膣膨膳膵膺膽膾膿臀臂臆臍臘臟臣臥臧臨自臭至致臺臻臼臾舅與興舊舌捨舒舛舜舞舟舡航舫般舵舶舷船艀艅艇艙艤艦艮良艱色艶艸艾芋芍芎芒芙芚芝芟芥蘆芩芬芭芮芯花芳芷芸芹芻芼芽芿苑苒苔苕苗苛苞苟苡若苦薴英苽苾茁茂範茄茅茉茗茨茫茯茱茴茵茶茸茹荀荇草荊荏荑荒荳荷荻莉莊莎莖莘莞莢莩莪莫莽菁菅菉菊菌菓菖菜菩菫華菰菱菲菴菹菽萃萄萊萌萍萎萩萬萱萸落葉著葛葡董葦葫葬葯葵葺蒐蒔蒙蒜蒡蒲蒸蒻蒼蒿蓀蓂蓄蓆蓉蓋蓍蓑蓚蓬蓮蓴蓼蔑蔓蔔蔗蔘蔚蔞蔡蔣蔥蔬蔭蔯蔽蔿蕁蕃蕉蕎蕓蕙蕣蕨蕩蕪蕭薄薇薏薑薔薛薦薨薩薪薯薰薺藁藉藍藎藏藕藜藝藤藥藩藪藷藺藻藿蘂蘆蘇蘊櫱蘗蘚蘭蘿虎虐虔處虛虜虞號虧虹蚊蚌蚓蚣蚤蚩蛇蛋蛔蛙蛛蛟蛤蛭蛾蜀蜂蜃蜈蜘蜚蜜蠍蝕蝗蝟蝦蝨蝴蝶蝸螂融螟螢螳螺蟄蟠蟬蟯蟲蟹蟻蟾蠅蠟蠢蠣蠱蠶蠻血衆行衍衒術街衙衛衝衡衢衣表衫衰衲衷衾衿袁袂袈袋袍袒袖袗袞被袴裁裂裏裔裕裙補裝裟裡裨裳裴裵裸製複褐褒褓褘褙褥褪褶褸褻襁襄襟襤襪襲西要覃覆覇見規覓視覡覩親覲覺覽觀角解觴觸言訂訃計訊訌討訓訖託記訛訝訟訣訥訪設許訴訶診註詐詔評詛詞詠詢詣試詩詭詮詰話該詳詵詹誅誇誌認誓誕誘語誠誡誣誤誥誦誨說誰課誹誼誾調諂諄談請諍諏諒論諛諜諡諦諧諪諫諭諮諱諶諷諸諺諾謀謁謂謄謎謐謔謖謗謙謚講謝謠謨謫謬謳謹譁證譎譏識譚譜警譬譯議譴護譽讀變讐讒讓讖讚谷谿豁豆豈豊豌豕豚象豪豫豹豺貂貊貌貝貞負財貢貧貨販貪貫責貯貰貳貴貶買貸費貼貽貿賀賁賂賃賄資賈賊賑賓賚賜賞賠賢賣賤賦質賭賴賻購賽贄贅贇贈贊贍贓贖赤赦赫走赳赴起超越趙趣趨足趺趾跆跋跌跏跛距跡跣跨路跳踴踏踐踞蹤踰踵蹂蹄蹇蹈蹉蹊蹙蹟蹠蹴蹶躁躇躊躍躪身躬軀車軋軌軍軒軟軫軸軻軾較輅載輒輓輔輕輛輜輝輞輟輦輧輩輪輯輳輸輹輻輾輿轄轅轉轍轎轝轟轢辛辜辣辦辨辭辯辰辱農迂迅迎近返迦迪迫迭述迲迷跡追退送適逃逅逆逈逋逍透逐逑途逕逗這通逝逞速造逡逢連逮週進逵逸逼逾遁遂遇遊運遍過遐遑道達違遙遜遝遞遠遡遣適遭遮遯遲遵遷選遺遼遽避邀邁邂邃還邇邈邊邏邑邕邙邢那邦邨邪邯邰邱邵邸郁郊郞郡部郭郵都鄂鄒鄕鄙鄧鄭鄲酉酊酋酌配酎酒酢酩酪酬酵酷酸醇醉醋醍醒醜醫醬醮醯醱醴醵釀採釉釋里重野量釐金釗釘釜針釣釧釪釵鈍鈐鈑鈒鈗鈞鈴鈺鈿鉀鉅鉉鉗鉛鉞鉢鉤鉥鉦銀銃銅銑銓銖銘銜銳銶銷銹鋌鋏鋒鋤鋪鋸鋼錄錐錘錚錞錟錠錡錢錤錦錨錫錮錯鍈鍊鍋鍍鍔鍛鍮鍵鍼鍾鎌鎔鎖鎚鎣鎧鎬鎭鎰鏃鏑鏞鏡鏤鏶鐄鐘鐥鐫鐵鐸鑄鑑鑒鑛鑽鑿長門閃閉開閏閑閒間閔閘閣閤閥閨閭閱閻閼闇闊闔闕闖關闡闢阜阡阪阮防阻阿陀陂附陋陌降限陛陜陝陞陟院陣除陪陰陳陵陶陷陸陽隅隆隊隋隍階隔隕隘隙際障隣隧隨險隱隷隻雀雁雄雅集雇雉雋雌雍雎雕雖雙雛雜離難雨雩雪雯雰雲零雷雹電需霆震霑霓霖霙霜霞霧霰露霹霽靂靄靈靑靖靜非靡面革靭靴靷靺鞋鞍鞏鞠鞨鞫鞭韆韋韓韜音韶韻響頀頁頂頃項順須頊頌預頑頒頓頗領頭頰頸頹頻顆題額顎顔願顚類顥顧顫顯風颯颱飄飇飛飜食飡飢飭飮飯飴飼飽飾餃餉養餌餐餓餘餞餠館饅饉饋饌饍饑饒饔饗首香馝馥馨馬馭馮馱馳馴馹駁駐駑駒駕駙駝駟駭駱駿騁騈騎騏騙騫騰騶騷驀驃驅驍驕驗驚驛驟驢驥驩驪骨骸髓體高髥髮鬚鬧鬪鬱鬼魁魂魃魄魅魏魔魚魯鮎鮑鮟鮫鮮鯉鯖鯤鯨鰍鰐鰒鰕鰥鰲鰻鱇鱉鱗鳥鳧鳩鳳鳴鳶鴉鴛鴦鴨鴻鵑鵝鵠鵡鵬鵲鶩鶯鶴鷄鷗鷲鷸鷹鷺鸚鸞鹵鹹鹽鹿麒麓麗麝麟麥麴麵麻麾黃黍黎黑黔默黛黜點黨黴鼇鼈鼎鼓鼠鼻齊齋齎齒齟齡齧齪齬齷龍龐龕龜";
+
+  const SCRIPT_TO_HANS = new Map();
+  const SCRIPT_TO_HANT = new Map();
+  const EXPANDED_EUM = Object.create(null);
+
+  {
+    const base = Array.from(COMMON_HANJA);
+    const reads = Array.from(COMMON_HANJA_READINGS);
+    const hans = Array.from(COMMON_HANJA_HANS);
+    const hant = Array.from(COMMON_HANJA_HANT);
+
+    for (let i=0; i<base.length; i++){
+      SCRIPT_TO_HANS.set(base[i], hans[i]);
+      SCRIPT_TO_HANT.set(base[i], hant[i]);
+      (EXPANDED_EUM[reads[i]] ||= []).push(base[i]);
+    }
+  }
+
+  function convertHanjaString(value, target){
+    const map = target === "hans" ? SCRIPT_TO_HANS : SCRIPT_TO_HANT;
+    return Array.from(String(value)).map(ch => map.get(ch) || ch).join("");
+  }
+
+  function displayHanja(value){
+    return convertHanjaString(value, zhScript);
+  }
+
+  function updateStaticHanja(){
+    $$(".chip").forEach(el => {
+      if (!el.dataset.baseText) el.dataset.baseText = el.textContent;
+      el.textContent = displayHanja(el.dataset.baseText);
+    });
+    $$("[data-weird-hanja]").forEach(el => {
+      el.textContent = displayHanja(el.dataset.weirdHanja);
+    });
+  }
+
+    const eum = {
+    물:[["物","만물 물"],["勿","말 물"]],
+    고:[["高","높을 고"],["古","옛 고"],["告","고할 고"],["苦","쓸 고"]],
+    기:[["機","틀 기"],["記","기록할 기"],["氣","기운 기"],["技","재주 기"]],
+    마:[["馬","말 마"],["麻","삼 마"]],
+    음:[["音","소리 음"],["陰","그늘 음"]],
+    현:[["現","나타날 현"],["玄","검을 현"],["賢","어질 현"]],
+    대:[["代","대신할 대"],["大","큰 대"],["對","대할 대"]],
+    사:[["社","모일 사"],["事","일 사"],["史","역사 사"]],
+    회:[["會","모일 회"],["回","돌 회"]],
+    경:[["經","지날 경"],["京","서울 경"],["景","볕 경"],["境","지경 경"]],
+    제:[["濟","건널 제"],["制","절제할 제"],["題","제목 제"]],
+    문:[["文","글월 문"],["門","문 문"]],
+    화:[["化","될 화"],["花","꽃 화"],["話","말씀 화"],["和","화할 화"]],
+    관:[["關","관계할 관"],["觀","볼 관"]],
+    계:[["係","맬 계"],["界","지경 계"],["計","셀 계"]],
+    공:[["工","장인 공"],["公","공평할 공"],["功","공 공"]],
+    부:[["夫","지아비 부"],["部","떼 부"],["府","마을 부"]],
+    성:[["成","이룰 성"],["性","성품 성"],["城","재 성"],["姓","성 성"]],
+    가:[["價","값 가"],["家","집 가"],["可","옳을 가"],["加","더할 가"]],
+    치:[["値","값 치"],["治","다스릴 치"],["置","둘 치"]],
+    행:[["幸","다행 행"],["行","다닐 행"],["杏","살구 행"]],
+    복:[["福","복 복"],["服","옷 복"],["復","돌아올 복"]],
+    자:[["自","스스로 자"],["字","글자 자"],["子","아들 자"]],
+    만:[["滿","찰 만"],["萬","일만 만"],["晩","늦을 만"]],
+    족:[["足","발 족"],["族","겨레 족"]],
+    세:[["世","세상 세"],["稅","세금 세"],["細","가늘 세"]],
+    평:[["平","평평할 평"],["評","평할 평"]],
+    상:[["上","위 상"],["相","서로 상"],["想","생각 상"]],
+    윤:[["潤","윤택할 윤"],["允","진실로 윤"]],
+    슬:[["瑟","큰 거문고 슬"]],
+    무:[["無","없을 무"],["務","힘쓸 무"],["武","굳셀 무"],["舞","춤출 무"]],
+    함:[["含","머금을 함"],["咸","다 함"],["艦","큰 배 함"],["陷","빠질 함"]],
+    진:[["眞","참 진"],["進","나아갈 진"],["陣","진칠 진"]],
+    실:[["實","열매 실"],["室","집 실"],["失","잃을 실"]],
+    증:[["證","증거 증"],["增","더할 증"],["贈","줄 증"]],
+    명:[["明","밝을 명"],["名","이름 명"],["命","목숨 명"]],
+    불:[["不","아닐 불"],["佛","부처 불"]],
+    인:[["人","사람 인"],["因","인할 인"],["印","도장 인"],["引","끌 인"]],
+    생:[["生","날 생"],["省","살필 생"]],
+    차:[["差","다를 차"],["次","버금 차"],["車","수레 차"]],
+    이:[["異","다를 이"],["移","옮길 이"],["以","써 이"],["二","두 이"]],
+    옥:[["屋","집 옥"],["玉","구슬 옥"]],
+    안:[["安","편안 안"],["眼","눈 안"],["案","책상 안"]],
+    정:[["靜","고요할 정"],["情","뜻 정"],["正","바를 정"],["定","정할 정"],["政","정사 정"]],
+    망:[["亡","망할 망"],["忘","잊을 망"],["望","바랄 망"],["網","그물 망"]],
+    말:[["末","끝 말"]],
+    남:[["男","사내 남"],["南","남녘 남"]],
+    매:[["每","매양 매"],["梅","매화 매"],["買","살 매"],["賣","팔 매"]],
+    일:[["日","날 일"],["一","한 일"],["逸","편안할 일"]],
+    죽:[["竹","대 죽"]],
+    살:[["殺","죽일 살"]],
+    도:[["道","길 도"],["都","도읍 도"],["圖","그림 도"],["度","법도 도"]],
+    리:[["理","다스릴 리"],["利","이로울 리"],["李","오얏 리"],["里","마을 리"]],
+    서:[["書","글 서"],["西","서녘 서"],["序","차례 서"]],
+    수:[["水","물 수"],["手","손 수"],["數","셈 수"],["修","닦을 수"],["受","받을 수"]],
+    하:[["下","아래 하"],["河","물 하"],["夏","여름 하"],["何","어찌 하"]],
+    한:[["韓","나라 한"],["漢","한수 한"],["限","한계 한"],["寒","찰 한"]],
+    지:[["地","땅 지"],["知","알 지"],["志","뜻 지"],["紙","종이 지"],["支","지탱할 지"]],
+    거:[["巨","클 거"],["居","살 거"],["擧","들 거"]],
+    내:[["內","안 내"]],
+    왜:[["倭","왜국 왜"]],
+    씨:[["氏","성 씨"]],
+    건:[["建","세울 건"],["件","물건 건"],["健","굳셀 건"],["乾","하늘 건"]]
+  };
+
+  const hunSingle = {
+    눈:[["目","눈 목"],["眼","눈 안"],["雪","눈 설"]],
+    물:[["水","물 수"],["河","물 하"]],
+    햇:[["日","해 일 · 햇-"]],
+    빛:[["光","빛 광"]],
+    손:[["手","손 수"]],
+    발:[["足","발 족"]],
+    불:[["火","불 화"]],
+    해:[["日","해 일"]],
+    달:[["月","달 월"]],
+    길:[["道","길 도"]],
+    꽃:[["花","꽃 화"]],
+    죽:[["死","죽을 사"]],
+    살:[["生","날 생"],["活","살 활"]]
+  };
+
+  const hunWords = [
+    {src:"고기",to:"肉",note:"고기 육"},
+    {src:"마음",to:"心",note:"마음 심"},
+    {src:"사람",to:"人",note:"사람 인"},
+    {src:"하늘",to:"天",note:"하늘 천"},
+    {src:"나무",to:"木",note:"나무 목"},
+    {src:"물고기",to:"水肉",note:"물→水 + 고기→肉"},
+    {src:"눈물",to:"目水",note:"눈→目 + 물→水"},
+    {src:"햇빛",to:"日光",note:"해/햇-→日 + 빛→光"},
+    {src:"손발",to:"手足",note:"손→手 + 발→足"},
+    {src:"윤슬",to:"波光",note:"water shimmer"},
+    {src:"윤슬",to:"水光",note:"light on water"},
+    {src:"윤슬",to:"日光",note:"sunlight"},
+    {src:"윤슬",to:"月光",note:"moonlight"},
+    {src:"날씨",to:"天氣",note:"weather · semantic play"},
+    {src:"이름",to:"名",note:"이름 명"},
+    {src:"목소리",to:"聲",note:"voice · semantic play"},
+    {src:"여우비",to:"狐雨",note:"여우→狐 + 비→雨 · fox rain"},
+    {src:"별똥별",to:"星糞星",note:"별→星 + 똥→糞 + 별→星 · star poop star"},
+    {src:"꽃비",to:"花雨",note:"꽃→花 + 비→雨 · flower rain"},
+    {src:"도깨비불",to:"鬼火",note:"도깨비→鬼 + 불→火 · goblin fire"},
+    {src:"꽃보라",to:"花吹",note:"꽃→花 + 보라→吹 · flower gust"},
+    {src:"물안개",to:"水霧",note:"물→水 + 안개→霧 · water mist"},
+    {src:"빛그물",to:"光網",note:"빛→光 + 그물→網 · light net"},
+    {src:"손목",to:"手頸",note:"손→手 + 목→頸 · hand neck"}
+  ];
+
+  const actual = {
+    "현대":"現代",
+    "사회":"社會",
+    "경제":"經濟",
+    "문화":"文化",
+    "관계":"關係",
+    "공부":"工夫",
+    "세상":"世上",
+    "성공":"成功",
+    "가치":"價値",
+    "행복":"幸福",
+    "자기":"自己",
+    "만족":"滿足",
+    "세계":"世界",
+    "평화":"平和",
+    "증명":"證明",
+    "인생":"人生",
+    "불안":"不安",
+    "무가치":"無價値",
+    "진실":"眞實",
+    "상대":"相對",
+    "옥상":"屋上",
+    "차이":"差異",
+    "매일":"每日",
+    "남자":"男子",
+    "학교":"學校",
+    "학생":"學生",
+    "대학":"大學",
+    "대학생":"大學生",
+    "교수":"敎授",
+    "교육":"敎育",
+    "학문":"學問",
+    "연구":"硏究",
+    "과학":"科學",
+    "기술":"技術",
+    "수학":"數學",
+    "철학":"哲學",
+    "역사":"歷史",
+    "문학":"文學",
+    "언어":"言語",
+    "국어":"國語",
+    "영어":"英語",
+    "중국어":"中國語",
+    "일본어":"日本語",
+    "한자":"漢字",
+    "한문":"漢文",
+    "문자":"文字",
+    "어휘":"語彙",
+    "문법":"文法",
+    "발음":"發音",
+    "의미":"意味",
+    "개념":"槪念",
+    "정의":"定義",
+    "이론":"理論",
+    "방법":"方法",
+    "과정":"過程",
+    "결과":"結果",
+    "원인":"原因",
+    "이유":"理由",
+    "문제":"問題",
+    "질문":"質問",
+    "답변":"答辯",
+    "자료":"資料",
+    "정보":"情報",
+    "논문":"論文",
+    "발표":"發表",
+    "토론":"討論",
+    "시험":"試驗",
+    "성적":"成績",
+    "과제":"課題",
+    "수업":"授業",
+    "강의":"講義",
+    "학기":"學期",
+    "졸업":"卒業",
+    "입학":"入學",
+    "전공":"專攻",
+    "학과":"學科",
+    "도서관":"圖書館",
+    "교실":"敎室",
+    "교과":"敎科",
+    "대학원":"大學院",
+    "대학원생":"大學院生",
+    "학위":"學位",
+    "석사":"碩士",
+    "박사":"博士",
+    "연구자":"硏究者",
+    "연구실":"硏究室",
+    "분야":"分野",
+    "주제":"主題",
+    "제목":"題目",
+    "문헌":"文獻",
+    "참고":"參考",
+    "인용":"引用",
+    "출처":"出處",
+    "분석":"分析",
+    "해석":"解釋",
+    "설명":"說明",
+    "이해":"理解",
+    "평가":"評價",
+    "검토":"檢討",
+    "확인":"確認",
+    "조사":"調査",
+    "실험":"實驗",
+    "관찰":"觀察",
+    "측정":"測定",
+    "통계":"統計",
+    "계산":"計算",
+    "수치":"數値",
+    "비율":"比率",
+    "평균":"平均",
+    "변수":"變數",
+    "함수":"函數",
+    "방정식":"方程式",
+    "집합":"集合",
+    "논리":"論理",
+    "주장":"主張",
+    "근거":"根據",
+    "비판":"批判",
+    "반론":"反論",
+    "결론":"結論",
+    "서론":"緖論",
+    "본론":"本論",
+    "가설":"假說",
+    "증거":"證據",
+    "사례":"事例",
+    "예시":"例示",
+    "대상":"對象",
+    "범위":"範圍",
+    "분류":"分類",
+    "유형":"類型",
+    "원리":"原理",
+    "법칙":"法則",
+    "요소":"要素",
+    "단계":"段階",
+    "체계":"體系",
+    "개요":"槪要",
+    "요약":"要約",
+    "교재":"敎材",
+    "교과서":"敎科書",
+    "학술":"學術",
+    "학회":"學會",
+    "학자":"學者",
+    "전문":"專門",
+    "전문가":"專門家",
+    "지식":"知識",
+    "정보량":"情報量",
+    "정확":"正確",
+    "정확성":"正確性",
+    "객관":"客觀",
+    "객관성":"客觀性",
+    "주관":"主觀",
+    "주관성":"主觀性",
+    "원칙":"原則",
+    "규칙":"規則",
+    "규정":"規定",
+    "기록":"記錄",
+    "보고":"報告",
+    "보고서":"報告書",
+    "문서":"文書",
+    "정치":"政治",
+    "법률":"法律",
+    "예술":"藝術",
+    "음악":"音樂",
+    "미술":"美術",
+    "영화":"映畫",
+    "사진":"寫眞",
+    "건축":"建築",
+    "종교":"宗敎",
+    "전통":"傳統",
+    "미래":"未來",
+    "과거":"過去",
+    "현재":"現在",
+    "시대":"時代",
+    "국가":"國家",
+    "정부":"政府",
+    "국민":"國民",
+    "지역":"地域",
+    "도시":"都市",
+    "지방":"地方",
+    "국제":"國際",
+    "환경":"環境",
+    "자연":"自然",
+    "인간":"人間",
+    "생활":"生活",
+    "일상":"日常",
+    "가족":"家族",
+    "부모":"父母",
+    "자녀":"子女",
+    "여자":"女子",
+    "친구":"親舊",
+    "결혼":"結婚",
+    "감정":"感情",
+    "성격":"性格",
+    "상황":"狀況",
+    "상태":"狀態",
+    "변화":"變化",
+    "발전":"發展",
+    "영향":"影響",
+    "효과":"效果",
+    "사실":"事實",
+    "현실":"現實",
+    "경험":"經驗",
+    "판단":"判斷",
+    "결정":"決定",
+    "선택":"選擇",
+    "계획":"計劃",
+    "목적":"目的",
+    "목표":"目標",
+    "필요":"必要",
+    "가능":"可能",
+    "중요":"重要",
+    "기본":"基本",
+    "일반":"一般",
+    "특별":"特別",
+    "공통":"共通",
+    "개인":"個人",
+    "전체":"全體",
+    "부분":"部分",
+    "중심":"中心",
+    "내용":"內容",
+    "형식":"形式",
+    "구조":"構造",
+    "기능":"機能",
+    "성질":"性質",
+    "특징":"特徵",
+    "조건":"條件",
+    "기준":"基準",
+    "정도":"程度",
+    "수준":"水準",
+    "방향":"方向",
+    "위치":"位置",
+    "시간":"時間",
+    "공간":"空間",
+    "순서":"順序",
+    "비교":"比較",
+    "가능성":"可能性",
+    "중요성":"重要性",
+    "필요성":"必要性",
+    "활동":"活動",
+    "행동":"行動",
+    "운동":"運動",
+    "사건":"事件",
+    "사고":"事故",
+    "안전":"安全",
+    "위험":"危險",
+    "범죄":"犯罪",
+    "경찰":"警察",
+    "전쟁":"戰爭",
+    "군대":"軍隊",
+    "실패":"失敗",
+    "회사":"會社",
+    "기업":"企業",
+    "산업":"産業",
+    "시장":"市場",
+    "생산":"生産",
+    "소비":"消費",
+    "상품":"商品",
+    "제품":"製品",
+    "가격":"價格",
+    "자본":"資本",
+    "노동":"勞動",
+    "직업":"職業",
+    "업무":"業務",
+    "조직":"組織",
+    "관리":"管理",
+    "책임":"責任",
+    "권리":"權利",
+    "의무":"義務",
+    "자유":"自由",
+    "평등":"平等",
+    "민주":"民主",
+    "공화":"共和",
+    "제도":"制度",
+    "정책":"政策",
+    "행정":"行政",
+    "음식":"飮食",
+    "식사":"食事",
+    "요리":"料理",
+    "식품":"食品",
+    "교통":"交通",
+    "여행":"旅行",
+    "관광":"觀光",
+    "전화":"電話",
+    "통신":"通信",
+    "기계":"機械",
+    "전기":"電氣",
+    "전자":"電子",
+    "자동차":"自動車",
+    "기차":"汽車",
+    "지하철":"地下鐵",
+    "공항":"空港",
+    "병원":"病院",
+    "건강":"健康",
+    "질병":"疾病",
+    "치료":"治療",
+    "환자":"患者",
+    "의사":"醫師",
+    "약품":"藥品",
+    "의학":"醫學",
+    "물리":"物理",
+    "화학":"化學",
+    "생물":"生物",
+    "지구":"地球",
+    "우주":"宇宙",
+    "원자":"原子",
+    "분자":"分子",
+    "세포":"細胞",
+    "유전자":"遺傳子",
+    "생명":"生命",
+    "신문":"新聞",
+    "방송":"放送",
+    "기사":"記事",
+    "광고":"廣告",
+    "출판":"出版",
+    "작가":"作家",
+    "독자":"讀者",
+    "작품":"作品",
+    "소설":"小說",
+    "공연":"公演",
+    "연극":"演劇",
+    "기간":"期間",
+    "순간":"瞬間",
+    "시작":"始作",
+    "종료":"終了",
+    "최초":"最初",
+    "최후":"最後",
+    "최근":"最近",
+    "이전":"以前",
+    "이후":"以後"
+  };
+
+
+  const WORD_PRIORITY_EUM = Object.create(null);
+
+  function buildWordPriorityEum(){
+    for (const [word,hanja] of Object.entries(actual)){
+      const syllables = Array.from(word);
+      const chars = Array.from(hanja);
+      if (syllables.length !== chars.length) continue;
+
+      for (let i=0; i<syllables.length; i++){
+        const reading = syllables[i];
+        const ch = chars[i];
+        const shelf = (WORD_PRIORITY_EUM[reading] ||= new Map());
+        if (!shelf.has(ch)) shelf.set(ch, []);
+        const examples = shelf.get(ch);
+        if (examples.length < 3 && !examples.includes(word)) examples.push(word);
+      }
+    }
+  }
+
+  buildWordPriorityEum();
+
+  function getEumCandidates(reading, includeExpanded=false){
+    const out = [];
+    const seen = new Set();
+
+    for (const item of (eum[reading] || [])){
+      out.push([item[0], item[1], "gloss"]);
+      seen.add(item[0]);
+    }
+
+    const priority = WORD_PRIORITY_EUM[reading];
+    if (priority){
+      for (const [ch,examples] of priority.entries()){
+        if (seen.has(ch)) continue;
+        out.push([ch, `예: ${examples.join(" · ")}`, "word"]);
+        seen.add(ch);
+      }
+    }
+
+    if (includeExpanded){
+      for (const ch of (EXPANDED_EUM[reading] || [])){
+        if (seen.has(ch)) continue;
+        out.push([ch, `한자음 ${reading} · 확장`, "deep"]);
+        seen.add(ch);
+      }
+    }
+
+    return out;
+  }
+
+  const particles = [
+    "으로부터","에게서","한테서","께서는","에서는","까지는","부터는",
+    "으로써","으로서","이라도","라도","이라면","라면","이라고","라고",
+    "에게","한테","께서","에서","으로","로","부터","까지","처럼","보다",
+    "만큼","마다","조차","밖에","하고","이랑","랑","과","와","의","에",
+    "께","도","만","은","는","이","가","을","를","들"
+  ];
+
+  const grammarWords = ["정","말고도","말고","그리고","하지만","그냥"];
+
+  const endings = [
+    "겠습니다","었습니다","았습니다","였습니다","합니다","습니다","입니다",
+    "겠어요","었어요","았어요","여요","어요","아요","이에요","예요",
+    "는데요","네요","군요","지요","죠",
+    "다가","지만","는데","니까","으니까","려고","으려고","도록","면서",
+    "으면서","으면","으니","어서","아서","여서","더라도","더니","거든",
+    "다면","으면","자면","라면",
+    "하고","하며","해서","하여","고","며","면","니","자","지","다","요","어","아","여"
+  ];
+
+
+  const quoteGallery = {
+    free: [
+      {
+        text:"정 말할 상대가 없으면 옥상에 올라가서 내 이름이라도 크게 불러요.",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.01 · 황동만",
+        title:"옥상"
+      },
+      {
+        text:"세상이 망했고 안 망했고의 차이는 날씨가 있고 없고의 차이.",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.01 · 황동만",
+        title:"날씨"
+      },
+      {
+        text:"매일 죽기 살기로 하면 진짜 죽지!",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.01 · 황동만",
+        title:"죽기 살기"
+      },
+      {
+        text:"나는 리트머스지 같은 남자야.",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.03 · 황동만",
+        title:"리트머스지"
+      }
+    ],
+    focus: [
+      {
+        text:"잘나서 나를 증명할 수 없을 땐, 망가져 나를 증명한다.",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.01 · 황동만",
+        title:"증명"
+      },
+      {
+        text:"내 인생이 왜 네 맘에 들어야 되는데요?",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.01 · 황동만",
+        title:"인생"
+      },
+      {
+        text:"불안하지 않은 거. 그냥 불안하지만 않으면 돼, 난.",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.02 · 황동만",
+        title:"불안"
+      },
+      {
+        text:"난 내 무가치함의 끝에서 빛나는 진실을 건져 올릴 거야.",
+        source:"JTBC · 〈모두가 자신의 무가치함과 싸우고 있다〉 · EP.02 · 황동만",
+        title:"무가치함 · 진실"
+      }
+    ]
+  };
+
+
+  function safeStorageGet(key){
+    try { return window.localStorage.getItem(key); }
+    catch (_) { return null; }
+  }
+
+  function safeStorageSet(key,value){
+    try { window.localStorage.setItem(key,value); }
+    catch (_) {}
+  }
+
+  let lang = "en";
+  let playMode = "free";
+  // Start every fresh page load in Simplified Chinese.
+  // The user can still switch to Traditional during the session.
+  let zhScript = "hans";
+  let units = [];
+  let replacements = [];
+  let history = [];
+  let redoHistory = [];
+  let selectedIndex = null;
+  // Grammar locking is only a heuristic; users can override a gray Hangul locally.
+  const manualUnlocks = new Set();
+  let eumVisibleCount = 18;
+  let eumDeepOpen = false;
+  let luckyCount = 1;
+  let drawn = [];
+  let luckyBag = [];
+  let luckyBagMode = null;
+  let quoteState = "gallery";
+  let customDirty = false;
+  const selectedQuote = { free:0, focus:0 };
+
+  const ENGLISH_MODE_COPY = {
+    free:{
+      hero:"Paste in Korean and decide what to trust: the Sino-Korean reading, or the Korean gloss.",
+      kicker:"what is chi char?",
+      headline:"Korean is written in Hangul. Its words can still carry older character histories.",
+      p1:"A large share of Korean vocabulary—especially formal and abstract words—is Sino-Korean. Those words are pronounced in Korean and written in Hangul today, but many also have conventional Hanja spellings. If you read Chinese, revealing the characters can make familiar pieces suddenly visible, although sound and meaning do not always line up one-to-one.",
+      p2:"Chi Char turns that layer into a small instrument rather than a dictionary. Paste a Korean sentence, tap what catches your eye, and choose which route you want to follow.",
+      darkKicker:"two routes",
+      darkP1:"eum (音) is the Sino-Korean reading attached to a character. For example, 安 can be read 안 (an), while 靜 can be read 정 (jeong).",
+      darkP2:"hun (訓) is the Korean gloss used to explain what a character means. In 눈 목 for 目, 눈 means “eye” and 목 is the Sino-Korean reading. Free mode lets that gloss become a toy too, so 눈물 can turn into 目水. That is playful semantic writing, not standard Korean spelling.",
+      examples:[
+        ["eum (音)","안 → 安 · 眼 · 案","one Korean reading, several possible characters"],
+        ["eum (音)","정 → 靜 · 定 · 正 · 情","sound alone does not choose the character for you"],
+        ["hun (訓) play","눈물 → 目水","a Korean gloss becomes a semantic rewrite"],
+        ["whole-word hun","윤슬 → 波光","a semantic sketch, not an etymology"]
+      ]
+    },
+    focus:{
+      hero:"Follow the Sino-Korean reading and see how many characters can hide behind one Hangul syllable.",
+      kicker:"focus mode",
+      headline:"Follow the reading. Leave the gloss closed.",
+      p1:"Focus keeps only eum (音): the Sino-Korean reading associated with a Hanja character. Tap a Hangul syllable and Chi Char shows characters that can carry that reading.",
+      p2:"The aim is not to guess a word’s official Hanja spelling on the first try. It is to notice the character inventory hiding behind Korean sounds, then let context and vocabulary narrow the possibilities.",
+      darkKicker:"one sound, many characters",
+      darkP1:"안 (an) can lead to 安, 眼, 案 and more. 정 (jeong) can lead to 靜, 定, 正, 情 and more. The Hangul syllable gives you a reading, not a unique character.",
+      darkP2:"That ambiguity is the exercise. Stay with sound in Focus; switch back to Free when you want the Korean-gloss route and the stranger semantic experiments again.",
+      examples:[
+        ["Sino","안 → 安 · 眼 · 案","same reading: an"],
+        ["Sino","정 → 靜 · 定 · 正 · 情","same reading: jeong"],
+        ["Sino","무 → 無 · 務 · 武 · 舞","same reading: mu"],
+        ["Sino","인 → 人 · 因 · 印 · 引","same reading: in"]
+      ]
+    }
+  };
+
+  function renderEnglishLanding(){
+    const c = ENGLISH_MODE_COPY[playMode] || ENGLISH_MODE_COPY.free;
+    $("#heroCopy").textContent = c.hero;
+    $("#engKicker").textContent = c.kicker;
+    $("#engHeadline").textContent = c.headline;
+    $("#engP1").textContent = c.p1;
+    $("#engP2").textContent = c.p2;
+    $("#engDarkKicker").textContent = c.darkKicker;
+    $("#engDarkP1").textContent = c.darkP1;
+    $("#engDarkP2").textContent = c.darkP2;
+
+    c.examples.forEach((ex,i)=>{
+      const n = i + 1;
+      $("#engExample"+n+"Label").textContent = ex[0];
+      $("#engExample"+n+"Main").textContent = ex[1];
+      $("#engExample"+n+"Sub").textContent = ex[2];
+    });
+  }
+
+  function activeUI(){
+    if (lang !== "zh") return UI[lang];
+    return zhScript === "hant" ? ZH_HANT : ZH_HANS;
+  }
+
+  function activeHeroCopy(){
+    const u = activeUI();
+    return playMode === "focus"
+      ? (u.heroFocus || u.hero)
+      : (u.heroFree || u.hero);
+  }
+
+  function updateQuoteExampleLabel(){
+    const label = $("#quoteExampleLabel");
+    if (!label) return;
+
+    const isExample = quoteState === "gallery";
+
+    if (lang === "ko"){
+      label.textContent = isExample ? "예:" : "나:";
+    } else if (lang === "zh"){
+      label.textContent = isExample ? "例：" : "我：";
+    } else {
+      label.textContent = isExample ? "example:" : "you:";
+    }
+    label.classList.remove("hidden");
+  }
+
+  function updateScriptToggle(){
+    const box = $("#scriptToggle");
+    if (!box) return;
+
+    const visible = lang === "zh" || lang === "ko";
+    box.classList.toggle("hidden", !visible);
+  $$("[data-zh-script]").forEach(b => {
+      b.classList.toggle("active", b.dataset.zhScript === zhScript);
+
+      if (lang === "ko"){
+        b.textContent = b.dataset.zhScript === "hans" ? "간체" : "번체";
+      } else {
+        if (b.dataset.zhScript === "hans"){
+          b.textContent = zhScript === "hant" ? "簡" : "简";
+        } else {
+          b.textContent = "繁";
+        }
+      }
+    });
+  }
+
+  function setZhScript(next){
+    zhScript = next === "hant" ? "hant" : "hans";
+    clearAnswer();
+    safeStorageSet("chi-char-hanja-script", zhScript);
+
+    if (lang === "zh"){
+      const u = activeUI();
+      $("#heroCopy").textContent = activeHeroCopy();
+      $("#pTitle").textContent = u.pt;
+      $("#pSub").textContent = u.ps;
+      $("#pFlow").textContent = u.pflow || "";
+      $("#lTitle").textContent = u.lt;
+      $("#lSub").textContent = playMode === "focus" ? u.focusLucky : u.ls;
+      $("#lFlow").textContent = u.lflow || "";
+      $("#pasteTitle").textContent = u.paste;
+      $("#openBtn").textContent = u.open;
+      $("#grammarNote").textContent = u.grammar;
+      $("#tapTitle").textContent = playMode === "focus" ? u.focusTap : u.tap;
+      $("#soundTrust").textContent = u.sound;
+      $("#meaningTrust").textContent = u.meaning;
+      if ($("#weirdHint")) $("#weirdHint").textContent = u.weird;
+      $("#howMany").textContent = u.how;
+      $("#drawBtn").textContent = u.draw;
+      $("#makeSentence").textContent = u.make;
+      $("#readyText").textContent = u.ready;
+      $("#sendBtn").textContent = u.send;
+      $("#eumNote").textContent = playMode === "focus" ? u.focusENote : u.enote;
+      $("#hunNote").textContent = u.hnote;
+      $("#prototypeNoteText").textContent = u.prototype;
+    }
+
+    updateModeTerms();
+    updateScriptToggle();
+    updateStaticHanja();
+    renderText();
+    renderLucky();
+
+    if (selectedIndex !== null && units[selectedIndex]){
+      openTray(selectedIndex);
+    }
+  }
+
+  function updateModeTerms(){
+    const termKey = lang === "zh" && zhScript === "hant" ? "zhHant" : lang;
+    const t = MODE_TERMS[termKey] || MODE_TERMS.en;
+    $("#freeModeTitle").textContent = t.freeModeTitle;
+    $("#freeModeSub").textContent = t.freeModeSub;
+    $("#focusModeTitle").textContent = t.focusModeTitle;
+    $("#focusModeSub").textContent = t.focusModeSub;
+    $("#eumLabel").textContent = t.eumLabel;
+    $("#hunLabel").textContent = t.hunLabel;
+  }
+
+  function syncOpenButton(){
+    const hasCustomText = quoteState === "custom" && $("#source").value.trim().length > 0;
+    $("#openBtn").classList.toggle("hidden", !(hasCustomText && customDirty));
+  }
+
+  function currentGallery(){
+    return quoteGallery[playMode] || [];
+  }
+
+  function renderQuoteDots(){
+    const box = $("#quoteDots");
+    if (!box) return;
+    box.innerHTML = "";
+    const gallery = currentGallery();
+
+    gallery.forEach((item,i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "quote-dot" +
+        (quoteState === "gallery" && selectedQuote[playMode] === i ? " active" : "");
+      b.dataset.quoteIndex = String(i);
+      b.setAttribute("aria-label", `${i+1}. ${item.title}`);
+      b.title = item.title;
+      box.appendChild(b);
+    });
+  }
+
+  function loadQuote(index,{analyzeNow=true}={}){
+    const gallery = currentGallery();
+    if (!gallery.length) return;
+    const i = Math.max(0,Math.min(index,gallery.length-1));
+    selectedQuote[playMode] = i;
+    quoteState = "gallery";
+    customDirty = false;
+    $("#source").value = gallery[i].text;
+    $("#sampleSource").textContent = gallery[i].source;
+    $("#sampleSource").classList.remove("hidden");
+    replacements = [];
+    history = [];
+    redoHistory = [];
+    selectedIndex = null;
+    renderQuoteDots();
+    updateQuoteExampleLabel();
+    syncOpenButton();
+    if (analyzeNow) runAnalysis({keepQuote:true});
+  }
+
+  function markCustomText(){
+    quoteState = "custom";
+    customDirty = $("#source").value.trim().length > 0;
+    $("#sampleSource").classList.add("hidden");
+    renderQuoteDots();
+    syncOpenButton();
+    updateScriptToggle();
+    updateQuoteExampleLabel();
+  }
+
+  function updateUndoButton(){
+    if ($("#undoBtn")) $("#undoBtn").disabled = history.length === 0;
+    if ($("#redoBtn")) $("#redoBtn").disabled = redoHistory.length === 0;
+  }
+
+  function setPlayMode(next){
+    const wasGallery = quoteState === "gallery";
+    playMode = next === "focus" ? "focus" : "free";
+    luckyBag = [];
+    luckyBagMode = null;
+    clearAnswer();
+    document.body.classList.toggle("focus-mode", playMode === "focus");
+    document.body.dataset.playMode = playMode;
+
+    $$("[data-play-mode]").forEach(b => {
+      b.classList.toggle("active", b.dataset.playMode === playMode);
+    });
+
+    renderEnglishLanding();
+
+    if (playMode === "focus"){
+      replacements = replacements.filter(r => r.route !== "hun");
+    }
+    history = [];
+    redoHistory = [];
+
+    if (wasGallery){
+      loadQuote(selectedQuote[playMode],{analyzeNow:false});
+      manualUnlocks.clear();
+      units = analyze($("#source").value);
+      renderQuoteDots();
+    }
+
+    if (lang !== "en"){
+      $("#heroCopy").textContent = activeHeroCopy();
+      applyModeCopy();
+      renderText();
+      if (selectedIndex !== null && units[selectedIndex]) openTray(selectedIndex);
+      drawLucky();
+    }
+    updateUndoButton();
+  }
+
+  function applyModeCopy(){
+    if (lang === "en") return;
+    const u = activeUI();
+
+    $("#tapTitle").textContent =
+      playMode === "focus" ? u.focusTap : u.tap;
+
+    $("#eumNote").textContent =
+      playMode === "focus" ? u.focusENote : u.enote;
+
+    $("#hunNote").textContent = u.hnote;
+
+    $("#lSub").textContent =
+      playMode === "focus" ? u.focusLucky : u.ls;
+  }
+
+  function setDoor(next){
+    lang = next;
+    document.body.dataset.language = next;
+    $$("[data-door]").forEach(b => {
+      b.classList.toggle("active", b.dataset.door === next);
+    });
+
+    const english = next === "en";
+    $("#englishLanding").classList.toggle("hidden", !english);
+    $("#workbench").classList.toggle("hidden", english);
+
+    updateModeTerms();
+    updateScriptToggle();
+    updateQuoteExampleLabel();
+
+    if (english){
+      renderEnglishLanding();
+      return;
+    }
+
+    const u = activeUI();
+    $("#heroCopy").textContent = u.hero;
+    $("#pTitle").textContent = u.pt;
+    $("#pSub").textContent = u.ps;
+    $("#pFlow").textContent = u.pflow || "";
+    $("#lTitle").textContent = u.lt;
+    $("#lSub").textContent = u.ls;
+    $("#lFlow").textContent = u.lflow || "";
+    $("#pasteTitle").textContent = u.paste;
+    $("#openBtn").textContent = u.open;
+    $("#grammarNote").textContent = u.grammar;
+    $("#tapTitle").textContent = u.tap;
+    $("#soundTrust").textContent = u.sound;
+    $("#meaningTrust").textContent = u.meaning;
+    if ($("#weirdHint")) $("#weirdHint").textContent = u.weird;
+    $("#howMany").textContent = u.how;
+    $("#drawBtn").textContent = u.draw;
+    $("#makeSentence").textContent = u.make;
+    $("#readyText").textContent = u.ready;
+    $("#sendBtn").textContent = u.send;
+    $("#eumTitle").textContent = u.pick;
+    $("#hunTitle").textContent = u.pick;
+    $("#eumNote").textContent = u.enote;
+    $("#hunNote").textContent = u.hnote;
+    $("#prototypeNoteText").textContent = u.prototype;
+
+    applyModeCopy();
+    updateModeTerms();
+    renderQuoteDots();
+    renderText();
+    renderLucky();
+    updateStaticHanja();
+    syncAnswerButton();
+    syncOpenButton();
+  }
+
+  function setMode(practical){
+    $("#practicalPanel").classList.toggle("hidden", !practical);
+    $("#luckyPanel").classList.toggle("hidden", practical);
+    $("#practicalTab").classList.toggle("active", practical);
+    $("#luckyTab").classList.toggle("active", !practical);
+  }
+
+  function analyze(text){
+    const arr = Array.from(text).map((ch,i) => ({
+      ch, i, locked: !/[가-힣]/.test(ch)
+    }));
+
+    const particleList = [...particles].sort((a,b)=>b.length-a.length);
+    const endingList = [...endings].sort((a,b)=>b.length-a.length);
+
+    function lockRange(start,end){
+      for (let i=start;i<end;i++){
+        if (arr[i]) arr[i].locked = true;
+      }
+    }
+
+    function stripSuffixes(word,start){
+      let rest = word;
+      let consumed = 0;
+
+      // 1) peel ONE outer particle / topic marker.
+      //    Compound particles such as 에서는 / 까지는 are already listed explicitly.
+      //    Do not keep peeling: 창가에 must become 창가 + 에, not 창 + 가 + 에.
+      if (rest.length > 1){
+        for (const p of particleList){
+          if (rest.length > p.length && rest.endsWith(p)){
+            const suffixStart = start + rest.length - p.length;
+            lockRange(suffixStart, start + rest.length);
+            rest = rest.slice(0,-p.length);
+            consumed += p.length;
+            break;
+          }
+        }
+      }
+
+      // 2) greedily peel common endings.
+      //    Unlike the old version this catches -다가, -고, -니, -면서, -지만, etc.,
+      //    and can peel more than one layer when they are written as separate syllables.
+      let endingMatched = true;
+      while (endingMatched && rest.length > 1){
+        endingMatched = false;
+        for (const e of endingList){
+          if (rest.length > e.length && rest.endsWith(e)){
+            const suffixStart = start + rest.length - e.length;
+            lockRange(suffixStart, start + rest.length);
+            rest = rest.slice(0,-e.length);
+            consumed += e.length;
+            endingMatched = true;
+            break;
+          }
+        }
+      }
+      return consumed;
+    }
+
+    for (const m of text.matchAll(/[가-힣]+/g)){
+      if (grammarWords.includes(m[0])){
+        lockRange(m.index,m.index+m[0].length);
+        continue;
+      }
+      stripSuffixes(m[0],m.index);
+    }
+
+    return arr;
+  }
+
+  function overlaps(a,b){
+    return a.start < b.end && b.start < a.end;
+  }
+
+  function snapshotState(){
+    return {
+      replacements: replacements.map(x => ({...x})),
+      manualUnlocks: [...manualUnlocks],
+      selectedIndex
+    };
+  }
+
+  function restoreState(state){
+    replacements = (state.replacements || []).map(x => ({...x}));
+
+    manualUnlocks.clear();
+    (state.manualUnlocks || []).forEach(i => manualUnlocks.add(i));
+
+    selectedIndex = Number.isInteger(state.selectedIndex)
+      ? state.selectedIndex
+      : null;
+  }
+
+  function sameReplacement(a,b){
+    return a.start === b.start &&
+      a.end === b.end &&
+      a.to === b.to &&
+      a.route === b.route;
+  }
+
+  function replacementIsActive(r){
+    return replacements.some(x => sameReplacement(x,r));
+  }
+
+  function removeReplacementFromDig(r){
+    const exactIndex = replacements.findIndex(x =>
+      x.start === r.start &&
+      x.end === r.end &&
+      x.to === r.to &&
+      x.route === r.route
+    );
+    if (exactIndex < 0) return;
+
+    history.push(snapshotState());
+    redoHistory = [];
+
+    const old = replacements[exactIndex];
+    const anchor = Number.isInteger(old.anchor) ? old.anchor : old.start;
+
+    replacements.splice(exactIndex,1);
+
+    // Important: only remove the Hanja replacement layer.
+    // Manual grammar unlocks remain untouched.
+    selectedIndex = anchor;
+    renderText();
+    openTray(anchor);
+    updateUndoButton();
+  }
+
+  function toggleReplacement(r){
+    const anchor = selectedIndex !== null ? selectedIndex : r.start;
+    const exactIndex = replacements.findIndex(x => sameReplacement(x,r));
+
+    history.push(snapshotState());
+    redoHistory = [];
+
+    if (exactIndex >= 0){
+      // Second click on the same Hanja choice removes only the replacement.
+      // It does NOT undo a manual grammar unlock or the Hangul focus.
+      replacements.splice(exactIndex,1);
+    } else {
+      replacements = replacements.filter(x => !overlaps(x,r));
+      replacements.push({...r, anchor});
+      replacements.sort((a,b)=>a.start-b.start);
+    }
+
+    selectedIndex = anchor;
+    renderText();
+    openTray(anchor);
+    updateUndoButton();
+  }
+
+  function renderRestoredState(){
+    if (selectedIndex !== null && units[selectedIndex]){
+      openTray(selectedIndex);
+    } else {
+      closeTray();
+    }
+  }
+
+  function undoLast(){
+    if (!history.length) return;
+    redoHistory.push(snapshotState());
+    restoreState(history.pop());
+    renderRestoredState();
+    updateUndoButton();
+  }
+
+  function redoLast(){
+    if (!redoHistory.length) return;
+    history.push(snapshotState());
+    restoreState(redoHistory.pop());
+    renderRestoredState();
+    updateUndoButton();
+  }
+
+  function currentText(){
+    const text = $("#source").value;
+    let out = "";
+    let i = 0;
+
+    while(i < text.length){
+      const r = replacements.find(x => x.start === i);
+      if (r){
+        out += r.to;
+        i = r.end;
+      } else {
+        out += text[i];
+        i++;
+      }
+    }
+    return out;
+  }
+
+  function renderText(){
+    if (lang === "en" || !units.length) return;
+
+    const play = $("#play");
+    play.innerHTML = "";
+    const text = $("#source").value;
+    let i = 0;
+
+    while(i < units.length){
+      const r = replacements.find(x => x.start === i);
+
+      if (r){
+        const anchor = Number.isInteger(r.anchor) ? r.anchor : r.start;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "replacement route-" + r.route +
+          (selectedIndex >= r.start && selectedIndex < r.end ? " selected" : "");
+        b.dataset.index = String(anchor);
+        b.dataset.replacement = "true";
+        b.dataset.start = String(r.start);
+        b.dataset.end = String(r.end);
+        b.dataset.value = r.to;
+        b.dataset.route = r.route;
+        b.setAttribute("aria-label",
+          lang === "ko"
+            ? `${displayHanja(r.to)} 선택 취소`
+            : `${displayHanja(r.to)}，再次点击取消`
+        );
+        b.textContent = displayHanja(r.to);
+        play.appendChild(b);
+        i = r.end;
+        continue;
+      }
+
+      const u = units[i];
+
+      const isHangul = /[가-힣]/.test(u.ch);
+      const manuallyUnlocked = manualUnlocks.has(i);
+
+      if (u.locked && !manuallyUnlocked){
+        if (isHangul){
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "locked unlockable";
+          b.dataset.index = String(i);
+          b.dataset.grammarLocked = "true";
+          b.title = lang === "ko" ? "문법 잠금이 틀렸다면 눌러서 열기" : "语法锁不对？点一下解锁";
+          b.textContent = u.ch;
+          play.appendChild(b);
+        } else {
+          const s = document.createElement("span");
+          s.className = "locked";
+          s.textContent = u.ch;
+          play.appendChild(s);
+        }
+      } else {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "hangul" +
+          (manuallyUnlocked ? " grammar-override" : "") +
+          (selectedIndex === i ? " selected" : "");
+        b.dataset.index = String(i);
+        if (manuallyUnlocked) b.dataset.manualUnlock = "true";
+        b.textContent = u.ch;
+        play.appendChild(b);
+      }
+      i++;
+    }
+
+    $("#output").textContent = displayHanja(currentText());
+    const routeLog = $("#routeLog");
+    routeLog.innerHTML = "";
+    replacements.forEach((r,index) => {
+      const chip = document.createElement("span");
+      chip.className = "route-chip";
+
+      const num = document.createElement("span");
+      num.className = "route-chip-num";
+      num.textContent = String(index + 1);
+
+      const change = document.createElement("span");
+      change.textContent = `${text.slice(r.start,r.end)} → ${displayHanja(r.to)}`;
+
+      const route = document.createElement("span");
+      route.className = "route-chip-route";
+      route.textContent = r.route === "hun" ? "訓" : "音";
+
+      chip.append(num,change,route);
+      routeLog.appendChild(chip);
+    });
+
+    const hits = [];
+
+    Object.entries(actual).forEach(([k,v]) => {
+      if (text.includes(k) && currentText().includes(v)){
+        hits.push(`actual · ${k}→${v}`);
+      }
+    });
+
+    hunWords.forEach(w => {
+      if (text.includes(w.src) && currentText().includes(w.to)){
+        hits.push(`訓 play · ${w.src}→${w.to}`);
+      }
+    });
+  }
+
+  function charCandidate(box,item,route,idx){
+    const b = document.createElement("button");
+    b.type = "button";
+
+    const choice = {
+      start:idx,
+      end:idx+1,
+      to:item[0],
+      route
+    };
+    const activeChoice = replacementIsActive(choice);
+
+    b.className = "candidate route-" + route +
+      (item[2] === "deep" ? " deep-candidate" : "") +
+      (activeChoice ? " selected-choice" : "");
+    b.dataset.action = "pick-char";
+    b.dataset.index = String(idx);
+    b.dataset.route = route;
+    b.dataset.value = item[0];
+    b.setAttribute("aria-pressed", activeChoice ? "true" : "false");
+
+    const c = document.createElement("span");
+    c.className = "big";
+    c.textContent = displayHanja(item[0]);
+
+    b.appendChild(c);
+
+    if (item[1]){
+      const s = document.createElement("small");
+      s.textContent = item[1];
+      b.appendChild(s);
+    }
+    box.appendChild(b);
+  }
+
+  function wordCandidate(box,w,start,end){
+    const b = document.createElement("button");
+    b.type = "button";
+
+    const choice = {
+      start,
+      end,
+      to:w.to,
+      route:"hun"
+    };
+    const activeChoice = replacementIsActive(choice);
+
+    b.className = "candidate word route-hun" +
+      (activeChoice ? " selected-choice" : "");
+    b.dataset.action = "pick-word";
+    b.dataset.start = String(start);
+    b.dataset.end = String(end);
+    b.dataset.value = w.to;
+    b.setAttribute("aria-pressed", activeChoice ? "true" : "false");
+
+    const c = document.createElement("span");
+    c.className = "big";
+    c.textContent = displayHanja(w.to);
+
+    const src = document.createElement("span");
+    src.className = "src";
+    src.textContent = `${w.src} → ${displayHanja(w.to)}`;
+
+    const note = document.createElement("small");
+    note.textContent = displayHanja(w.note);
+
+    b.append(c,src,note);
+    box.appendChild(b);
+  }
+
+  function actualMatchesAt(idx){
+    const source = $("#source").value;
+    const out = [];
+
+    for (const [word,hanja] of Object.entries(actual)){
+      let from = 0;
+      while((from = source.indexOf(word,from)) !== -1){
+        const end = from + word.length;
+        if (idx >= from && idx < end){
+          out.push({word,hanja,start:from,end});
+        }
+        from += 1;
+      }
+    }
+
+    out.sort((a,b) =>
+      (b.end-b.start) - (a.end-a.start) ||
+      a.start - b.start
+    );
+    return out;
+  }
+
+  function weirdMatchesAt(idx){
+    const matches = matchingWords(idx).map(x => ({
+      word:x.w.src,
+      hanja:x.w.to,
+      note:x.w.note,
+      start:x.start,
+      end:x.end
+    }));
+
+    matches.sort((a,b) =>
+      (b.end-b.start) - (a.end-a.start) ||
+      a.start - b.start
+    );
+    return matches;
+  }
+
+  function clearAnswer(){
+    const box = $("#answerReveal");
+    box.innerHTML = "";
+    box.classList.add("hidden");
+  }
+
+  function syncAnswerButton(){
+    const btn = $("#answerBtn");
+    if (!btn) return;
+
+    const visible = lang !== "en" && selectedIndex !== null && !!units[selectedIndex];
+    btn.classList.toggle("hidden", !visible);
+
+    if (!visible){
+      clearAnswer();
+      return;
+    }
+
+    const u = activeUI();
+    btn.textContent = u.showAnswer || "show answer";
+  }
+
+  function revealWeirdAnswer(){
+    if (selectedIndex === null || playMode !== "free") return;
+    const u = activeUI();
+    const weird = weirdMatchesAt(selectedIndex)[0];
+    if (!weird) return;
+
+    const box = $("#answerReveal");
+    box.innerHTML = "";
+
+    const ticket = document.createElement("span");
+    ticket.className = "answer-ticket weird-answer";
+
+    const kind = document.createElement("span");
+    kind.className = "answer-kind";
+    kind.textContent = u.weirdKind || "weird";
+
+    const value = document.createElement("span");
+    value.textContent = `${weird.word} → ${displayHanja(weird.hanja)}`;
+
+    ticket.append(kind,value);
+    box.appendChild(ticket);
+    box.classList.remove("hidden");
+  }
+
+  function revealAnswer(){
+    if (selectedIndex === null || !units[selectedIndex]) return;
+
+    const u = activeUI();
+    const standard = actualMatchesAt(selectedIndex)[0];
+    const weird = playMode === "free" ? weirdMatchesAt(selectedIndex)[0] : null;
+    const box = $("#answerReveal");
+
+    box.innerHTML = "";
+
+    if (standard){
+      const ticket = document.createElement("span");
+      ticket.className = "answer-ticket";
+
+      const kind = document.createElement("span");
+      kind.className = "answer-kind";
+      kind.textContent = u.answerKind || "answer";
+
+      const value = document.createElement("span");
+      value.textContent = `${standard.word} → ${displayHanja(standard.hanja)}`;
+
+      ticket.append(kind,value);
+      box.appendChild(ticket);
+    } else if (weird){
+      // No standard answer claimed. Offer the explicitly nonstandard route separately.
+      const weirdBtn = document.createElement("button");
+      weirdBtn.type = "button";
+      weirdBtn.className = "answer-weird-btn";
+      weirdBtn.textContent = u.weirdAnswer || "make it weird";
+      weirdBtn.addEventListener("click",revealWeirdAnswer);
+      box.appendChild(weirdBtn);
+    }
+
+    // If we genuinely don't know, leave the answer area empty.
+    box.classList.toggle("hidden", box.childElementCount === 0);
+  }
+
+  function matchingWords(idx){
+    const text = $("#source").value;
+    const out = [];
+
+    for (const w of hunWords){
+      let from = 0;
+      while((from = text.indexOf(w.src,from)) !== -1){
+        const end = from + w.src.length;
+        if (idx >= from && idx < end){
+          out.push({w,start:from,end});
+        }
+        from += 1;
+      }
+    }
+    return out;
+  }
+
+  function renderEumCandidates(idx, reading, reset=false){
+    const eb = $("#eumBox");
+    const u = activeUI();
+
+    if (reset){
+      eumVisibleCount = 18;
+      eumDeepOpen = false;
+    }
+
+    const core = getEumCandidates(reading, false);
+    const all = getEumCandidates(reading, true);
+    const candidates = eumDeepOpen ? all : core;
+
+    eb.innerHTML = "";
+
+    if (!candidates.length){
+      const empty = document.createElement("span");
+      empty.className = "route-note";
+      empty.textContent = u.empty;
+      eb.appendChild(empty);
+    } else {
+      candidates.slice(0,eumVisibleCount).forEach(x => charCandidate(eb,x,"eum",idx));
+    }
+
+    if (!eumDeepOpen && all.length > core.length){
+      const deep = document.createElement("button");
+      deep.type = "button";
+      deep.className = "more-candidates";
+      deep.dataset.action = "open-deep-eum";
+      deep.dataset.index = String(idx);
+      deep.textContent = `${u.deepChars || "expanded shelf"} · +${all.length - core.length} · ${u.deepOnlySound || "reading only"}`;
+      eb.appendChild(deep);
+      return;
+    }
+
+    if (eumDeepOpen && candidates.length > eumVisibleCount){
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "more-candidates";
+      more.dataset.action = "more-eum";
+      more.dataset.index = String(idx);
+      more.textContent = `${u.moreChars || "more"} · ${eumVisibleCount}/${candidates.length}`;
+      eb.appendChild(more);
+    }
+  }
+
+  function closeTray(){
+    selectedIndex = null;
+    clearAnswer();
+    syncAnswerButton();
+
+    const u = activeUI();
+    $("#eumBox").innerHTML = "";
+    $("#hunBox").innerHTML = "";
+    $("#eumTitle").textContent = u.pick;
+    $("#hunTitle").textContent = u.pick;
+
+    eumVisibleCount = 18;
+    eumDeepOpen = false;
+    renderText();
+  }
+
+  function openTray(idx){
+    if (lang === "en" || !units[idx]) return;
+
+    selectedIndex = idx;
+    clearAnswer();
+    renderText();
+    syncAnswerButton();
+
+    const u = activeUI();
+    const unit = units[idx];
+    const eb = $("#eumBox");
+    const hb = $("#hunBox");
+    eb.innerHTML = "";
+    hb.innerHTML = "";
+
+    $("#eumTitle").textContent = `${unit.ch} · 音`;
+    $("#hunTitle").textContent = `${unit.ch} · 訓`;
+
+    const s = playMode === "free" ? (hunSingle[unit.ch] || []) : [];
+    const w = playMode === "free" ? matchingWords(idx) : [];
+
+    renderEumCandidates(idx, unit.ch, true);
+
+    if (playMode === "free"){
+      if (s.length){
+        const d = document.createElement("div");
+        d.className = "divider";
+        d.textContent = u.piece;
+        hb.appendChild(d);
+        s.forEach(x => charCandidate(hb,x,"hun",idx));
+      }
+
+      if (w.length){
+        const d = document.createElement("div");
+        d.className = "divider";
+        d.textContent = u.whole;
+        hb.appendChild(d);
+        w.forEach(x => wordCandidate(hb,x.w,x.start,x.end));
+      }
+
+      if (!s.length && !w.length){
+        const empty = document.createElement("span");
+        empty.className = "route-note";
+        empty.textContent = u.empty;
+        hb.appendChild(empty);
+      }
+    }
+
+  }
+
+  function runAnalysis({keepQuote=false}={}){
+    const raw = $("#source").value;
+    const value = raw.trim();
+
+    if (!value){
+      units = [];
+      replacements = [];
+      history = [];
+    redoHistory = [];
+      selectedIndex = null;
+      manualUnlocks.clear();
+      $("#play").innerHTML = "";
+      $("#output").textContent = "";
+      $("#routeLog").textContent = "";
+      $("#eumBox").innerHTML = "";
+      $("#hunBox").innerHTML = "";
+      updateUndoButton();
+      return;
+    }
+
+    if (!keepQuote){
+      const gallery = currentGallery();
+      const match = gallery.findIndex(q => q.text === raw);
+      if (match >= 0){
+        quoteState = "gallery";
+        selectedQuote[playMode] = match;
+        $("#sampleSource").textContent = gallery[match].source;
+        $("#sampleSource").classList.remove("hidden");
+      } else {
+        markCustomText();
+      }
+    }
+
+    units = analyze(raw);
+    customDirty = false;
+    replacements = [];
+    history = [];
+    redoHistory = [];
+    selectedIndex = null;
+    manualUnlocks.clear();
+    renderQuoteDots();
+    renderText();
+
+    if (lang !== "en"){
+      const u = activeUI();
+      $("#eumBox").innerHTML = "";
+      $("#hunBox").innerHTML = "";
+      $("#eumTitle").textContent = u.pick;
+      $("#hunTitle").textContent = u.pick;
+    }
+    updateUndoButton();
+    syncOpenButton();
+  }
+
+  function download(name,text){
+    const blob = new Blob([text],{type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),400);
+  }
+
+  function shuffleInPlace(arr){
+    for (let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function buildLuckyPool(){
+    // Start with the entire standard Sino-Korean word cabinet.
+    const byWord = new Map(
+      Object.entries(actual).map(([ko,chars]) => [ko,[ko,chars,"音"]])
+    );
+
+    if (playMode === "free"){
+      // Hun play joins the same bag, but each visible Korean word occupies
+      // only one slot. If a word has several playful spellings (윤슬),
+      // choose one variant for this shuffle rather than repeating the word.
+      const hunByWord = new Map();
+
+      for (const w of hunWords){
+        if (!hunByWord.has(w.src)) hunByWord.set(w.src,[]);
+        hunByWord.get(w.src).push(w);
+      }
+
+      for (const [ko,variants] of hunByWord){
+        // If a word also has a standard Hanja form, keep the standard card;
+        // otherwise add one randomly chosen Hun-play version.
+        if (byWord.has(ko)) continue;
+        const w = variants[Math.floor(Math.random() * variants.length)];
+        byWord.set(ko,[w.src,w.to,"訓 play"]);
+      }
+    }
+
+    return [...byWord.values()];
+  }
+
+  function refillLuckyBag(){
+    luckyBag = shuffleInPlace(buildLuckyPool());
+    luckyBagMode = playMode;
+  }
+
+  function drawLucky(){
+    const count = Math.min(luckyCount,4);
+
+    // FREE and FOCUS have different cabinets.
+    if (luckyBagMode !== playMode){
+      refillLuckyBag();
+    }
+
+    // Treat the cabinet like a real draw bag: no repeats across draws until
+    // the bag has been exhausted. Refill only when there aren't enough left
+    // to satisfy the next draw.
+    if (luckyBag.length < count){
+      refillLuckyBag();
+    }
+
+    drawn = luckyBag.splice(0,count);
+    renderLucky();
+  }
+
+  function addLuckyWordToSentence(word){
+    const box = $("#sentenceText");
+    const current = box.value;
+    const spacer = current && !/\s$/.test(current) ? " " : "";
+    box.value = current + spacer + word;
+    box.focus();
+    box.setSelectionRange(box.value.length, box.value.length);
+  }
+
+  function renderLucky(){
+    if (lang === "en") return;
+
+    const box = $("#luckyWords");
+    box.innerHTML = "";
+
+    for (const [ko,chars,type] of drawn){
+      const card = document.createElement("div");
+      card.className = "word-card";
+      card.dataset.ko = ko;
+      card.tabIndex = 0;
+      card.setAttribute("role","button");
+      card.setAttribute("aria-label",`${ko} — add to sentence`);
+
+      const k = document.createElement("div");
+      k.className = "word-ko";
+      k.textContent = ko;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "peek";
+      btn.dataset.action = "peek";
+      btn.textContent = activeUI().peek;
+
+      const ans = document.createElement("div");
+      ans.className = "answer hidden";
+
+      const han = document.createElement("span");
+      han.className = "hanja";
+      han.textContent = displayHanja(chars);
+
+      const kind = document.createElement("span");
+      kind.className = "kind";
+      kind.textContent = type;
+
+      ans.append(han,kind);
+      card.append(k,btn,ans);
+      box.appendChild(card);
+    }
+  }
+
+  $("#quoteDots").addEventListener("click",e => {
+    const b = e.target.closest("button[data-quote-index]");
+    if (!b) return;
+    loadQuote(Number(b.dataset.quoteIndex));
+  });
+
+  $("#source").addEventListener("input",() => {
+    const gallery = currentGallery();
+    const match = gallery.findIndex(q => q.text === $("#source").value);
+    if (match >= 0){
+      quoteState = "gallery";
+      customDirty = false;
+      selectedQuote[playMode] = match;
+      $("#sampleSource").textContent = gallery[match].source;
+      $("#sampleSource").classList.remove("hidden");
+      renderQuoteDots();
+      syncOpenButton();
+    } else {
+      markCustomText();
+    }
+  });
+
+  $("#play").addEventListener("click",e => {
+    const b = e.target.closest("button[data-index]");
+    if (!b) return;
+
+    const idx = Number(b.dataset.index);
+
+    if (b.dataset.replacement === "true"){
+      removeReplacementFromDig({
+        start:Number(b.dataset.start),
+        end:Number(b.dataset.end),
+        to:b.dataset.value,
+        route:b.dataset.route
+      });
+      return;
+    }
+
+    if (b.dataset.grammarLocked === "true"){
+      manualUnlocks.add(idx);
+      openTray(idx);
+      return;
+    }
+
+    if (selectedIndex === idx){
+      // Selection toggles independently from grammar unlock.
+      // A manually-unlocked syllable stays unlocked after it is unselected.
+      closeTray();
+      return;
+    }
+
+    openTray(idx);
+  });
+
+  $("#eumBox").addEventListener("click",e => {
+    const deep = e.target.closest('button[data-action="open-deep-eum"]');
+    if (deep){
+      const idx = Number(deep.dataset.index);
+      if (!units[idx]) return;
+      eumDeepOpen = true;
+      eumVisibleCount = 18;
+      renderEumCandidates(idx, units[idx].ch, false);
+      return;
+    }
+
+    const more = e.target.closest('button[data-action="more-eum"]');
+    if (more){
+      const idx = Number(more.dataset.index);
+      if (!units[idx]) return;
+      eumVisibleCount += 18;
+      renderEumCandidates(idx, units[idx].ch, false);
+      return;
+    }
+
+    const b = e.target.closest('button[data-action="pick-char"]');
+    if (!b) return;
+    toggleReplacement({
+      start:Number(b.dataset.index),
+      end:Number(b.dataset.index)+1,
+      to:b.dataset.value,
+      route:b.dataset.route
+    });
+  });
+
+  $("#hunBox").addEventListener("click",e => {
+    const b = e.target.closest("button[data-action]");
+    if (!b) return;
+
+    if (b.dataset.action === "pick-char"){
+      toggleReplacement({
+        start:Number(b.dataset.index),
+        end:Number(b.dataset.index)+1,
+        to:b.dataset.value,
+        route:"hun"
+      });
+    }
+
+    if (b.dataset.action === "pick-word"){
+      toggleReplacement({
+        start:Number(b.dataset.start),
+        end:Number(b.dataset.end),
+        to:b.dataset.value,
+        route:"hun"
+      });
+    }
+
+  });
+
+  $("#luckyWords").addEventListener("click",e => {
+    const peek = e.target.closest('button[data-action="peek"]');
+    if (peek){
+      const ans = peek.nextElementSibling;
+      ans.classList.toggle("hidden");
+      peek.textContent = ans.classList.contains("hidden") ? activeUI().peek : activeUI().hide;
+      return;
+    }
+
+    const card = e.target.closest(".word-card");
+    if (card) addLuckyWordToSentence(card.dataset.ko);
+  });
+
+  $("#luckyWords").addEventListener("keydown",e => {
+    if (e.target.closest('button[data-action="peek"]')) return;
+    const card = e.target.closest(".word-card");
+    if (!card) return;
+    if (e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      addLuckyWordToSentence(card.dataset.ko);
+    }
+  });
+
+  $("#answerBtn").addEventListener("click",revealAnswer);
+
+  $$("[data-zh-script]").forEach(b => {
+    b.addEventListener("click",()=>setZhScript(b.dataset.zhScript));
+  });
+
+  $$("[data-door]").forEach(b => {
+    b.addEventListener("click",()=>setDoor(b.dataset.door));
+  });
+
+  $$("[data-play-mode]").forEach(b => {
+    b.addEventListener("click",()=>setPlayMode(b.dataset.playMode));
+  });
+
+  $("#enterZh").addEventListener("click",()=>setDoor("zh"));
+  $("#enterKo").addEventListener("click",()=>setDoor("ko"));
+
+  $("#practicalTab").addEventListener("click",()=>setMode(true));
+  $("#luckyTab").addEventListener("click",()=>setMode(false));
+
+  $("#openBtn").addEventListener("click",()=>runAnalysis());
+
+  $("#clearBtn").addEventListener("click",()=>{
+    $("#source").value = "";
+    quoteState = "custom";
+    customDirty = false;
+    $("#sampleSource").classList.add("hidden");
+    replacements = [];
+    history = [];
+    redoHistory = [];
+    units = [];
+    selectedIndex = null;
+    manualUnlocks.clear();
+    $("#play").innerHTML = "";
+    $("#output").textContent = "";
+    $("#routeLog").textContent = "";
+    $("#eumBox").innerHTML = "";
+    $("#hunBox").innerHTML = "";
+    renderQuoteDots();
+    updateQuoteExampleLabel();
+    updateUndoButton();
+    syncOpenButton();
+    $("#source").focus();
+  });
+
+  $("#undoBtn").addEventListener("click",undoLast);
+  $("#redoBtn").addEventListener("click",redoLast);
+
+  $("#resetBtn").addEventListener("click",()=>{
+    const changed =
+      replacements.length > 0 ||
+      manualUnlocks.size > 0 ||
+      selectedIndex !== null;
+
+    if (changed){
+      history.push(snapshotState());
+      redoHistory = [];
+    }
+
+    replacements = [];
+    manualUnlocks.clear();
+    closeTray();
+    updateUndoButton();
+  });
+
+  $("#downloadBtn").addEventListener("click",()=>{
+    download(
+      "chi-char.txt",
+      `ORIGINAL\n${$("#source").value}\n\nMY VERSION\n${displayHanja(currentText())}\n`
+    );
+  });
+
+  $$(".count").forEach(b => {
+    b.addEventListener("click",()=>{
+      luckyCount = Math.min(4, Number(b.dataset.count));
+      $$(".count").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+    });
+  });
+
+  $("#drawBtn").addEventListener("click",drawLucky);
+
+  $("#sendBtn").addEventListener("click",()=>{
+    const s = $("#sentenceText").value.trim();
+    if (!s){
+      $("#sentenceText").focus();
+      return;
+    }
+    $("#source").value = s;
+    quoteState = "custom";
+    customDirty = true;
+    setMode(true);
+    runAnalysis();
+  });
+
+  $("#practiceDownload").addEventListener("click",()=>{
+    download(
+      "chi-char-lucky.txt",
+      `${drawn.map(x=>[x[0],displayHanja(x[1]),x[2]].join("  ")).join("\n")}\n\n${$("#sentenceText").value}`
+    );
+  });
+
+  setPlayMode("free");
+  loadQuote(selectedQuote.free,{analyzeNow:false});
+  units = analyze($("#source").value);
+  renderQuoteDots();
+  drawLucky();
+  setDoor("en");
+  updateUndoButton();
+  updateScriptToggle();
+  updateStaticHanja();
+  syncAnswerButton();
+  updateQuoteExampleLabel();
+  syncOpenButton();
+})();
+</script>
+</body>
+</html>
