@@ -98,7 +98,14 @@
         "Apple SD Gothic Neo","Noto Sans KR","PingFang SC","Microsoft YaHei",sans-serif;
     }
     button,textarea{font:inherit}
-    button{cursor:pointer}
+    /* Normalize iOS/WebView controls so buttons never fall back to system link-blue. */
+    button{
+      cursor:pointer;
+      -webkit-appearance:none;
+      appearance:none;
+      color:inherit;
+      -webkit-text-fill-color:currentColor;
+    }
     button:focus-visible,textarea:focus-visible{
       outline:3px solid #61785f;
       outline-offset:3px;
@@ -1149,6 +1156,8 @@
       border-radius:14px;
       padding:11px 14px;
       border:1px solid rgba(0,0,0,.18);
+      color:inherit;
+      -webkit-text-fill-color:currentColor;
       font-weight:850;
     }
     .send .wide:first-of-type{background:white;border-color:white;margin-top:13px}
@@ -1175,8 +1184,50 @@
       .entry-grid{gap:4px}
       #enterKo{text-align:left}
       .brand{min-height:205px;padding:23px}
-      .dig-head{align-items:flex-start}
-      .dig-tools{max-width:48%}
+      /* Keep the script switch in its own mobile column, above the answer link. */
+      .dig-head{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 110px;
+        align-items:start;
+        gap:10px;
+      }
+      .dig-head > :first-child{min-width:0}
+      .dig-head .block-title{line-height:1.5}
+      .dig-tools{
+        display:grid;
+        grid-template-columns:110px;
+        grid-template-areas:"script" "answer";
+        align-items:start;
+        justify-items:end;
+        gap:4px;
+        max-width:none;
+      }
+      .script-toggle{
+        grid-area:script;
+        width:110px;
+        align-self:start;
+      }
+      .script-toggle button{
+        min-width:0;
+        min-height:44px;
+        padding:8px 4px;
+        line-height:1;
+        white-space:nowrap;
+        touch-action:manipulation;
+      }
+      .answer-link{
+        grid-area:answer;
+        max-width:110px;
+        min-height:44px;
+        padding:8px 2px;
+        line-height:1.4;
+        touch-action:manipulation;
+      }
+      .my-version .actions{gap:4px 16px}
+      .my-version .text-action{
+        min-height:44px;
+        touch-action:manipulation;
+      }
       .language-tabs{
         top:76px;
         right:-1px;
@@ -1667,7 +1718,7 @@
       focusTap:"点一个没有被语法锁住的音节，只看音读候选",
       focusENote:"Focus：只保留 eum（音）——汉字的韩语音读；hun（訓）和整词语义玩法暂时收起来。",
       focusLucky:"Focus 模式只从音读词里抽。",
-      prototype:"主字柜先放有解释的字，或者至少在常见汉字词里出现过的字。更偏一点的留在扩展字柜，需要的时候再翻。以后再按教育用基础汉字和常用词慢慢补，暂时不追求一打开就是满柜子的生僻字。数据均加载到浏览器本地：离线紧致，有限覆盖。语法锁目前也只做个大概：偶尔该灰没灰、该亮却灰的地方，就当作我们对预感的天然自信。",
+      prototype:"主字柜先放有解释的字，或者至少在常见汉字词里出现过的字。更偏一点的留在扩展字柜，需要的时候再翻。以后再按教育用基础汉字和常用词慢慢补，暂时不追求一打开就是满柜子的生僻字。数据均加载到浏览器本地：离线紧致，有限覆盖。语法锁目前也只做个大概：偶尔该灰没灰、该亮却灰的地方，就当作我们对语感的天然自信。",
       freeModeTitle:"FREE · 音 + 訓",
       freeModeSub:"汉字音 · 训释",
       focusModeTitle:"FOCUS · 音",
@@ -1717,7 +1768,7 @@
       focusTap:"문법으로 잠기지 않은 음절을 눌러 音 후보만 봅니다",
       focusENote:"Focus에서는 음(音), 즉 한자음만 남기고 훈(訓)과 의미 놀이는 잠시 접어 둡니다.",
       focusLucky:"Focus에서는 音 항목만 뽑습니다.",
-      prototype:"기본 서랍에는 뜻풀이가 있거나, 적어도 자주 쓰는 한자어에서 실제로 보이는 글자부터 넣었습니다. 조금 더 드문 글자는 확장 서랍에 두고 필요할 때만 꺼냅니다. 앞으로 교육용 기초 한자와 자주 쓰는 말을 따라 천천히 더 채울 예정입니다. 처음부터 희귀한 글자로 서랍을 꽉 채울 생각은 없습니다. 데이터는 브라우저 안에 둡니다. 오프라인이고, 작고, 다 들어 있지는 않습니다. 문법 잠금은 아직 대충 합니다. 가끔 회색이어야 할 게 안 회색이거나 그 반대라면, 감에 대한 우리의 타고난 자신감이라고 해 둡니다.",
+      prototype:"기본 서랍에는 뜻풀이가 있거나, 적어도 자주 쓰는 한자어에서 실제로 보이는 글자부터 넣었습니다. 조금 더 드문 글자는 확장 서랍에 두고 필요할 때만 꺼냅니다. 앞으로 교육용 기초 한자와 자주 쓰는 말을 따라 천천히 더 채울 예정입니다. 처음부터 희귀한 글자로 서랍을 꽉 채울 생각은 없습니다. 데이터는 브라우저 안에 둡니다. 오프라인이고, 작고, 다 들어 있지는 않습니다. 문법 잠금은 아직 대충 합니다. 가끔 회색이어야 할 게 안 회색이거나 그 반대라면, 느낌에 대한 우리의 타고난 자신감이라고 해 둡니다.",
       freeModeTitle:"FREE · 음(音) + 훈(訓)",
       freeModeSub:"한자음 · 훈",
       focusModeTitle:"FOCUS · 음(音)",
@@ -1769,7 +1820,7 @@
     focusTap:"點一個沒有被語法鎖住的音節，只看音讀候選",
     focusENote:"Focus：只保留音——漢字的韓語音讀；訓和整詞語義玩法暫時收起來。",
     focusLucky:"Focus 模式只從音讀詞裡抽。",
-    prototype:"主字櫃先放有解釋的字，或者至少在常見漢字詞裡出現過的字。更偏一點的留在擴展字櫃，需要的時候再翻。以後再按教育用基礎漢字和常用詞慢慢補，暫時不追求一打開就是滿櫃子的生僻字。資料均載入到瀏覽器本地：離線緊緻，有限覆蓋。語法鎖目前也只做個大概：偶爾該灰沒灰、該亮卻灰的地方，就當作我們對預感的天然自信。",
+    prototype:"主字櫃先放有解釋的字，或者至少在常見漢字詞裡出現過的字。更偏一點的留在擴展字櫃，需要的時候再翻。以後再按教育用基礎漢字和常用詞慢慢補，暫時不追求一打開就是滿櫃子的生僻字。資料均載入到瀏覽器本地：離線緊緻，有限覆蓋。語法鎖目前也只做個大概：偶爾該灰沒灰、該亮卻灰的地方，就當作我們對語感的天然自信。",
     freeModeTitle:"FREE · 音 + 訓",
     freeModeSub:"漢字音 · 訓釋",
     focusModeTitle:"FOCUS · 音",
@@ -2430,6 +2481,7 @@
   // Start every fresh page load in Simplified Chinese.
   // The user can still switch to Traditional during the session.
   let zhScript = "hans";
+  let scriptScrollFrame = 0;
   let units = [];
   let replacements = [];
   let history = [];
@@ -2551,7 +2603,17 @@
   }
 
   function setZhScript(next){
-    zhScript = next === "hant" ? "hant" : "hans";
+    const nextScript = next === "hant" ? "hant" : "hans";
+    if (nextScript === zhScript) return;
+
+    cancelAnimationFrame(scriptScrollFrame);
+    const toggle = $("#scriptToggle");
+    const toggleRect = toggle.getBoundingClientRect();
+    const keepToggleInView = window.matchMedia("(max-width:800px)").matches &&
+      toggleRect.height > 0 && toggleRect.top >= 0 &&
+      toggleRect.bottom <= window.innerHeight;
+
+    zhScript = nextScript;
     clearAnswer();
     safeStorageSet("chi-char-hanja-script", zhScript);
 
@@ -2589,6 +2651,18 @@
 
     if (selectedIndex !== null && units[selectedIndex]){
       openTray(selectedIndex);
+    }
+
+    // Copy above the workbench can wrap differently in each script. Keep the
+    // mobile switch at the same screen position after that layout settles.
+    if (keepToggleInView){
+      scriptScrollFrame = requestAnimationFrame(() => {
+        scriptScrollFrame = 0;
+        const after = toggle.getBoundingClientRect();
+        if (!after.height) return;
+        const shift = after.top - toggleRect.top;
+        if (Math.abs(shift) > 0.5) window.scrollBy(0, shift);
+      });
     }
   }
 
