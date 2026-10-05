@@ -751,9 +751,15 @@
       padding:0 10px;
       font-size:1.2rem;
     }
-    .hangul:hover,.hangul.selected{
+    .hangul.selected{
       border-color:#8e887f;
       background:#f2ebdd;
+    }
+    @media (hover:hover) and (pointer:fine){
+      .hangul:hover{
+        border-color:#8e887f;
+        background:#f2ebdd;
+      }
     }
     .locked{
       display:inline-flex;
@@ -769,11 +775,13 @@
       padding:0;
       cursor:pointer;
     }
-    button.locked.unlockable:hover{
-      opacity:.62;
-      text-decoration:underline;
-      text-decoration-style:dotted;
-      text-underline-offset:4px;
+    @media (hover:hover) and (pointer:fine){
+      button.locked.unlockable:hover{
+        opacity:.62;
+        text-decoration:underline;
+        text-decoration-style:dotted;
+        text-underline-offset:4px;
+      }
     }
     .hangul.grammar-override{
       box-shadow:inset 0 -2px 0 rgba(0,0,0,.16);
@@ -789,10 +797,12 @@
       background:var(--eum-pale);
       color:var(--eum-ink);
     }
-    .replacement:hover{
-      text-decoration:line-through;
-      text-decoration-thickness:1px;
-      text-underline-offset:3px;
+    @media (hover:hover) and (pointer:fine){
+      .replacement:hover{
+        text-decoration:line-through;
+        text-decoration-thickness:1px;
+        text-underline-offset:3px;
+      }
     }
     .replacement.route-hun{
       border:1px solid color-mix(in srgb, var(--hun-ink) 34%, transparent);
@@ -3022,6 +3032,7 @@
           (manuallyUnlocked ? " grammar-override" : "") +
           (selectedIndex === i ? " selected" : "");
         b.dataset.index = String(i);
+        b.setAttribute("aria-pressed", selectedIndex === i ? "true" : "false");
         if (manuallyUnlocked) b.dataset.manualUnlock = "true";
         b.textContent = u.ch;
         play.appendChild(b);
