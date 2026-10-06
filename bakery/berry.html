@@ -1,0 +1,1641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SET THE TABLE — topology teaching build · repaired</title>
+<style>
+:root{
+  --wood:#78533a;
+  --wood-dark:#654330;
+  --paper:#f3ede2;
+  --paper2:#fbf7ef;
+  --ink:#332923;
+  --muted:#7a6d64;
+  --line:#d8cbba;
+  --ginger:#d5a347;
+  --ginger-soft:#efdeb6;
+  --napkin:#727daa;
+  --napkin-soft:#d8dded;
+  --pepper:#443832;
+  --check:#a97563;
+  --check-soft:#ead6cc;
+  --berry:#46508a;
+  --berry-hi:#9aa1cc;
+  --rasp:#c95160;
+  --rasp-hi:#efb4c7;
+  --straw:#efbcc9;
+  --straw-hi:#f9e0e7;
+  --good:#64775d;
+  --bad:#9d6258;
+  --shadow:0 18px 48px rgba(41,26,16,.15);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.02),rgba(0,0,0,.02)),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 58px),
+    var(--wood);
+}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid rgba(114,125,170,.32);outline-offset:2px}
+.app{max-width:1240px;margin:auto;padding:18px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:6px 3px 17px;color:#fff7ed}
+.kicker{font-size:10px;text-transform:uppercase;letter-spacing:.16em;opacity:.78;font-weight:760}
+h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacing:-.068em;font-weight:900}
+.deck{max-width:640px;font-size:14px;line-height:1.45;color:#eadfd5}
+.cap{
+  background:rgba(243,237,227,.96);color:var(--ink);padding:11px 14px;border-radius:18px;
+  min-width:215px;box-shadow:var(--shadow)
+}
+.cap b{font-size:20px;letter-spacing:-.04em}
+.cap small{display:block;color:var(--muted);line-height:1.35;margin-top:2px}
+.layout{display:grid;grid-template-columns:minmax(0,1.34fr) minmax(350px,.82fr);gap:14px}
+.table,.rail{
+  background:rgba(243,237,227,.985);border:1px solid rgba(255,255,255,.38);box-shadow:var(--shadow)
+}
+.table{border-radius:28px 28px 20px 28px;overflow:hidden}
+.rail{border-radius:20px 28px 28px 20px;padding:17px}
+.table-top{padding:15px 16px 9px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mini{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:760}
+.counts{display:flex;align-items:center;gap:6px}
+.count{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--paper2);
+  cursor:pointer;font-size:12px;font-weight:800
+}
+.count.active{background:var(--pepper);color:white;border-color:var(--pepper)}
+.legend{display:flex;gap:11px;align-items:center;flex-wrap:wrap;font-size:10px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%}
+.stage{
+  position:relative;height:545px;background:
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0)),
+    var(--paper2);
+  border-top:1px solid #e8dfd2;border-bottom:1px solid #e8dfd2;
+  overflow:hidden
+}
+#board{display:block;width:100%;height:100%}
+.sel-user{fill:rgba(213,163,71,.28);stroke:#c28c31;stroke-width:2.6}
+.sel-forced{fill:rgba(114,125,170,.16);stroke:#7a86b2;stroke-width:2.4;stroke-dasharray:6 5}
+.sel-required{fill:rgba(68,56,50,.05);stroke:#7a6d64;stroke-width:2.2}
+.item{cursor:pointer}
+.item text{font-size:14px;font-weight:840;fill:var(--ink);pointer-events:none}
+.item.selected text{text-decoration:none}
+.item .ring{stroke:none;fill:none}
+.hand{
+  position:absolute;left:17px;right:17px;bottom:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px
+}
+.hand-card{
+  background:rgba(251,247,239,.92);border:1px solid #e4d8c7;border-radius:16px;padding:9px 12px;
+  backdrop-filter:blur(7px);min-width:170px
+}
+.hand-set{font-size:21px;font-weight:850;letter-spacing:-.035em;margin-top:2px}
+.hand-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid var(--line);border-radius:999px;background:var(--paper2);padding:8px 11px;cursor:pointer;
+  transition:transform .12s ease,box-shadow .12s ease
+}
+.btn:hover{transform:translateY(-1px)}
+.btn.small{padding:6px 9px;font-size:11px}
+.btn.ginger{background:var(--ginger);border-color:#bd8830;font-weight:770}
+.btn.blue{background:var(--napkin);border-color:var(--napkin);color:white;font-weight:760}
+.btn.dark{background:var(--pepper);border-color:var(--pepper);color:white}
+.btn.soft{background:#f8f1e6;border-color:#d9c8b3;font-weight:700}
+.btn.soft.active{background:var(--pepper);border-color:var(--pepper);color:white}
+.btn.flat{background:transparent}
+.lower{padding:13px 16px 17px}
+.shelf-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.note{font-size:11px;color:var(--muted)}
+.note b{color:var(--pepper)}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;padding:2px 2px 8px;min-height:104px;align-content:start}
+.plate{
+  flex:0 0 92px;height:94px;border-radius:17px;background:#fffaf3;border:1px solid var(--line);
+  padding:5px 5px 6px;cursor:pointer;position:relative;transition:transform .12s ease,box-shadow .12s ease
+}
+.plate:hover{transform:none;box-shadow:none}
+.plate.user{border-color:#d4b46f}
+.plate.forced{border-color:#adb5d3}
+.plate.required{border-color:#b8aca3}
+.plate svg{display:block;width:80px;height:64px;margin:auto}
+.plate .name{text-align:center;font-size:10px;font-weight:820;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plate .kind{text-align:center;font-size:7px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin-top:1px}
+.plate .x{position:absolute;top:3px;right:4px;border:0;background:transparent;color:#93877c;cursor:pointer;padding:2px;font-size:15px}
+.overflow-pill{
+  flex:0 0 auto;align-self:center;border:1px dashed #bba789;border-radius:999px;padding:9px 11px;
+  font-size:11px;color:var(--muted);background:#f8f0e4
+}
+.ticket{
+  background:#fffaf2;border:1px solid #dfd2c0;border-radius:3px 16px 16px 3px;padding:12px 13px;position:relative;
+  box-shadow:3px 4px 0 rgba(56,39,27,.035);margin-bottom:12px
+}
+.ticket:before{content:"";position:absolute;left:-1px;top:10px;bottom:10px;width:3px;background:var(--ginger)}
+.ticket.blue:before{background:var(--napkin)}
+.ticket.dark:before{background:var(--pepper)}
+.ticket h3{margin:0 0 5px;font-size:15px;letter-spacing:-.02em}
+.ticket p{margin:0;color:var(--muted);font-size:12px;line-height:1.42}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.action-stack{display:grid;gap:14px;margin-bottom:14px}
+.action-unit{display:block;position:relative}
+.action-unit .action{
+  width:100%;
+  box-sizing:border-box;
+  border-radius:17px;
+}
+.action{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  text-align:left;
+  border:0;
+  background:#fffaf3;
+  padding:11px 12px;
+  cursor:pointer;
+  min-height:70px;
+}
+.action-copy{display:block;min-width:0;flex:1 1 auto}
+.action-copy b{
+  display:block;
+  font-size:13px;
+  line-height:1.2;
+  margin-bottom:4px;
+}
+.action-copy > span{
+  display:block;
+  font-size:11px;
+  line-height:1.28;
+}
+.action.check{background:var(--check);color:white}
+.action.check .action-copy b{color:white}
+.action.check .action-copy > span{color:#f4e7e1}
+.action.blue{background:var(--napkin);color:white}
+.action.blue .action-copy b{color:white}
+.action.blue .action-copy > span{color:#e4e6f2}
+
+.action-go{
+  flex:0 0 34px;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#fff;
+  font-size:17px !important;
+  line-height:1 !important;
+  font-weight:900;
+  color:var(--ink) !important;
+}
+.action.check .action-go{color:var(--check) !important}
+.action.blue .action-go{color:var(--napkin) !important}
+
+.recipe-launch{
+  width:100%;display:flex;align-items:center;gap:10px;text-align:left;margin:-3px 0 12px;padding:10px 12px;
+  border:1px solid var(--pepper);border-radius:16px;background:var(--pepper);color:var(--paper2);cursor:pointer
+}
+.recipe-launch:hover{background:var(--wood-dark);border-color:var(--wood-dark)}
+.recipe-launch .recipe-icon{width:30px;height:30px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:var(--ginger-soft);color:var(--pepper);font-weight:900}
+.recipe-launch b{display:block;font-size:12px}.recipe-launch small{display:block;font-size:10px;color:#e1d6c7;margin-top:2px}
+.grow-card{width:min(760px,100%);max-height:86vh;overflow:auto;background:#fffaf2;border-radius:22px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.22);position:relative}
+.grow-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-right:24px}
+.grow-top h2{margin:2px 0 5px;font-size:24px;letter-spacing:-.045em}.grow-top p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.grow-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 10px}.grow-tab{border:1px solid var(--line);background:#f8f1e7;border-radius:999px;padding:7px 10px;font-size:11px;cursor:pointer}.grow-tab.active{background:var(--pepper);color:white;border-color:var(--pepper)}
+.grow-scene{border:1px solid #dfd2c0;background:#f8f2e8;border-radius:18px;padding:12px}
+.grow-phase{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}.grow-phase b{font-size:13px}.grow-phase span{font-size:10px;color:var(--muted)}
+.grow-equation{min-height:42px;background:#fffaf2;border:1px solid #e3d8c9;border-radius:13px;padding:9px 11px;font-size:12px;line-height:1.45;margin-bottom:10px}
+.grow-plates{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;min-height:105px}
+.grow-mini{width:84px;height:91px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:4px;position:relative;}
+.grow-mini svg{width:74px;height:61px;display:block;margin:auto}.grow-mini .nm{text-align:center;font-size:9px;font-weight:800}.grow-mini.new{box-shadow:0 0 0 2px rgba(213,163,71,.38)}
+.grow-controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.grow-controls .btn{min-width:78px}.grow-note{font-size:10px;color:var(--muted);line-height:1.45;margin-top:10px}
+.phase-badge{display:inline-block;border-radius:999px;padding:3px 7px;margin-right:5px;font-size:9px;text-transform:uppercase;letter-spacing:.11em;background:var(--ginger-soft)}
+.phase-badge.union{background:var(--napkin-soft)}
+@keyframes growPop{from{opacity:.2;transform:translateY(5px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.grow-mini{animation:none}}
+
+.bundle-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.bundle-controls .btn{border-radius:16px;padding:10px 11px;text-align:left}
+.bundle-controls .btn b{display:block;font-size:13px;margin-bottom:4px}
+.bundle-controls .btn span{font-size:11px;color:var(--muted);line-height:1.24}
+.bundle-controls .btn.dark span{color:#dfd6cf}
+.result{
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 1px;margin:2px 0 12px;
+  min-height:61px;font-size:12px;line-height:1.43
+}
+
+.table-tools{padding:12px 16px 0}
+.table-result{
+  margin:0;padding:8px 2px 2px;min-height:0;border:0;color:var(--muted)
+}
+.table-result strong{color:var(--ink)}
+
+.result strong{font-size:16px;letter-spacing:-.025em}
+.ok{color:var(--good)} .bad{color:var(--bad)}
+.sep-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sep{
+  border:1px solid var(--line);border-radius:17px;background:#fffaf3;padding:10px;position:relative;min-height:91px
+}
+.sep .tag{font-size:23px;font-weight:900;letter-spacing:-.055em}
+.sep .state{font-size:10px;line-height:1.35;color:var(--muted);margin-top:3px}
+.q{
+  width:23px;height:23px;border-radius:50%;border:1px solid var(--line);background:transparent;
+  position:absolute;right:7px;top:7px;cursor:pointer;font-size:11px;padding:0
+}
+.prompt{
+  margin-top:9px;border-radius:15px;padding:10px 11px;background:rgba(213,163,71,.12);
+  border:1px solid rgba(213,163,71,.33);font-size:11px;line-height:1.4
+}
+.boom{
+  display:none;margin-top:9px;border-radius:17px;padding:12px;background:linear-gradient(100deg,var(--ginger-soft),var(--napkin-soft));
+  border:1px solid #c7b993;
+}
+.boom b{font-size:20px;letter-spacing:-.045em}
+@keyframes pop{from{opacity:.1;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.dishwasher{
+  display:none;margin-top:10px;background:#f4eee5;border:1px dashed #aa9679;border-radius:18px;padding:12px
+}
+.dishwasher .big{font-size:18px;font-weight:900;letter-spacing:-.04em}
+.dishwasher p{font-size:11px;color:var(--muted);line-height:1.42;margin:4px 0 9px}
+.dishwasher .row{display:flex;gap:7px;flex-wrap:wrap}
+.proof-slip{
+  display:none;margin-top:9px;background:#fffaf2;border:1px solid #ded2c3;border-radius:15px;padding:10px 11px;
+  font-size:11px;line-height:1.42;color:var(--muted)
+}
+.proof-slip b{color:var(--ink)}
+.groups-box{
+  margin-top:12px;background:#fffaf2;border:1px solid #dfd2c0;border-radius:18px;padding:11px
+}
+
+.census{
+  margin-top:12px;background:#fffaf2;border:1px solid #dfd2c0;border-radius:18px;padding:12px
+}
+.census-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px}
+.census h3{margin:0;font-size:15px;letter-spacing:-.02em}
+.census .lede{margin:3px 0 0;font-size:11px;color:var(--muted);line-height:1.42}
+.census table{width:100%;border-collapse:collapse;font-size:10px;margin-top:9px}
+.census th,.census td{padding:6px 5px;border-top:1px solid #eadfce;text-align:right;white-space:nowrap}
+.census th:first-child,.census td:first-child{text-align:left}
+.census th{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}
+.census tr.focus{background:rgba(213,163,71,.08)}
+.census .census-note{
+  margin-top:8px;padding:8px 9px;border-radius:12px;background:#f7efe4;
+  font-size:10px;line-height:1.42;color:var(--muted)
+}
+.census .census-note b{color:var(--ink)}
+.census .formula{
+  margin-top:7px;font-size:10px;line-height:1.42;color:var(--muted)
+}
+.census .sources{margin-top:9px;font-size:9px;line-height:1.5;color:var(--muted)}
+.census .sources a{color:#625a82;text-decoration-thickness:1px;text-underline-offset:2px}
+.census-toggle{
+  flex:0 0 auto;border:1px solid var(--line);background:#f8f1e7;border-radius:999px;
+  padding:6px 8px;font-size:10px;cursor:pointer
+}
+.census-more{display:none}
+.census.open .census-more{display:block}
+
+.groups-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+.fruit-strip{display:flex;gap:8px;overflow:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.fruit-card{
+  flex:0 0 94px;border-radius:16px;background:#fff;border:1px solid var(--line);padding:6px 6px 8px;position:relative
+}
+.fruit-card .name{text-align:center;font-size:10px;font-weight:820}
+.fruit-card .kind{text-align:center;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.11em}
+.fruit-card button{margin-top:5px;width:100%;padding:5px 7px;border-radius:999px;border:1px solid var(--line);background:#f8f1e6;font-size:10px;cursor:pointer}
+.fruit-card svg{display:block;width:74px;height:54px;margin:auto}
+.party-zone{
+  display:none;position:relative;margin-top:14px;height:430px;background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.04),transparent 30%),
+    linear-gradient(90deg,rgba(255,255,255,.02),rgba(0,0,0,.02)),
+    var(--wood-dark);
+  border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.2)
+}
+.party-title{position:absolute;left:14px;top:11px;color:#f7eee5;font-size:10px;text-transform:uppercase;letter-spacing:.15em;z-index:5}
+.party-sub{position:absolute;right:14px;top:11px;color:#ddcfc3;font-size:10px;z-index:5}
+.party-plate{
+  position:absolute;width:90px;height:78px;border-radius:18px;background:#fffaf1;border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 10px 18px rgba(20,10,5,.18);cursor:grab;touch-action:none;user-select:none
+}
+.party-plate:active{cursor:grabbing}
+.party-plate svg{width:74px;height:57px;display:block;margin:2px auto 0}
+.party-plate .name{text-align:center;font-size:9px;font-weight:800;margin-top:-1px}
+.party-plate.user{box-shadow:0 0 0 2px rgba(213,163,71,.55),0 10px 18px rgba(20,10,5,.18)}
+.party-plate.forced{box-shadow:0 0 0 2px rgba(114,125,170,.48),0 10px 18px rgba(20,10,5,.18)}
+.modal{
+  display:none;position:fixed;inset:0;background:rgba(39,27,21,.38);z-index:50;padding:18px;align-items:center;justify-content:center
+}
+.modal-card{
+  width:min(470px,100%);background:#fffaf2;border-radius:20px;padding:17px;box-shadow:0 24px 60px rgba(0,0,0,.22);position:relative
+}
+.close{position:absolute;right:11px;top:8px;border:0;background:transparent;font-size:20px;cursor:pointer}
+.modal-card h2{margin:2px 0 8px;font-size:22px;letter-spacing:-.04em}
+.modal-card p{font-size:13px;line-height:1.5;margin:7px 0;color:var(--muted)}
+.demo{background:#f8f2e8;border-radius:15px;padding:7px;margin:10px 0}
+.demo svg{width:100%;height:100px;display:block}
+.footer{text-align:center;color:#e9ddd4;font-size:10px;letter-spacing:.07em;margin:13px 0 2px}
+
+
+.berry-tools{
+  position:absolute;left:14px;top:14px;z-index:4;
+  display:flex;gap:6px;flex-wrap:wrap;max-width:72%;
+}
+.berry-tool{
+  border:0;border-radius:999px;background:rgba(251,247,239,.92);color:var(--ink);
+  padding:7px 10px;font-size:10px;font-weight:760;cursor:pointer;
+  box-shadow:0 2px 0 rgba(62,43,30,.06);
+  backdrop-filter:blur(5px)
+}
+.berry-tool:hover{background:#fffaf3}
+.berry-tool:disabled{opacity:.35;cursor:default}
+.berry-tool:disabled:hover{background:rgba(251,247,239,.92)}
+
+/* zero space before click; a simple downward reveal after click */
+/* Intrinsic-height slide: no clipping cap, opacity or scale animation. */
+.result-reveal{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease-out}
+.result-clip{overflow:hidden;min-height:0}
+.action-unit.open .result-reveal{grid-template-rows:1fr}
+.compact-result{margin:0 8px;padding:11px 12px;min-height:0;border:0;
+  border-radius:0 0 14px 14px;background:#fffaf3;font-size:12px;line-height:1.43}
+.action-unit:not(.open) .result-reveal{visibility:hidden}
+.action-unit.open .result-reveal{visibility:visible}
+@media(prefers-reduced-motion:reduce){.result-reveal{transition:none}}
+
+.result .yay{
+  display:inline-block;margin-right:6px;padding:2px 7px;border-radius:999px;
+  background:var(--ginger-soft);color:#72521d;font-size:10px;font-weight:850;
+  letter-spacing:.04em;text-transform:uppercase;vertical-align:2px
+}
+@media(min-width:901px){
+  .layout{grid-template-columns:minmax(0,1.42fr) minmax(340px,.78fr)}
+  .stage{height:590px}
+  #board{height:100%}
+  .table{min-width:0}
+  .rail{min-width:0}
+}
+
+@media(max-width:900px){
+  .app{padding:10px}
+  .berry-tools{left:10px;top:10px;max-width:78%}
+  .berry-tool{padding:6px 8px;font-size:9px}
+  header{align-items:flex-start;flex-direction:column}
+  .layout{grid-template-columns:1fr}
+  .stage{height:auto}
+  #board{height:405px}
+  .hand{position:static;padding:0 13px 13px;align-items:stretch;flex-direction:column}
+  .hand-actions{justify-content:flex-start}
+  .actions,.bundle-controls{grid-template-columns:1fr}
+  .party-zone{height:520px}
+}
+
+.census th{white-space:normal;overflow-wrap:normal;letter-spacing:.04em;padding:6px 3px}
+.rail{align-self:start}
+.shelf-head{flex-wrap:wrap}
+.hand-card{min-width:140px}
+.hand-actions .btn{font-size:12px;font-weight:770}
+.item{outline:none}
+.item:focus-visible text{font-weight:950}
+
+#shapeLayer{pointer-events:none}
+#shapeLayer path{stroke-width:1.5;stroke-opacity:.65;stroke-dasharray:none}
+#shapeLayer .sel-user{fill:rgba(213,163,71,.07)}
+#shapeLayer .sel-forced{fill:rgba(114,125,170,.05)}
+#shapeLayer .sel-required{fill:rgba(68,56,50,.025)}
+#shapeLayer.overlaid .sel-user{fill:rgba(213,163,71,.016)}
+#shapeLayer.overlaid .sel-forced{fill:rgba(114,125,170,.014)}
+#shapeLayer.overlaid .sel-required{fill:rgba(68,56,50,.008)}
+.plate .plate-toggle{display:block;width:100%;padding:0;border:0;background:transparent;cursor:pointer;color:inherit}
+.party-plate .x{position:absolute;top:2px;right:3px;width:23px;height:23px;border:0;border-radius:50%;background:#fffaf3;cursor:pointer;font-size:18px}
+.plate .x{top:2px;right:3px;width:23px;height:23px;display:grid;place-items:center;border-radius:50%;font-size:18px;line-height:1;z-index:2;background:#fffaf3;color:var(--ink)}
+.plate .x:hover{background:var(--ginger-soft)}
+.plate.is-visible{box-shadow:none}
+.plate.is-visible .kind{color:var(--ink)}
+
+/* State palette: yellow = in hand; blue = placed. Visible cards invert. */
+#shapeLayer .sel-draft{fill:rgba(213,163,71,.13);stroke:#c28c31;stroke-opacity:.95;stroke-width:2}
+#shapeLayer .sel-user{fill:rgba(70,80,138,.07);stroke:var(--berry)}
+#shapeLayer.overlaid .sel-draft{fill:rgba(213,163,71,.08)}
+#shapeLayer.overlaid .sel-user{fill:rgba(70,80,138,.016)}
+.plate.user{border-color:#adb5d3}
+.plate{box-shadow:none;transition:none}
+.plate.is-visible{background:var(--berry);border-color:var(--berry);color:var(--paper2)}
+.plate.required.is-visible{background:var(--pepper);border-color:var(--pepper)}
+.plate.forced.is-visible{background:var(--napkin);border-color:var(--napkin)}
+.plate.is-visible .kind{color:var(--paper2)}
+.plate.is-visible .x{background:transparent;color:var(--paper2)}
+.plate.is-visible .x:hover{background:rgba(255,255,255,.15)}
+.plate.is-visible svg path{fill:rgba(255,255,255,.1);stroke:var(--paper2)}
+.plate.is-visible svg circle{fill:var(--paper2)}
+.item text{pointer-events:auto}
+.item .hit-target{pointer-events:all}
+.warning-actions{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
+.missing-explanation summary{cursor:pointer;color:var(--muted);text-underline-offset:3px}
+.missing-explanation summary:hover{text-decoration:underline}
+.missing-explanation>div{margin-top:7px}
+
+.modal-card p.finite-surprise{color:var(--pepper)}
+.t0-demo svg{height:130px}
+.grow-controls{margin:0 0 12px}
+.grow-controls .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:12px;min-height:36px}
+.player-icon{width:16px;height:16px;flex:none;display:block}
+.grow-controls .btn:disabled{opacity:.4;cursor:default;transform:none}
+#showAllBtn:disabled,#placeBtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="kicker">a finite topology toy</div>
+      <h1>SET THE TABLE</h1>
+      <div class="deck">Put down a few berries. Select some to share a plate, then place it on the table. Each berry is a point; each plate represents an open set. Check whether your collection forms a topology, watch it grow, or bundle berries that no plate can tell apart.</div>
+    </div>
+    <div class="cap">
+      <div class="mini">table capacity</div>
+      <b>15 plates</b>
+      <small>∅ and X are included to start.</small>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="table">
+      <div class="table-top">
+        <div class="counts">
+          <span class="mini">berries</span>
+          <button class="count" data-n="1">1</button>
+          <button class="count" data-n="2">2</button>
+          <button class="count active" data-n="3">3</button>
+          <button class="count" data-n="4">4</button>
+          <button class="count" data-n="5">5</button>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--berry)"></i>blueberry</span>
+          <span><i style="background:var(--rasp)"></i>raspberry</span>
+          <span><i style="background:var(--straw)"></i>strawberry</span>
+        </div>
+      </div>
+
+      <div class="stage">
+        <svg id="board" viewBox="0 0 720 560" aria-label="finite set work surface">
+          <g id="shapeLayer"></g>
+          <g id="itemLayer"></g>
+          <g id="pulseLayer"></g>
+        </svg>
+        <div class="berry-tools" aria-label="fruit tools">
+          <button class="berry-tool" id="bundleBtn" type="button">bundle selection</button>
+          <button class="berry-tool" id="autoBundleBtn" type="button">auto-bundle</button>
+          <button class="berry-tool" id="unbundleBtn" type="button" disabled>unbundle selected</button>
+        </div>
+
+        <div class="hand">
+          <div class="hand-card">
+            <div class="mini">subset in your hand</div>
+            <div class="hand-set" id="currentSet">∅</div>
+          </div>
+          <div class="hand-actions">
+            <button class="btn soft" id="showAllBtn">show all plates</button>
+            <button class="btn ginger" id="placeBtn" disabled>place this plate</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-tools">
+        <div id="tableResult" class="result table-result" aria-live="polite">
+          <strong>Three berries are waiting.</strong><br>
+          Tap berries to build a subset, then place its plate.
+        </div>
+      </div>
+
+      <div class="lower">
+        <div class="shelf-head">
+          <div class="mini">plates currently on the table</div>
+          <div class="note">Click a card to show / hide · × to remove</div>
+        </div>
+        <div id="baseShelf" class="strip"></div>
+
+        <div id="partyZone" class="party-zone">
+          <div class="party-title">party mode · legibility optional</div>
+          <div class="party-sub">drag the plates around</div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <div class="action-stack">
+        <div class="action-unit">
+          <button class="action check" id="checkBtn" type="button" aria-expanded="false" aria-controls="checkResult">
+            <span class="action-copy">
+              <b>Is this a topology?</b>
+              <span>Check this collection exactly as it is.</span>
+            </span>
+            <span class="action-go" aria-hidden="true">↓</span>
+          </button>
+          <div class="result-reveal"><div class="result-clip"><div id="checkResult" class="result compact-result" aria-live="polite"></div></div></div>
+        </div>
+
+        <div class="action-unit">
+          <button class="action blue" id="generateBtn" type="button" aria-expanded="false" aria-controls="generateResult">
+            <span class="action-copy">
+              <b>Generate the topology</b>
+              <span>Add exactly what closure forces.</span>
+            </span>
+            <span class="action-go" aria-hidden="true">↓</span>
+          </button>
+          <div class="result-reveal"><div class="result-clip"><div id="generateResult" class="result compact-result" aria-live="polite"></div></div></div>
+        </div>
+      </div>
+
+      <button class="recipe-launch" id="recipeBtn" type="button">
+        <span class="recipe-icon">↝</span>
+        <span><b>show me how it grows</b><small>stop-motion: intersections first, then unions</small></span>
+      </button>
+
+      <div class="sep-row">
+        <div class="sep">
+          <button class="q" data-help="t0">?</button>
+          <div class="tag">T₀ <span id="t0Mark">·</span></div>
+          <div class="state" id="t0State">Generate a topology first.</div>
+        </div>
+        <div class="sep">
+          <button class="q" data-help="t1">?</button>
+          <div class="tag">T₁ <span id="t1Mark">·</span></div>
+          <div class="state" id="t1State">Generate a topology first.</div>
+        </div>
+      </div>
+
+      <div id="prompt" class="prompt">
+        <b>First game:</b> make the space T₀ without opening every subset.
+      </div>
+
+      <div id="boom" class="boom">
+        <b>BOOM! — DISCRETE.</b>
+        <div style="font-size:11px;line-height:1.42;margin-top:4px">You reached T₁ on a finite space. Every singleton is open, so every subset is open.</div>
+      </div>
+
+      <div id="dishwasher" class="dishwasher">
+        <div class="big" id="dishBig">dishwasher emergency.</div>
+        <p id="dishText"></p>
+        <div class="row">
+          <button class="btn small" id="tidyBtn">keep it tidy</button>
+          <button class="btn small dark" id="partyBtn">let's have a party tonight</button>
+        </div>
+      </div>
+
+      <div id="whySlip" class="proof-slip"></div>
+
+      <div class="census" id="censusBox">
+        <div class="census-head">
+          <div>
+            <div class="mini">tiny topology census</div>
+            <h3>How many tables could there be?</h3>
+            <p class="lede">A lot — until you forget the berry names. “Up to relabeling” is the same as “up to homeomorphism” here.</p>
+          </div>
+          <button class="census-toggle" id="censusToggle" type="button">more</button>
+        </div>
+        <table aria-label="Counts of finite topologies">
+          <thead>
+            <tr><th>points</th><th>labeled</th><th>up to relabeling</th><th>T₀ up to relabeling</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>2</td><td>4</td><td>3</td><td>2</td></tr>
+            <tr><td>3</td><td>29</td><td>9</td><td>5</td></tr>
+            <tr><td>4</td><td>355</td><td>33</td><td>16</td></tr>
+            <tr class="focus"><td>5</td><td>6,942</td><td>139</td><td>63</td></tr>
+            <tr><td>6</td><td>209,527</td><td>718</td><td>318</td></tr>
+          </tbody>
+        </table>
+        <div class="census-note">
+          <b>Your fruit bundles are not just decoration.</b>
+          Every finite topology can be collapsed along “indistinguishable berry” classes to a T₀ space.
+          That is why counting arbitrary finite topologies is tied so tightly to counting posets.
+        </div>
+        <div class="census-more">
+          <div class="formula">
+            For labeled points, one standard relation is
+            <b>t(n) = Σ S(n,k)·p(k)</b>, where S(n,k) counts partitions into k bundles and p(k) counts labeled T₀ spaces / posets on k points.
+          </div>
+          <div class="census-note">
+            <b>Current census note (2026):</b> exact totals for labeled topologies are known through 18 points; the unlabeled / homeomorphism-class sequence is tabulated through 16 points. There is still no general closed formula.
+          </div>
+          <div class="sources">
+            Sources:
+            <a href="https://oeis.org/A000798" target="_blank" rel="noopener">OEIS A000798 · labeled topologies</a> ·
+            <a href="https://oeis.org/A001930" target="_blank" rel="noopener">A001930 · up to homeomorphism</a> ·
+            <a href="https://oeis.org/A000112" target="_blank" rel="noopener">A000112 · unlabeled T₀ / posets</a><br>
+            Further reading:
+            <a href="https://cs.uwaterloo.ca/journals/JIS/VOL8/McKay/mckay170.html" target="_blank" rel="noopener">Brinkmann–McKay, <i>Counting Unlabelled Topologies and Transitive Relations</i> (2005)</a> ·
+            <a href="https://arxiv.org/abs/2303.11903" target="_blank" rel="noopener">Fischer–Makowsky, <i>Counting Finite Topologies</i> (2023)</a> ·
+            <a href="https://www.mdpi.com/2227-7390/14/4/681" target="_blank" rel="noopener">Alroily–Chaourar (2026)</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticket blue" style="margin-top:12px;margin-bottom:0">
+        <h3>How bundling works</h3>
+        <p>Only berries that every current plate treats together can become one fruit. If any plate contains one but not the other, they stay separate.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="footer">SET THE TABLE · topology table / fruit / counting prototype · repaired</div>
+</div>
+
+
+<div id="growModal" class="modal">
+  <div class="grow-card">
+    <button id="closeGrow" class="close" type="button">×</button>
+    <div class="grow-top">
+      <div>
+        <div class="mini">optional teaching toy</div>
+        <h2>How does the topology grow?</h2>
+        <p>Use the sets currently on your table as generators. Watch the collection grow: finite intersections first, then unions.</p>
+      </div>
+    </div>
+    <div class="grow-tabs">
+      <button class="grow-tab active" data-growmode="recipe" type="button">intersections → unions</button>
+      <button class="grow-tab" data-growmode="machine" type="button">binary closure loop</button>
+    </div>
+    <div class="grow-scene">
+      <div class="grow-phase"><b id="growPhase">ready</b><span id="growCount"></span></div>
+      <div class="grow-equation" id="growEquation">Press play. We will start from your chosen sets, together with X and ∅.</div>
+      <div class="grow-controls">
+        <button class="btn dark" id="growPlay" type="button" aria-label="Play">Play</button>
+        <button class="btn" id="growStep" type="button">Next</button>
+        <button class="btn" id="growReset" type="button">Start over</button>
+      </div>
+      <div class="grow-plates" id="growPlates"></div>
+      <div class="grow-note" id="growNote">Recipe view has three frames: your starting sets, all finite intersections, then all unions. Each batch appears together. Playback pauses for 3 seconds on each frame.</div>
+    </div>
+  </div>
+</div>
+
+<div id="helpModal" class="modal">
+  <div class="modal-card">
+    <button id="closeHelp" class="close">×</button>
+    <div id="helpBody"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const CAPACITY=15;
+  const labels=["a","b","c","d","e"];
+
+  let n=3;
+  let groups=[];              // each group is array of raw indices
+  let selectedGroups=new Set();
+  let userPlaced=[];
+  let generated=null;
+  let partyUnlocked=false;
+  let pendingOverflow=null;
+  let displayMode="tidy";
+  let showAllMode=false;
+  let visibleMasks=new Set();
+  let removedRequired=new Set();
+
+  const $=q=>document.querySelector(q);
+  const $$=q=>[...document.querySelectorAll(q)];
+  const uniq=a=>[...new Set(a)];
+
+  function fullMask(nn=n){return (1<<nn)-1}
+  function popcount(m){let c=0;while(m){c+=m&1;m>>=1}return c}
+  function fmt(mask){
+    if(mask===0)return "∅";
+    if(mask===fullMask())return "X";
+    return "{"+[...Array(n).keys()].filter(i=>mask&(1<<i)).map(i=>labels[i]).join(", ")+"}";
+  }
+  function groupMask(g){return g.reduce((m,i)=>m|(1<<i),0)}
+  function currentMask(){let m=0; [...selectedGroups].forEach(i=>m|=groupMask(groups[i])); return m}
+  function resetGroups(){groups=[...Array(n).keys()].map(i=>[i]); selectedGroups=new Set()}
+  function selectedRawCount(){return popcount(currentMask())}
+
+  function itemPositions(m){
+    if(m===1)return [{x:360,y:275}];
+    if(m===2)return [{x:250,y:275},{x:470,y:275}];
+    if(m===4)return [{x:270,y:195},{x:450,y:195},{x:450,y:375},{x:270,y:375}];
+    const cx=360,cy=280,r=m===3?135:148;
+    return [...Array(m).keys()].map(i=>{
+      const a=-Math.PI/2+2*Math.PI*i/m;
+      return {x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};
+    });
+  }
+
+  // The plate is the closed convex hull, offset by a disk of radius r.
+  // Straight offset edges + outward circular arcs give ONE simple boundary.
+  // Unlike quadratic smoothing, this never cuts across a hull vertex.
+  function platePath(points,r=38){
+    if(!points.length)return "";
+    const sorted=[...points].sort((a,b)=>a.x-b.x||a.y-b.y);
+    const cross=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    const lower=[],upper=[];
+    for(const p of sorted){
+      while(lower.length>1 && cross(lower.at(-2),lower.at(-1),p)<=0)lower.pop();
+      lower.push(p);
+    }
+    for(const p of [...sorted].reverse()){
+      while(upper.length>1 && cross(upper.at(-2),upper.at(-1),p)<=0)upper.pop();
+      upper.push(p);
+    }
+    const hull=sorted.length===1?sorted:lower.slice(0,-1).concat(upper.slice(0,-1));
+    const xy=p=>`${p.x.toFixed(3)} ${p.y.toFixed(3)}`;
+    if(hull.length===1){
+      const p=hull[0];
+      return `M ${p.x-r} ${p.y} A ${r} ${r} 0 1 1 ${p.x+r} ${p.y} A ${r} ${r} 0 1 1 ${p.x-r} ${p.y} Z`;
+    }
+    const normals=hull.map((p,i)=>{
+      const q=hull[(i+1)%hull.length],dx=q.x-p.x,dy=q.y-p.y,len=Math.hypot(dx,dy);
+      return {x:r*dy/len,y:-r*dx/len};
+    });
+    const offset=(p,v)=>({x:p.x+v.x,y:p.y+v.y});
+    let d=`M ${xy(offset(hull[0],normals[0]))}`;
+    hull.forEach((p,i)=>{
+      const next=(i+1)%hull.length,q=hull[next];
+      d+=` L ${xy(offset(q,normals[i]))} A ${r} ${r} 0 0 1 ${xy(offset(q,normals[next]))}`;
+    });
+    return d+" Z";
+  }
+
+  function selectedGroupIndicesForMask(mask){
+    const out=[];
+    groups.forEach((g,gi)=>{
+      const gm=groupMask(g);
+      if((mask & gm)===gm) out.push(gi);
+    });
+    return out;
+  }
+
+  function subsetDisplayPoints(mask){
+    const pos=itemPositions(groups.length), pts=[];
+    groups.forEach((g,gi)=>{
+      const gm=groupMask(g);
+      if((mask & gm)===gm) pts.push(pos[gi]);
+    });
+    return pts;
+  }
+
+  function plateRadius(mask){
+    // Cardinality first: every extra original berry adds 12 units of margin.
+    // Equal-size subsets receive a small, fixed lexicographic offset (0–7).
+    // Thus A ⊊ B implies r(A) < r(B), and their rounded hulls are nested too.
+    const k=popcount(mask), peers=[];
+    for(let m=1;m<=fullMask();m++)if(popcount(m)===k)peers.push(m);
+    const tie=peers.length>1?7*peers.indexOf(mask)/(peers.length-1):0;
+    return 34+12*(k-1)+tie;
+  }
+
+  function displayPlatePath(mask){
+    return platePath(subsetDisplayPoints(mask),plateRadius(mask));
+  }
+
+  function appendSubset(layer,mask,source){
+    if(mask===0)return;
+    const pts=subsetDisplayPoints(mask);
+    if(!pts.length)return;
+    const cls=source==="draft"?"sel-draft":source==="forced"?"sel-forced":source==="required"?"sel-required":"sel-user";
+    const ns="http://www.w3.org/2000/svg";
+
+    const p=document.createElementNS(ns,"path");
+    p.setAttribute("d",displayPlatePath(mask));
+    p.dataset.mask=mask;
+    p.setAttribute("class",cls);
+    layer.appendChild(p);
+  }
+
+  function drawSubset(layer,mask,source){
+    layer.innerHTML="";
+    appendSubset(layer,mask,source);
+  }
+
+  function fruitColor(size){
+    if(size===1)return "var(--berry)";
+    if(size===2)return "var(--rasp)";
+    if(size===3)return "var(--straw)";
+    return "var(--straw)";
+  }
+
+  function localOffsets(size){
+    if(size===1)return [{x:0,y:0}];
+    if(size===2)return [{x:-7,y:0},{x:7,y:0}];
+    if(size===3)return [{x:-8,y:-3},{x:8,y:-3},{x:0,y:8}];
+    const out=[];
+    const r=12;
+    for(let i=0;i<size;i++){
+      const a=-Math.PI/2 + 2*Math.PI*i/size;
+      out.push({x:r*Math.cos(a),y:r*Math.sin(a)});
+    }
+    return out;
+  }
+
+  function fruitName(group){
+    if(group.length===1)return "blueberry";
+    if(group.length===2)return "raspberry";
+    if(group.length===3)return "strawberry";
+    return "fruit cluster";
+  }
+
+  function drawFruit(layer,center,group,selected=false,label=true,scale=1){
+    const ns="http://www.w3.org/2000/svg";
+    const g=document.createElementNS(ns,"g");
+    g.setAttribute("class","item"+(selected?" selected":""));
+    const body=fruitColor(group.length);
+    const offs=localOffsets(group.length);
+    const hit=document.createElementNS(ns,"rect");
+    hit.setAttribute("x",center.x-32*scale);hit.setAttribute("y",center.y-29*scale);
+    hit.setAttribute("width",64*scale);hit.setAttribute("height",68*scale);
+    hit.setAttribute("fill","transparent");hit.setAttribute("class","hit-target");g.appendChild(hit);
+    offs.forEach(o=>{
+      const b=document.createElementNS(ns,"circle");
+      b.setAttribute("cx",center.x+o.x*scale); b.setAttribute("cy",center.y+o.y*scale); b.setAttribute("r",11.5*scale);
+      b.setAttribute("fill",body);
+      g.appendChild(b);
+    });
+    if(label){
+      const t=document.createElementNS(ns,"text");
+      t.setAttribute("x",center.x); t.setAttribute("y",center.y+31);t.setAttribute("text-anchor","middle");
+      t.textContent=group.map(i=>labels[i]).join("");
+      g.appendChild(t);
+    }
+    layer.appendChild(g);
+    return g;
+  }
+
+  function renderBoard(){
+    const itemLayer=$("#itemLayer"), shapeLayer=$("#shapeLayer");
+    $("#pulseLayer").innerHTML=""; shapeLayer.innerHTML="";
+    const pos=itemPositions(groups.length);
+
+    const entries=generated||baseEntries();
+    const available=new Set(entries.map(e=>e.mask));
+    visibleMasks=new Set([...visibleMasks].filter(m=>available.has(m)));
+    const visible=entries.filter(e=>visibleMasks.has(e.mask)).sort((a,b)=>popcount(b.mask)-popcount(a.mask)||b.mask-a.mask);
+    const draft=currentMask();
+    shapeLayer.classList.toggle("overlaid",visible.filter(e=>e.mask!==0).length+(draft&&!visibleMasks.has(draft)?1:0)>1);
+    visible.filter(e=>e.mask!==draft).forEach(e=>appendSubset(shapeLayer,e.mask,e.source));
+    if(draft)appendSubset(shapeLayer,draft,"draft");
+    showAllMode=entries.length>0&&entries.every(e=>visibleMasks.has(e.mask));
+    syncShowAllButton();
+
+    // Keep the same hit targets mounted while selecting. Resolve identity by
+    // the group's raw-point mask, never by a potentially stale display index.
+    const signature=groups.map(groupMask).join(",");
+    if(itemLayer.dataset.signature!==signature){
+      itemLayer.innerHTML="";itemLayer.dataset.signature=signature;
+      groups.forEach((grp,gi)=>{
+        const g=drawFruit(itemLayer,pos[gi],grp,false,true,1),identity=groupMask(grp);
+        g.dataset.berryMask=identity;g.setAttribute("role","button");g.setAttribute("tabindex","0");
+        g.setAttribute("aria-label",`Select ${grp.map(i=>labels[i]).join(", ")}`);
+        const toggle=()=>{
+          const index=groups.findIndex(grp=>groupMask(grp)===identity);
+          if(index<0)return;
+          if(selectedGroups.has(index))selectedGroups.delete(index);else selectedGroups.add(index);
+          renderBoard();renderGroups();
+        };
+        g.onclick=event=>{event.stopPropagation();toggle();};
+        g.onkeydown=event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();toggle();}};
+      });
+    }
+    [...itemLayer.children].forEach((g,gi)=>{
+      g.classList.toggle("selected",selectedGroups.has(gi));
+      g.setAttribute("aria-pressed",String(selectedGroups.has(gi)));
+    });
+    $("#currentSet").textContent=fmt(currentMask());
+    $("#placeBtn").disabled=currentMask()===0;
+  }
+
+  function plateSvg(mask,source){
+    const st=source==="forced"
+      ?["rgba(114,125,170,.18)","#7a86b2"]
+      :source==="required"
+        ?["rgba(68,56,50,.06)","#7a6d64"]
+        :["rgba(70,80,138,.10)","#46508a"];
+
+    const pts=subsetDisplayPoints(mask);
+    const shape=pts.length ? `<path d="${displayPlatePath(mask)}" fill="${st[0]}" stroke="${st[1]}" stroke-width="3"/>` : "";
+
+    let fruits="";
+    const pos=itemPositions(groups.length);
+    groups.forEach((grp,gi)=>{
+      const gm=groupMask(grp);
+      if((mask&gm)===gm){
+        const body=fruitColor(grp.length);
+        localOffsets(grp.length).forEach(o=>{
+          fruits += `<circle cx="${pos[gi].x+o.x}" cy="${pos[gi].y+o.y}" r="11.5" fill="${body}"/>`;
+        });
+      }
+    });
+
+    return `<svg viewBox="0 0 720 560">${shape}${fruits}</svg>`;
+  }
+
+  function baseEntries(){
+    return [
+      {mask:0,source:"required",reason:"Every topology contains ∅."},
+      {mask:fullMask(),source:"required",reason:"Every topology contains X."},
+      ...userPlaced.map(m=>({mask:m,source:"user",reason:"You placed this plate."}))
+    ].filter(e=>!removedRequired.has(e.mask));
+  }
+
+  function togglePlate(entry){
+    if(!visibleMasks.has(entry.mask)&&!allowCapacity(visibleMasks.size+1,()=>togglePlate(entry)))return;
+    selectedGroups.clear();
+    if(visibleMasks.has(entry.mask))visibleMasks.delete(entry.mask);else visibleMasks.add(entry.mask);
+    renderEverything();
+    if(visibleMasks.has(entry.mask))explain(entry);else $("#whySlip").style.display="none";
+  }
+
+  function deletePlate(mask,confirmed=false){
+    if((mask===0||mask===fullMask())&&!confirmed){
+      $("#tableResult").innerHTML=`<strong class="bad">Every topology must contain ${fmt(mask)}.</strong><br>Removing this plate makes the collection fail the topology axioms.
+        <div class="warning-actions"><button class="btn small dark" id="keepRequired">Keep ${fmt(mask)}</button><button class="btn small" id="removeRequired">Remove anyway</button></div>`;
+      $("#keepRequired").onclick=()=>{$("#tableResult").innerHTML=`<strong>Kept ${fmt(mask)}.</strong>`;};
+      $("#removeRequired").onclick=()=>deletePlate(mask,true);
+      return;
+    }
+    pendingOverflow=null;
+    // Deleting one generated plate retains every other current plate.
+    const remaining=(generated||baseEntries()).filter(e=>e.mask!==mask).map(e=>e.mask);
+    userPlaced=remaining.filter(m=>m!==0&&m!==fullMask());
+    removedRequired=new Set([0,fullMask()].filter(m=>!remaining.includes(m)));
+    visibleMasks.delete(mask);selectedGroups.clear();generated=null;displayMode=partyUnlocked?"party":"tidy";
+    hidePostGenerate();resetActionResults();renderEverything();
+    $("#tableResult").innerHTML=`<strong>Removed ${fmt(mask)}.</strong><br>The other plates remain. Check the collection again whenever you like.`;
+  }
+
+  function addPlate(container,entry){
+    const d=document.createElement("div");
+    d.className=`plate ${entry.source}`+(visibleMasks.has(entry.mask)?" is-visible":"");
+    d.dataset.mask=entry.mask;
+    const toggle=document.createElement("button");
+    toggle.type="button";toggle.className="plate-toggle";
+    toggle.setAttribute("aria-label",`Show or hide plate ${fmt(entry.mask)}`);
+    toggle.setAttribute("aria-pressed",String(visibleMasks.has(entry.mask)));
+    toggle.innerHTML=`${entry.mask===0?'<div style="height:64px"></div>':plateSvg(entry.mask,entry.source)}
+      <div class="name">${fmt(entry.mask)}</div>
+      <div class="kind">${visibleMasks.has(entry.mask)?"on table":entry.source==="user"?"you":entry.source}</div>`;
+    toggle.onclick=()=>togglePlate(entry);d.appendChild(toggle);
+    const x=document.createElement("button");x.className="x";x.type="button";x.textContent="×";
+    x.setAttribute("aria-label",`Delete plate ${fmt(entry.mask)}`);
+    x.onclick=e=>{e.stopPropagation();deletePlate(entry.mask);};d.appendChild(x);
+    container.appendChild(d);
+  }
+
+  function visibleGeneratedEntries(){
+    const entries=[...generated];
+    if(displayMode==="party") return entries;
+    const rank=s=>s==="required"?0:s==="user"?1:2;
+    return entries.sort((a,b)=>rank(a.source)-rank(b.source)||popcount(a.mask)-popcount(b.mask)||a.mask-b.mask);
+  }
+
+  function renderShelf(){
+    const box=$("#baseShelf"),scroll=box.scrollLeft; box.innerHTML="";
+    const entries=generated?visibleGeneratedEntries():baseEntries();
+    entries.forEach(e=>addPlate(box,e,!generated));
+    box.scrollLeft=scroll;
+
+  }
+
+  function renderGroups(){
+    const b=$("#unbundleBtn");
+    if(!b)return;
+    const chosen=[...selectedGroups];
+    const can = chosen.length===1 && groups[chosen[0]] && groups[chosen[0]].length>1;
+    b.disabled=!can;
+    b.textContent = can ? `unbundle ${fruitName(groups[chosen[0]])}` : "unbundle selected";
+  }
+
+  function renderParty(){
+    const zone=$("#partyZone"); zone.querySelectorAll(".party-plate").forEach(x=>x.remove());
+    if(displayMode!=="party"){zone.style.display="none"; return;}
+    zone.style.display="block";
+    const entries=generated||baseEntries();
+    const cols=Math.max(1,Math.floor((zone.clientWidth-36)/98));
+    zone.style.height=Math.max(430,66+Math.ceil(entries.length/cols)*84)+"px";
+    entries.forEach((e,idx)=>{
+      const p=document.createElement("div");
+      p.className=`party-plate ${e.source}`;
+      const col=idx%cols,row=Math.floor(idx/cols), rot=((idx*17)%19)-9;
+      p.style.left=(18+col*98)+"px";
+      p.style.top=(48+row*84)+"px";
+      p.style.transform=`rotate(${rot}deg)`;
+      p.innerHTML=`${plateSvg(e.mask,e.source)}<div class="name">${fmt(e.mask)}</div>`;
+      p.onclick=()=>{if(p.dataset.dragged!=="true")togglePlate(e);};
+      const close=document.createElement("button");close.type="button";close.className="x";close.textContent="×";
+      close.setAttribute("aria-label",`Delete plate ${fmt(e.mask)}`);
+      close.onclick=ev=>{ev.stopPropagation();deletePlate(e.mask);};p.appendChild(close);
+      makeDraggable(p,zone);
+      zone.appendChild(p);
+    });
+  }
+
+  function makeDraggable(el,zone){
+    let dragging=false,dx=0,dy=0,startX=0,startY=0;
+    el.addEventListener("pointerdown",ev=>{
+      if(ev.target.closest("button"))return;
+      dragging=true;el.dataset.dragged="false";startX=ev.clientX;startY=ev.clientY; el.setPointerCapture(ev.pointerId);
+      const r=el.getBoundingClientRect(); dx=ev.clientX-r.left; dy=ev.clientY-r.top; el.style.zIndex=20;
+    });
+    el.addEventListener("pointermove",ev=>{
+      if(!dragging)return;
+      if(Math.hypot(ev.clientX-startX,ev.clientY-startY)>4)el.dataset.dragged="true";
+      const zr=zone.getBoundingClientRect();
+      let x=ev.clientX-zr.left-dx,y=ev.clientY-zr.top-dy;
+      x=Math.max(0,Math.min(zr.width-el.offsetWidth,x)); y=Math.max(35,Math.min(zr.height-el.offsetHeight,y));
+      el.style.left=x+"px"; el.style.top=y+"px";
+    });
+    el.addEventListener("pointerup",()=>{dragging=false; el.style.zIndex=""});
+    el.addEventListener("pointercancel",()=>{dragging=false; el.style.zIndex=""});
+  }
+
+  function renderEverything(){ renderBoard(); renderShelf(); renderGroups(); renderParty(); updateOverflow(); updateSeparation(); }
+
+  function exactMasks(){ return uniq(baseEntries().map(e=>e.mask)); }
+
+  function checkTopology(masks){
+    const A=uniq(masks), S=new Set(A);
+    if(!S.has(0)||!S.has(fullMask()))return {ok:false,msg:"Both ∅ and X must be in the collection."};
+    for(const u of A) for(const v of A){
+      const U=u|v, I=u&v;
+      if(!S.has(U)) return {ok:false,msg:`${fmt(u)} ∪ ${fmt(v)} = ${fmt(U)} is missing.`};
+      if(!S.has(I)) return {ok:false,msg:`${fmt(u)} ∩ ${fmt(v)} = ${fmt(I)} is missing.`};
+    }
+    return {ok:true,msg:`Yes. These ${A.length} open sets form a topology.`};
+  }
+
+  function generateTopology(masks){
+    const originals=new Set(masks);
+    const reason=new Map();
+    reason.set(0,"∅ is required by the topology axioms.");
+    reason.set(fullMask(),"X is required by the topology axioms.");
+    userPlaced.forEach(m=>reason.set(m,"You placed this plate."));
+    let A=uniq([0,fullMask(),...masks]), changed=true;
+    while(changed){
+      changed=false;
+      const snap=[...A], S=new Set(A);
+      for(const u of snap) for(const v of snap){
+        for(const [op,w] of [["∪",u|v],["∩",u&v]]){
+          if(!S.has(w)){
+            S.add(w); A.push(w); changed=true;
+            reason.set(w,`${fmt(u)} ${op} ${fmt(v)} = ${fmt(w)}.`);
+          }
+        }
+      }
+    }
+    A=uniq(A).sort((a,b)=>popcount(a)-popcount(b)||a-b);
+    return A.map(mask=>({
+      mask,
+      source:(mask===0||mask===fullMask())?"required":originals.has(mask)?"user":"forced",
+      reason:reason.get(mask) || "Forced by closure."
+    }));
+  }
+
+  function t0(masks){
+    const bad=[];
+    for(let x=0;x<n;x++) for(let y=x+1;y<n;y++){
+      if(!masks.some(u=>!!(u&(1<<x)) !== !!(u&(1<<y)))) bad.push([x,y]);
+    }
+    return {ok:bad.length===0,bad};
+  }
+  function t1(masks){
+    const bad=[];
+    for(let x=0;x<n;x++) for(let y=x+1;y<n;y++){
+      const xy=masks.some(u=>(u&(1<<x)) && !(u&(1<<y)));
+      const yx=masks.some(u=>(u&(1<<y)) && !(u&(1<<x)));
+      if(!(xy&&yx)) bad.push([x,y]);
+    }
+    return {ok:bad.length===0,bad};
+  }
+
+  function updateBundleHint(masks,validated,r0,r1){
+    const hasBundles=groups.some(g=>g.length>1);
+    if(!validated&&!hasBundles){
+      $("#prompt").innerHTML=`<b>Try this:</b> make a T₀ space without opening every subset. Check or generate your topology to see its separation properties.`;
+      return;
+    }
+    if(validated&&r1.ok){
+      $("#prompt").innerHTML=`<b>Discrete.</b> Every singleton is open, so every subset is open.`;
+      return;
+    }
+    if(validated&&r0.ok){
+      $("#prompt").innerHTML=`<b>T₀.</b> Every pair can be distinguished. To reach T₁, each pair must be separated in both directions.`;
+      return;
+    }
+    // Suggest only two DIFFERENT displayed fruits with the same membership
+    // signature. Pairs already represented by one fruit are not candidates.
+    const same=(a,b)=>masks.every(m=>!!(m&(1<<a))===!!(m&(1<<b)));
+    let candidate=null;
+    for(let i=0;i<groups.length&&!candidate;i++)for(let j=i+1;j<groups.length;j++){
+      if(same(groups[i][0],groups[j][0])){candidate=[groups[i],groups[j]];break;}
+    }
+    if(candidate){
+      const [a,b]=candidate;
+      const name=g=>g.length===1?labels[g[0]]:`{${g.map(i=>labels[i]).join(", ")}}`;
+      const instruction=a.length+b.length<=3
+        ? 'Select these two fruits and choose “bundle selection”.'
+        : 'Choose “auto-bundle” to combine the indistinguishable fruits.';
+      $("#prompt").innerHTML=`<b>These can be bundled:</b> ${name(a)} and ${name(b)}. No current plate contains one without the other. ${instruction}`;
+    }else if(hasBundles){
+      $("#prompt").innerHTML=`<b>Bundling complete.</b> The plates distinguish every displayed fruit. Berries within a bundle remain indistinguishable; the T₀ and T₁ tests refer to the original berries.`;
+    }
+  }
+
+  function updateSeparation(){
+    const masks=(generated||baseEntries()).map(e=>e.mask),r0=t0(masks),r1=t1(masks);
+    const validated=generated!==null;
+    if(!validated){
+      for(const key of ["t0","t1"]){
+        $("#"+key+"Mark").textContent="·";$("#"+key+"Mark").className="";
+        $("#"+key+"State").textContent="Check or generate a topology first.";
+      }
+    }else{
+      const sameFruit=(a,b)=>groups.some(g=>g.includes(a)&&g.includes(b));
+      const failedPair=(result,twoWay)=>{
+        const [a,b]=result.bad[0];
+        return sameFruit(a,b)
+          ? `${labels[a]} and ${labels[b]} are in one bundle; no open set separates them.`
+          : twoWay?`${labels[a]} and ${labels[b]} are not separated in both directions.`:`No open set distinguishes ${labels[a]} from ${labels[b]}.`;
+      };
+      $("#t0Mark").textContent=r0.ok?"✓":"×";$("#t0Mark").className=r0.ok?"ok":"bad";
+      $("#t1Mark").textContent=r1.ok?"✓":"×";$("#t1Mark").className=r1.ok?"ok":"bad";
+      $("#t0State").textContent=r0.ok?"Every pair can be told apart.":failedPair(r0,false);
+      $("#t1State").textContent=r1.ok?"Every pair separates both ways.":failedPair(r1,true);
+    }
+    $("#boom").style.display=validated&&r1.ok?"block":"none";
+    $("#pulseLayer").innerHTML="";
+    updateBundleHint(masks,validated,r0,r1);
+  }
+
+  function pulseSingletons(){ $("#pulseLayer").innerHTML=""; }
+
+  function allowCapacity(total,resume){
+    if(total<=CAPACITY||partyUnlocked)return true;
+    pendingOverflow={total,resume};
+    syncShowAllButton();updateOverflow();
+    $("#tableResult").innerHTML=`<strong class="bad">Too many plates — the table holds ${CAPACITY}.</strong><br>This would bring us to ${total}. Nothing has been added. Want to have a party tonight?
+      <div class="warning-actions"><button class="btn small" id="cancelOverflow">keep it tidy</button><button class="btn small dark" id="acceptOverflow">let's have a party tonight</button></div>`;
+    $("#cancelOverflow").onclick=keepTidy;
+    $("#acceptOverflow").onclick=unlockParty;
+    return false;
+  }
+
+  function keepTidy(){
+    partyUnlocked=false;pendingOverflow=null;displayMode=partyUnlocked?"party":"tidy";
+    // Preserve the collection; only up to 15 existing plates can be displayed.
+    visibleMasks=new Set([...visibleMasks].slice(0,CAPACITY));
+    selectedGroups.clear();renderEverything();
+    $("#tableResult").innerHTML=`<strong>Keeping it tidy.</strong><br>The 15-plate limit is active. Your existing collection is preserved.`;
+  }
+
+  function unlockParty(){
+    const resume=pendingOverflow?.resume;
+    partyUnlocked=true;pendingOverflow=null;displayMode="party";
+    if(resume)resume();
+    renderEverything();
+    if(!resume)$("#tableResult").innerHTML=`<strong>Welcome to the combinatorial party.</strong><br>Show all plates is unlocked.`;
+  }
+
+  function updateOverflow(){
+    const total=Math.max((generated||baseEntries()).length,pendingOverflow?.total||0);
+    if(total<=CAPACITY){$("#dishwasher").style.display="none";return;}
+    $("#dishwasher").style.display="block";
+    $("#dishBig").textContent=partyUnlocked?`party time — ${total} plates.`:`uh oh — ${total} plates?`;
+    $("#dishText").textContent=partyUnlocked
+      ? "Welcome to the combinatorial party. The table was not designed for this many mathematical guests. Show all plates is unlocked."
+      : `The table holds ${CAPACITY} plates, including ∅. Adding more and showing all are locked. Want to have a party tonight?`;
+  }
+
+  function celebrate(word,target="#tableResult"){
+    const box=$(target);
+    if(!box)return;
+    box.classList.remove("celebrate");
+    void box.offsetWidth;
+    box.classList.add("celebrate");
+    box.querySelectorAll(".yay").forEach(x=>x.remove());
+    const first=box.querySelector("strong");
+    if(first){
+      const tag=document.createElement("span");
+      tag.className="yay";
+      tag.textContent=word;
+      first.insertAdjacentElement("beforebegin",tag);
+    }
+  }
+
+  function explain(entry){
+    const slip=$("#whySlip");
+    slip.style.display="block";
+    if(entry.source==="forced") slip.innerHTML=`<b>${fmt(entry.mask)} was forced.</b><br>${entry.reason}`;
+    else if(entry.source==="user") slip.innerHTML=`<b>${fmt(entry.mask)} is blue because you placed it.</b>`;
+    else slip.innerHTML=`<b>${fmt(entry.mask)}</b><br>${entry.reason}`;
+  }
+
+  function hidePostGenerate(){
+    $("#boom").style.display="none"; $("#dishwasher").style.display="none"; $("#whySlip").style.display="none";
+    $("#pulseLayer").innerHTML="";
+    $("#t0Mark").textContent="·"; $("#t0Mark").className="";
+    $("#t1Mark").textContent="·"; $("#t1Mark").className="";
+    $("#t0State").textContent="Generate a topology first.";
+    $("#t1State").textContent="Generate a topology first.";
+    $("#prompt").innerHTML=`<b>First game:</b> make the space T₀ without opening every subset.`;
+  }
+
+  function compatibleToBundle(rawPts, masks){
+    for(const mask of masks){
+      const vals=rawPts.map(i=>!!(mask&(1<<i)));
+      if(!vals.every(v=>v===vals[0])){
+        const one=rawPts.find(i=> !!(mask&(1<<i))===vals[0]);
+        const two=rawPts.find(i=> !!(mask&(1<<i))!==vals[0]);
+        return {ok:false, witness:mask, one, two};
+      }
+    }
+    return {ok:true};
+  }
+
+  function familyForBundleCheck(){
+    return generated ? generated.map(e=>e.mask) : exactMasks();
+  }
+
+  function bundleSelected(){
+    pendingOverflow=null;
+    const chosen=[...selectedGroups];
+    if(chosen.length<2){
+      $("#tableResult").innerHTML=`<strong class="bad">Select more than one group.</strong><br>Pick 2 or 3 berries you want to try to bundle.`;
+      return;
+    }
+    const rawPts=chosen.flatMap(i=>groups[i]);
+    if(rawPts.length<2 || rawPts.length>3){
+      $("#tableResult").innerHTML=`<strong class="bad">Too many berries for one fruit.</strong><br>This prototype bundles 2 into a raspberry or 3 into a strawberry.`;
+      return;
+    }
+    const check=compatibleToBundle(rawPts, familyForBundleCheck());
+    if(!check.ok){
+      $("#tableResult").innerHTML=`<strong class="bad">These berries cannot be bundled.</strong><br>${labels[check.one]} and ${labels[check.two]} are already treated differently by ${fmt(check.witness)}.`;
+      return;
+    }
+    const keep=groups.filter((_,i)=>!selectedGroups.has(i));
+    keep.push(rawPts.sort((a,b)=>a-b));
+    groups=keep.sort((A,B)=>A[0]-B[0]);
+    selectedGroups=new Set();
+    displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; renderEverything(); syncShowAllButton();
+    $("#tableResult").innerHTML=`<strong>Bundled ${rawPts.map(i=>labels[i]).join("")}.</strong><br>${rawPts.length===2?"Raspberry created.":"Strawberry created."} The open sets are unchanged.`;
+  }
+
+  function unbundleSelected(){
+    pendingOverflow=null;
+    const chosen=[...selectedGroups];
+    if(chosen.length!==1){
+      $("#tableResult").innerHTML=`<strong>Select one fruit.</strong><br>Choose a raspberry or strawberry to split it back into blueberries.`;
+      return;
+    }
+    const gi=chosen[0], grp=groups[gi];
+    if(!grp || grp.length===1){
+      $("#tableResult").innerHTML=`<strong>That is already a blueberry.</strong>`;
+      return;
+    }
+    groups=[...groups.slice(0,gi), ...grp.map(x=>[x]), ...groups.slice(gi+1)]
+      .sort((A,B)=>A[0]-B[0]);
+    selectedGroups=new Set();
+    displayMode=partyUnlocked?"party":"tidy"; showAllMode=false;
+    renderEverything(); syncShowAllButton();
+    $("#tableResult").innerHTML=`<strong>Unbundled ${fruitName(grp)}.</strong><br>${grp.map(i=>labels[i]).join(", ")} are separate blueberries again.`;
+  }
+
+  function autoBundle(){
+    pendingOverflow=null;
+    const masks=familyForBundleCheck();
+    const parent=[...Array(n).keys()];
+    function find(x){while(parent[x]!==x)x=parent[x]=parent[parent[x]];return x}
+    function unite(a,b){a=find(a);b=find(b); if(a!==b) parent[b]=a}
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+      const same=masks.every(mask=>!!(mask&(1<<i))===!!(mask&(1<<j)));
+      if(same) unite(i,j);
+    }
+    const classes={};
+    for(let i=0;i<n;i++){const r=find(i); (classes[r]??=[]).push(i);}
+    const newGroups=Object.values(classes).map(g=>g.sort((a,b)=>a-b)).sort((A,B)=>A[0]-B[0]);
+    const changed=JSON.stringify(newGroups)!==JSON.stringify(groups);
+    groups=newGroups; selectedGroups=new Set();
+    displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; renderEverything(); syncShowAllButton();
+    if(changed) $("#tableResult").innerHTML=`<strong>Auto-bundled.</strong><br>Any berries the current family could not tell apart were compressed into fruits.`;
+    else $("#tableResult").innerHTML=`<strong>Bundling complete.</strong><br>No two displayed fruits can be combined further.`;
+  }
+
+  function help(key){
+    const body=$("#helpBody");
+    if(key==="t0"){
+      body.innerHTML=`
+        <div class="mini">separation note</div>
+        <h2>T₀: can the points be told apart?</h2>
+        <div class="demo t0-demo"><svg viewBox="0 0 300 130" role="img" aria-label="An open disk contains x but not y. One direction is enough for T zero.">
+          <text x="150" y="18" text-anchor="middle" font-size="12" fill="#796d64">one direction is enough</text>
+          <circle cx="76" cy="74" r="34" fill="rgba(114,125,170,.12)" stroke="#727daa" stroke-width="2"/>
+          <circle cx="76" cy="74" r="10" fill="#46508a"/><circle cx="220" cy="74" r="10" fill="#46508a"/>
+          <text x="76" y="122" text-anchor="middle" font-size="12">x</text><text x="220" y="122" text-anchor="middle" font-size="12">y</text>
+        </svg></div>
+        <p>For every different pair x ≠ y, some open set contains one of the two points but not the other.</p>
+        <p><b>Human version:</b> no two points are completely indistinguishable to the topology.</p>`;
+    }else{
+      body.innerHTML=`
+        <div class="mini">separation note</div>
+        <h2>T₁: now do it both ways.</h2>
+        <div class="demo"><svg viewBox="0 0 300 100">
+          <circle cx="76" cy="50" r="28" fill="rgba(213,163,71,.28)" stroke="#c28c31" stroke-width="2"/>
+          <circle cx="76" cy="50" r="10" fill="#46508a"/>
+          <circle cx="222" cy="50" r="28" fill="rgba(114,125,170,.16)" stroke="#7a86b2" stroke-width="2"/>
+          <circle cx="222" cy="50" r="10" fill="#46508a"/>
+          <text x="69" y="91" font-size="12">x</text><text x="216" y="91" font-size="12">y</text>
+        </svg></div>
+        <p>For every x ≠ y, one open set contains x but not y, and another contains y but not x.</p>
+        <p><b>Remark:</b> These two open sets are not required to be disjoint. Compare with T₂ (Hausdorff), which asks that we can choose disjoint open neighborhoods of x and y.</p>
+        <p class="finite-surprise"><b>Finite surprise:</b> once you hit T₁, the whole finite space collapses into the discrete topology.</p>`;
+    }
+    $("#helpModal").style.display="flex";
+  }
+
+
+  // --- stop-motion topology generator ---------------------------------
+  let growMode="recipe";
+  let growSteps=[];
+  let growIndex=0;
+  let growTimer=null;
+  let growVisible=[];
+
+  function playerIcon(kind){
+    const paths={
+      play:'<path d="M6 3 19 12 6 21Z" fill="currentColor"/>',
+      pause:'<path d="M5 4h5v16H5zM14 4h5v16h-5z" fill="currentColor"/>',
+      next:'<path d="m5 4 11 8L5 20Z" fill="currentColor"/><path d="M19 4v16" stroke="currentColor" stroke-width="2"/>',
+      restart:'<path d="M5 8a8 8 0 1 1-1 7M5 3v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    };
+    return `<svg class="player-icon" viewBox="0 0 24 24" aria-hidden="true">${paths[kind]}</svg>`;
+  }
+
+  function syncPlayerControls(){
+    const running=growTimer!==null,ended=growIndex>=growSteps.length-1;
+    const label=running?"Pause":ended?"Replay":"Play";
+    $("#growPlay").innerHTML=playerIcon(running?"pause":"play")+`<span>${label}</span>`;
+    $("#growPlay").setAttribute("aria-label",label);
+    $("#growStep").innerHTML=playerIcon("next")+'<span>Next</span>';
+    $("#growStep").setAttribute("aria-label",growMode==="recipe"?"Next stage":"Next step");
+    $("#growStep").disabled=ended;
+    $("#growReset").innerHTML=playerIcon("restart")+'<span>Start over</span>';
+  }
+
+  function stopGrowTimer(){
+    if(growTimer!==null){clearInterval(growTimer);growTimer=null;}
+    syncPlayerControls();
+  }
+
+  function generatorMasks(){ return uniq([0,fullMask(),...userPlaced]); }
+
+  function buildRecipeSteps(){
+    const start=generatorMasks();
+    const close=(sets,operation)=>{
+      const out=new Set(sets);let changed=true;
+      while(changed){
+        changed=false;
+        const snapshot=[...out];
+        for(const u of snapshot)for(const v of snapshot){
+          const w=operation(u,v);
+          if(!out.has(w)){out.add(w);changed=true;}
+        }
+      }
+      return [...out].sort((a,b)=>popcount(a)-popcount(b)||a-b);
+    };
+    const basis=close(start,(u,v)=>u&v),topo=close(basis,(u,v)=>u|v);
+    const intersections=basis.filter(m=>!start.includes(m));
+    const unions=topo.filter(m=>!basis.includes(m));
+    return [
+      {phase:"start",added:[],visible:start,text:"Start with your chosen sets, together with X and ∅."},
+      {phase:"intersection",added:intersections,visible:basis,
+       text:`Take all finite intersections at once. ${intersections.length} new set${intersections.length===1?" appears":"s appear"}; the ${basis.length} sets on this shelf form a basis. The empty intersection gives X.`},
+      {phase:"union",added:unions,visible:topo,
+       text:`Take all unions of these basis sets at once, including the empty union ∅. ${unions.length} new set${unions.length===1?" appears":"s appear"}. This is the generated topology: ${topo.length} open sets.`}
+    ];
+  }
+
+  function buildMachineSteps(){
+    const start=generatorMasks();
+    const steps=[{phase:"start",add:null,visible:[...start],text:"Machine view: start with your collection, X, and ∅."}];
+    let A=uniq(start), changed=true, pass=1;
+    while(changed){
+      changed=false;
+      const snap=[...A], S=new Set(A);
+      let found=null;
+      outer:
+      for(const u of snap) for(const v of snap){
+        for(const [op,w] of [["∩",u&v],["∪",u|v]]){
+          if(!S.has(w)){ found={op,u,v,w}; break outer; }
+        }
+      }
+      if(found){
+        A.push(found.w); changed=true;
+        steps.push({phase:"machine",add:found.w,visible:[...A],text:`Pass ${pass}: ${fmt(found.u)} ${found.op} ${fmt(found.v)} = ${fmt(found.w)} was missing, so the machine adds it.`});
+        pass++;
+      }
+    }
+    steps.push({phase:"done",add:null,visible:[...A],text:`Stable. Every binary union and intersection stays inside the collection. On this finite set, that is your generated topology (${A.length} open sets).`});
+    return steps;
+  }
+
+  function buildGrowSteps(){
+    growSteps=growMode==="recipe"?buildRecipeSteps():buildMachineSteps();
+    growIndex=0;
+    growVisible=[];
+  }
+
+  function growPhaseLabel(phase){
+    if(phase==="intersection") return "1 · finite intersections";
+    if(phase==="basis") return "intersection shelf complete";
+    if(phase==="union") return "2 · arbitrary unions · complete";
+    if(phase==="machine") return "binary closure loop";
+    if(phase==="done") return "done";
+    return "starting collection";
+  }
+
+  function renderGrowStep(){
+    const step=growSteps[Math.min(growIndex,growSteps.length-1)];
+    if(!step) return;
+    growVisible=[...step.visible];
+    $("#growPhase").textContent=growPhaseLabel(step.phase);
+    $("#growCount").textContent=`${growVisible.length} set${growVisible.length===1?"":"s"} on the shelf`;
+    const badge=step.phase==="union"?'<span class="phase-badge union">union</span>':step.phase==="intersection"?'<span class="phase-badge">intersection</span>':"";
+    $("#growEquation").innerHTML=badge+step.text;
+    const box=$("#growPlates"); box.innerHTML="";
+    growVisible.filter(m=>m!==0).forEach(m=>{
+      const d=document.createElement("div");
+      d.className="grow-mini"+((step.added||[step.add]).includes(m)?" new":"");
+      const src=(m===fullMask())?"required":userPlaced.includes(m)?"user":"forced";
+      d.innerHTML=`${plateSvg(m,src)}<div class="nm">${fmt(m)}</div>`;
+      box.appendChild(d);
+    });
+    if(growVisible.includes(0)){
+      const d=document.createElement("div"); d.className="grow-mini";
+      d.style.display="grid"; d.style.placeItems="center";
+      d.innerHTML='<div style="font-size:22px;font-weight:850">∅</div><div class="nm">empty set</div>';
+      box.prepend(d);
+    }
+    if(growIndex===growSteps.length-1)stopGrowTimer();
+    syncPlayerControls();
+  }
+
+  function resetGrow(){ stopGrowTimer(); buildGrowSteps(); renderGrowStep(); }
+  function stepGrow(){
+    if(growIndex<growSteps.length-1){ growIndex++; renderGrowStep(); }
+    else stopGrowTimer();
+  }
+  function playGrow(){
+    if(growTimer!==null){ stopGrowTimer(); return; }
+    if(growIndex>=growSteps.length-1){ resetGrow(); }
+
+    growTimer=setInterval(()=>{
+      if(growIndex>=growSteps.length-1){ stopGrowTimer(); return; }
+      stepGrow();
+    }, 3000);
+    syncPlayerControls();
+  }
+
+  function openGrow(){
+    stopGrowTimer(); buildGrowSteps(); renderGrowStep();
+    $("#growModal").style.display="flex";
+  }
+
+  function closeActionResult(selector){
+    const box=$(selector);
+    if(!box)return;
+    const unit=box.closest(".action-unit");
+    box.innerHTML="";
+    if(unit){unit.classList.remove("open");unit.querySelector("button").setAttribute("aria-expanded","false");}
+  }
+
+  function openActionResult(selector,htmlText){
+    const box=$(selector);
+    if(!box)return;
+    const unit=box.closest(".action-unit");
+    box.innerHTML=htmlText;
+    requestAnimationFrame(()=>{ if(unit){unit.classList.add("open");unit.querySelector("button").setAttribute("aria-expanded","true");} });
+  }
+
+  function resetActionResults(){
+    closeActionResult("#checkResult");
+    closeActionResult("#generateResult");
+  }
+
+  function syncShowAllButton(){
+    const b=$("#showAllBtn");
+    if(!b)return;
+    b.disabled=!partyUnlocked&&((generated||baseEntries()).length>CAPACITY||pendingOverflow!==null);
+    b.title=b.disabled?"Choose ‘let's have a party tonight’ to unlock more than 15 plates.":"";
+    b.classList.toggle("active", !b.disabled&&showAllMode);
+    b.textContent = !b.disabled&&showAllMode ? "hide all plates" : "show all plates";
+  }
+
+  function initialState(nn=3){
+    n=nn;partyUnlocked=false;pendingOverflow=null; visibleMasks.clear();removedRequired.clear();userPlaced=[]; generated=null; displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; resetGroups(); hidePostGenerate(); resetActionResults(); renderEverything(); syncShowAllButton();
+  }
+
+  // events
+  $$(".count").forEach(b=>b.onclick=()=>{
+    $$(".count").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+    initialState(+b.dataset.n);
+    if(n===5){
+      $("#tableResult").innerHTML=`<strong>Five berries.</strong><br>Still legal — just remember that a discrete five-point space needs 32 plates, including ∅.`;
+    }else if(n===1){
+      $("#tableResult").innerHTML=`<strong>One berry.</strong><br>This one has nobody to distinguish itself from.`;
+    }else{
+      $("#tableResult").innerHTML=`<strong>Fresh table.</strong><br>${n} berries are waiting.`;
+    }
+  });
+  $("#showAllBtn").onclick=()=>{
+    if($("#showAllBtn").disabled)return;
+    visibleMasks=showAllMode?new Set():new Set((generated||baseEntries()).map(e=>e.mask));
+    selectedGroups.clear();renderEverything();
+    syncShowAllButton();
+  };
+  function placeMask(m){
+    if(m===0)return;
+    const current=(generated||baseEntries()).map(e=>e.mask);
+    if(!allowCapacity(current.length+(current.includes(m)?0:1),()=>placeMask(m)))return;
+    pendingOverflow=null;
+    // Keep all current plates when adding to a generated collection.
+    userPlaced=current.filter(mask=>mask!==0&&mask!==fullMask());
+    removedRequired=new Set([0,fullMask()].filter(mask=>!current.includes(mask)));
+    if(m===0&&!removedRequired.has(0)){
+      visibleMasks.add(m);selectedGroups.clear();renderEverything();
+      $("#tableResult").innerHTML=`<strong>∅ is already on the table.</strong><br>Its required plate is already in the collection.`; return;
+    }
+    if(m===fullMask()&&!removedRequired.has(fullMask())){
+      visibleMasks.add(m);selectedGroups.clear();renderEverything();
+      $("#tableResult").innerHTML=`<strong>X is already on the table.</strong><br>Every topology gets that plate for free.`; return;
+    }
+    if(m===0||m===fullMask())removedRequired.delete(m);
+    else if(!userPlaced.includes(m)) userPlaced.push(m);
+    visibleMasks.add(m);
+
+    // Once a plate is placed, the user's hand should be empty for the next move.
+    selectedGroups=new Set();
+
+    generated=null; displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; hidePostGenerate(); resetActionResults(); renderEverything(); syncShowAllButton();
+    $("#currentSet").textContent="∅";
+    $("#tableResult").innerHTML=`<strong>Placed ${fmt(m)}.</strong><br>Blue means placed. Pick berries to start a new yellow plate.`;
+  };
+  $("#placeBtn").onclick=()=>placeMask(currentMask());
+  $("#checkBtn").onclick=()=>{
+    const checkedMasks=(generated||baseEntries()).map(e=>e.mask);
+    const r=checkTopology(checkedMasks);
+    generated=null; displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; hidePostGenerate(); syncShowAllButton();
+    if(r.ok){
+      generated=checkedMasks.map(mask=>({
+        mask, source:(mask===0||mask===fullMask())?"required":"user",
+        reason:mask===0?"∅ is required by the topology axioms.":mask===fullMask()?"X is required by the topology axioms.":"You placed this plate."
+      }));
+      openActionResult("#checkResult",`<span class="yay">hooray</span><strong class="ok">Topology ✓</strong><br>${r.msg}`);
+      renderEverything(); updateSeparation(); updateOverflow();
+    } else {
+      openActionResult("#checkResult",`<strong class="bad">Not yet.</strong><details class="missing-explanation"><summary>click to see what is missing</summary><div>${r.msg}</div></details>`);
+      renderEverything();
+    }
+  };
+  $("#generateBtn").onclick=()=>{
+    const proposed=generateTopology((generated||baseEntries()).map(e=>e.mask));
+    if(!allowCapacity(proposed.length,()=>$("#generateBtn").onclick()))return;
+    pendingOverflow=null;
+    generated=proposed;removedRequired.clear(); displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; syncShowAllButton();
+    const forced=generated.filter(e=>e.source==="forced").length;
+    const nonempty=generated.filter(e=>e.mask!==0).length;
+    const visiblePlates=generated.length;
+    openActionResult("#generateResult",`<span class="yay">aha</span><strong class="ok">Table set.</strong><br>The smallest topology containing your choices has <b>${generated.length}</b> open sets — ${visiblePlates} visible plates${forced?`, with ${forced} blue plate${forced===1?"":"s"} forced by closure`:""}.`);
+    renderEverything(); updateSeparation(); updateOverflow();
+  };
+  $("#bundleBtn").onclick=bundleSelected;
+  $("#autoBundleBtn").onclick=autoBundle;
+  $("#unbundleBtn").onclick=unbundleSelected;
+  $("#tidyBtn").onclick=keepTidy;
+  $("#partyBtn").onclick=unlockParty;
+
+  $("#recipeBtn").onclick=openGrow;
+  $("#closeGrow").onclick=()=>{ stopGrowTimer(); $("#growModal").style.display="none"; };
+  $("#growModal").onclick=e=>{ if(e.target.id==="growModal"){ stopGrowTimer(); $("#growModal").style.display="none"; } };
+  $("#growPlay").onclick=playGrow;
+  $("#growStep").onclick=()=>{stopGrowTimer();stepGrow();};
+  $("#growReset").onclick=resetGrow;
+  $$(".grow-tab").forEach(b=>b.onclick=()=>{
+    $$(".grow-tab").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+    growMode=b.dataset.growmode;
+    $("#growNote").textContent=growMode==="recipe"
+      ? "Recipe view has three frames: your starting sets, all finite intersections, then all unions. Each batch appears together. Playback pauses for 3 seconds on each frame."
+      : "Machine view: repeatedly add any missing binary intersection or binary union. Because there are only finitely many subsets, the loop must eventually stop; when it stops, you have the smallest topology containing the starting collection.";
+    resetGrow();
+  });
+
+  $("#censusToggle").onclick=()=>{
+    const box=$("#censusBox");
+    box.classList.toggle("open");
+    $("#censusToggle").textContent=box.classList.contains("open")?"less":"more";
+  };
+  $$(".q").forEach(b=>b.onclick=()=>help(b.dataset.help));
+  $("#closeHelp").onclick=()=>$("#helpModal").style.display="none";
+  $("#helpModal").onclick=e=>{if(e.target.id==="helpModal")$("#helpModal").style.display="none"};
+
+  initialState(3);
+})();
+</script>
+</body>
+</html>
