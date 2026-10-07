@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SET THE TABLE — berry berry berry</title>
+<title>SET THE TABLE — very very berry</title>
 <style>
 :root{
   --wood:#78533a;
@@ -111,10 +111,10 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
 .shelf-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .note{font-size:11px;color:var(--muted)}
 .note b{color:var(--pepper)}
-.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;padding:2px 2px 8px;min-height:104px;align-content:start}
+.strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;padding:2px 2px 8px;min-height:110px;align-content:start}
 .plate{
-  flex:0 0 92px;height:94px;border-radius:17px;background:#fffaf3;border:1px solid var(--line);
-  padding:5px 5px 6px;cursor:pointer;position:relative;transition:transform .12s ease,box-shadow .12s ease
+  flex:0 0 92px;height:100px;border-radius:17px;background:#fffaf3;border:1px solid var(--line);
+  padding:5px 5px 10px;cursor:pointer;position:relative;transition:transform .12s ease,box-shadow .12s ease
 }
 .plate:hover{transform:none;box-shadow:none}
 .plate.user{border-color:#d4b46f}
@@ -1912,7 +1912,7 @@ body.party-kick::after{
     syncShowAllButton();
     const forced=generated.filter(e=>e.source==="forced").length;
     const partyLead=partyCameBack?`<strong class="ok">Congrats, the party is back on.</strong><br>`:`<span class="yay">aha</span><strong class="ok">Table set.</strong><br>`;
-    openActionResult("#generateResult",`${partyLead}The smallest topology containing your choices has <b>${generated.length}</b> open sets — ${generated.length} visible plates${forced?`, with ${forced} blue plate${forced===1?"":"s"} forced by closure`:""}.`);
+    openActionResult("#generateResult",`${partyLead}Your choices generate a topology with <b>${generated.length}</b> open sets.<br>${forced===0?"No extra plates had to be added.":forced===1?"One extra plate had to be added to satisfy the topology axioms.":`${forced} extra plates had to be added to satisfy the topology axioms.`}`);
     renderEverything();
     updateSeparation();
     updateOverflow();
