@@ -31,6 +31,7 @@
   --shadow:0 18px 48px rgba(41,26,16,.15);
 }
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
 body{
   background:
@@ -331,7 +332,104 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
 .modal-card p{font-size:13px;line-height:1.5;margin:7px 0;color:var(--muted)}
 .demo{background:#f8f2e8;border-radius:15px;padding:7px;margin:10px 0}
 .demo svg{width:100%;height:100px;display:block}
-.footer{text-align:center;color:#e9ddd4;font-size:10px;letter-spacing:.07em;margin:13px 0 2px}
+.footer{
+  text-align:center;
+  color:#e9ddd4;
+  font-size:10px;
+  letter-spacing:.07em;
+  line-height:1.6;
+  margin:13px 0 2px;
+}
+.footer a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(233,221,212,.42);padding-bottom:1px}
+.footer a:hover{border-bottom-color:currentColor}
+
+/* Party easter egg: the room changes; the table stays readable. */
+body{transition:background .45s ease,color .35s ease}
+body.party-night{
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,211,91,.16),transparent 24%),
+    radial-gradient(circle at 82% 12%,rgba(103,119,214,.24),transparent 27%),
+    radial-gradient(circle at 62% 78%,rgba(177,66,113,.20),transparent 29%),
+    #2b1d35;
+}
+/* Keep the working surfaces in their original daytime palette. */
+body.party-night .table,
+body.party-night .rail,
+body.party-night .cap,
+body.party-night .stage,
+body.party-night .hand-card,
+body.party-night .plate,
+body.party-night .sep,
+body.party-night .ticket,
+body.party-night .census,
+body.party-night .groups-box,
+body.party-night .compact-result,
+body.party-night .grow-card,
+body.party-night .grow-scene,
+body.party-night .grow-equation,
+body.party-night .grow-mini,
+body.party-night .modal-card{
+  color:var(--ink);
+}
+/* Party accents live in controls, not in the paper/table itself. */
+body.party-night .btn.dark,
+body.party-night #partyBtn,
+body.party-night #acceptOverflow,
+body.party-night #generateParty{
+  background:#5f376f;
+  border-color:#5f376f;
+  color:#fff;
+}
+body.party-night .btn.dark:hover,
+body.party-night #partyBtn:hover,
+body.party-night #acceptOverflow:hover,
+body.party-night #generateParty:hover{
+  background:#754489;
+  border-color:#754489;
+}
+body.party-night .btn.blue,
+body.party-night .action.blue{
+  background:#626fb3;
+  border-color:#626fb3;
+  color:#fff;
+}
+body.party-night .btn.ginger{
+  background:#e7b84d;
+  border-color:#c99632;
+  color:#332923;
+}
+body.party-night .action.check{
+  background:#a85c73;
+  color:#fff;
+}
+body.party-night .footer{color:#eadde8}
+body.party-night h1{
+  animation:partyTitle 1.8s ease-in-out infinite alternate;
+  text-shadow:0 0 24px rgba(255,110,160,.34),0 0 42px rgba(116,135,230,.24)
+}
+body.party-night::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:45;opacity:.42;
+  background-image:
+    radial-gradient(circle,rgba(255,212,90,.76) 0 1.4px,transparent 2px),
+    radial-gradient(circle,rgba(132,143,239,.65) 0 1.4px,transparent 2px),
+    radial-gradient(circle,rgba(232,104,153,.62) 0 1.4px,transparent 2px);
+  background-size:86px 86px,112px 112px,137px 137px;
+  background-position:0 0,37px 18px,68px 44px;
+  animation:partyDrift 8s linear infinite;
+}
+body.party-kick::after{
+  content:"";position:fixed;inset:-12%;pointer-events:none;z-index:46;
+  background:
+    radial-gradient(circle at 20% 28%,rgba(255,212,90,.40),transparent 9%),
+    radial-gradient(circle at 80% 22%,rgba(124,124,255,.36),transparent 10%),
+    radial-gradient(circle at 68% 76%,rgba(255,93,145,.34),transparent 11%),
+    radial-gradient(circle at 34% 72%,rgba(255,255,255,.18),transparent 8%);
+  animation:partyKick .85s ease-out forwards;
+}
+@keyframes partyTitle{from{transform:translateY(0) rotate(-.2deg)}to{transform:translateY(-2px) rotate(.2deg)}}
+@keyframes partyDrift{to{background-position:86px 86px,-75px 130px,205px -93px}}
+@keyframes partyKick{0%{opacity:0;transform:scale(.94)}28%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){body.party-night h1,body.party-night::before,body.party-kick::after{animation:none}}
 
 
 .berry-tools{
@@ -365,6 +463,7 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
   letter-spacing:.04em;text-transform:uppercase;vertical-align:2px
 }
 @media(min-width:901px){
+  h1{font-size:68px}
   .layout{grid-template-columns:minmax(0,1.42fr) minmax(340px,.78fr)}
   .stage{height:590px}
   #board{height:100%}
@@ -373,6 +472,7 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
 }
 
 @media(max-width:900px){
+  h1{font-size:clamp(42px,11vw,64px)}
   .app{padding:10px}
   .berry-tools{left:10px;top:10px;max-width:78%}
   .berry-tool{padding:6px 8px;font-size:9px}
@@ -449,9 +549,9 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
       <div class="deck">Put down a few berries. Select some to share a plate, then place it on the table. Each berry is a point; each plate represents an open set. Check whether your collection forms a topology, watch it grow, or bundle berries that no plate can tell apart.</div>
     </div>
     <div class="cap">
-      <div class="mini">table capacity</div>
-      <b>15 plates</b>
-      <small>∅ and X are included to start.</small>
+      <div class="mini">tidy mode</div>
+      <b>up to 15 plates</b>
+      <small>∅ and X count toward the 15.</small>
     </div>
   </header>
 
@@ -513,7 +613,6 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
 
         <div id="partyZone" class="party-zone">
           <div class="party-title">party mode · legibility optional</div>
-          <div class="party-sub">drag the plates around</div>
         </div>
       </div>
     </section>
@@ -604,14 +703,13 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
           </tbody>
         </table>
         <div class="census-note">
-          <b>Your fruit bundles are not just decoration.</b>
-          Every finite topology can be collapsed along “indistinguishable berry” classes to a T₀ space.
-          That is why counting arbitrary finite topologies is tied so tightly to counting posets.
+          <b>No more legal bundles? You’ve reached the T₀ skeleton.</b>
+          Bundle together berries that every open set treats the same. Once no two different fruits can still be bundled, every pair can be distinguished — that quotient is T₀.
         </div>
         <div class="census-more">
           <div class="formula">
-            For labeled points, one standard relation is
-            <b>t(n) = Σ S(n,k)·p(k)</b>, where S(n,k) counts partitions into k bundles and p(k) counts labeled T₀ spaces / posets on k points.
+            So every topology on <b>n</b> labeled berries can be built in two steps: partition the berries into <b>k</b> indistinguishable bundles, then choose a labeled T₀ topology on those <b>k</b> bundles. That is what
+            <b>t(n) = Σ S(n,k)·p(k)</b> counts: S(n,k) choices of bundles, followed by p(k) choices of T₀ skeleton.
           </div>
           <div class="census-note">
             <b>Current census note (2026):</b> exact totals for labeled topologies are known through 18 points; the unlabeled / homeomorphism-class sequence is tabulated through 16 points. There is still no general closed formula.
@@ -629,14 +727,13 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
         </div>
       </div>
 
-      <div class="ticket blue" style="margin-top:12px;margin-bottom:0">
-        <h3>How bundling works</h3>
-        <p>Only berries that every current plate treats together can become one fruit. If any plate contains one but not the other, they stay separate.</p>
-      </div>
     </aside>
   </div>
 
-  <div class="footer">SET THE TABLE · topology table / fruit / counting prototype · repaired</div>
+  <footer class="footer">
+    <div>SET THE TABLE · topology table / fruit / counting plates</div>
+    <div>© 2026 pilemma · <a href="https://menu.pilemma.org/" rel="noopener noreferrer">menu.pilemma.org</a></div>
+  </footer>
 </div>
 
 
@@ -675,6 +772,19 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
   </div>
 </div>
 
+<div id="deleteModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+  <div class="modal-card">
+    <button id="closeDelete" class="close" type="button" aria-label="Close">×</button>
+    <div class="mini">party check</div>
+    <h2 id="deleteTitle">Remove this plate?</h2>
+    <p id="deleteText"></p>
+    <div class="warning-actions">
+      <button class="btn small" id="keepDelete" type="button">keep the plate</button>
+      <button class="btn small dark" id="confirmDelete" type="button">remove the plate</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (() => {
   const CAPACITY=15;
@@ -686,6 +796,8 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
   let userPlaced=[];
   let generated=null;
   let partyUnlocked=false;
+  let partyEverUnlocked=false;
+  let partyJustReturned=false;
   let pendingOverflow=null;
   let displayMode="tidy";
   let showAllMode=false;
@@ -942,7 +1054,34 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
     if(visibleMasks.has(entry.mask))explain(entry);else $("#whySlip").style.display="none";
   }
 
+  function closeDeleteModal(){
+    const modal=$("#deleteModal");
+    if(modal)modal.style.display="none";
+  }
+
+  function askPartyDelete(mask,remainingIsTopology){
+    const modal=$("#deleteModal");
+    $("#deleteTitle").textContent=`Remove ${fmt(mask)}?`;
+    $("#deleteText").textContent=remainingIsTopology
+      ? "The remaining plates still form a topology, so the party can keep going."
+      : "The remaining plates will no longer form a topology. Removing this plate will end the party and return to usual mode.";
+    modal.style.display="flex";
+    $("#confirmDelete").onclick=()=>{closeDeleteModal();deletePlate(mask,true);};
+    $("#keepDelete").onclick=closeDeleteModal;
+    $("#closeDelete").onclick=closeDeleteModal;
+  }
+
   function deletePlate(mask,confirmed=false){
+    const currentEntries=generated||baseEntries();
+    const remainingEntries=currentEntries.filter(e=>e.mask!==mask);
+    const remainingMasks=remainingEntries.map(e=>e.mask);
+    const remainingIsTopology=checkTopology(remainingMasks).ok;
+
+    if(partyUnlocked&&!confirmed){
+      askPartyDelete(mask,remainingIsTopology);
+      return;
+    }
+
     if((mask===0||mask===fullMask())&&!confirmed){
       $("#tableResult").innerHTML=`<strong class="bad">Every topology must contain ${fmt(mask)}.</strong><br>Removing this plate makes the collection fail the topology axioms.
         <div class="warning-actions"><button class="btn small dark" id="keepRequired">Keep ${fmt(mask)}</button><button class="btn small" id="removeRequired">Remove anyway</button></div>`;
@@ -950,13 +1089,45 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
       $("#removeRequired").onclick=()=>deletePlate(mask,true);
       return;
     }
+
     pendingOverflow=null;
-    // Deleting one generated plate retains every other current plate.
-    const remaining=(generated||baseEntries()).filter(e=>e.mask!==mask).map(e=>e.mask);
-    userPlaced=remaining.filter(m=>m!==0&&m!==fullMask());
-    removedRequired=new Set([0,fullMask()].filter(m=>!remaining.includes(m)));
-    visibleMasks.delete(mask);selectedGroups.clear();generated=null;displayMode=partyUnlocked?"party":"tidy";
-    hidePostGenerate();resetActionResults();renderEverything();
+    userPlaced=remainingMasks.filter(m=>m!==0&&m!==fullMask());
+    removedRequired=new Set([0,fullMask()].filter(m=>!remainingMasks.includes(m)));
+    visibleMasks.delete(mask);
+    selectedGroups.clear();
+    showAllMode=false;
+
+    if(partyUnlocked&&remainingIsTopology){
+      // The family is still a topology: keep both the mathematical validation and the party.
+      generated=remainingEntries;
+      displayMode="party";
+      renderEverything();
+      syncShowAllButton();
+      $("#tableResult").innerHTML=`<strong>Removed ${fmt(mask)}.</strong><br>Still a topology — the party goes on.`;
+      return;
+    }
+
+    if(partyUnlocked&&!remainingIsTopology){
+      // A party is reserved for an actual topology. Breaking the axioms sends us back to usual mode.
+      partyUnlocked=false;
+      partyJustReturned=false;
+      exitPartyNight();
+      generated=null;
+      displayMode="tidy";
+      hidePostGenerate();
+      resetActionResults();
+      renderEverything();
+      syncShowAllButton();
+      $("#tableResult").innerHTML=`<strong>Removed ${fmt(mask)}.</strong><br>The remaining plates are no longer a topology, so the party is over. Back to usual mode.`;
+      return;
+    }
+
+    generated=null;
+    displayMode="tidy";
+    hidePostGenerate();
+    resetActionResults();
+    renderEverything();
+    syncShowAllButton();
     $("#tableResult").innerHTML=`<strong>Removed ${fmt(mask)}.</strong><br>The other plates remain. Check the collection again whenever you like.`;
   }
 
@@ -1030,6 +1201,8 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
     let dragging=false,dx=0,dy=0,startX=0,startY=0;
     el.addEventListener("pointerdown",ev=>{
       if(ev.target.closest("button"))return;
+      // Lift the grabbed plate above its neighbors, and keep it there after release.
+      zone.appendChild(el);
       dragging=true;el.dataset.dragged="false";startX=ev.clientX;startY=ev.clientY; el.setPointerCapture(ev.pointerId);
       const r=el.getBoundingClientRect(); dx=ev.clientX-r.left; dy=ev.clientY-r.top; el.style.zIndex=20;
     });
@@ -1165,41 +1338,103 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
 
   function pulseSingletons(){ $("#pulseLayer").innerHTML=""; }
 
+  function scrollToPartyPlates(){
+    const target=$("#partyZone");
+    if(target&&target.style.display!=="none") target.scrollIntoView({behavior:"smooth",block:"start"});
+    else $("#baseShelf")?.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
   function allowCapacity(total,resume){
     if(total<=CAPACITY||partyUnlocked)return true;
     pendingOverflow={total,resume};
-    syncShowAllButton();updateOverflow();
-    $("#tableResult").innerHTML=`<strong class="bad">Too many plates — the table holds ${CAPACITY}.</strong><br>This would bring us to ${total}. Nothing has been added. Want to have a party tonight?
+
+    // Once someone has opened the party before, crossing the tidy limit simply brings it back.
+    if(partyEverUnlocked){
+      partyUnlocked=true;
+      partyJustReturned=true;
+      displayMode="party";
+      pendingOverflow=null;
+      enterPartyNight();
+      if(resume)resume();
+      return false;
+    }
+
+    syncShowAllButton();
+    updateOverflow();
+    $("#tableResult").innerHTML=`<strong class="bad">The dishwasher will overflow.</strong><br>This would bring us to <b>${total}</b> plates; tidy mode stops at ${CAPACITY}. ∅ and X count toward the 15. Have a party instead?
       <div class="warning-actions"><button class="btn small" id="cancelOverflow">keep it tidy</button><button class="btn small dark" id="acceptOverflow">let's have a party tonight</button></div>`;
     $("#cancelOverflow").onclick=keepTidy;
     $("#acceptOverflow").onclick=unlockParty;
     return false;
   }
 
+  function enterPartyNight(){
+    document.body.classList.add("party-night","party-kick");
+    window.setTimeout(()=>document.body.classList.remove("party-kick"),900);
+  }
+
+  function exitPartyNight(){
+    document.body.classList.remove("party-night","party-kick");
+  }
+
   function keepTidy(){
-    partyUnlocked=false;pendingOverflow=null;displayMode=partyUnlocked?"party":"tidy";
-    // Preserve the collection; only up to 15 existing plates can be displayed.
+    exitPartyNight();
+    partyUnlocked=false;
+    partyJustReturned=false;
+    pendingOverflow=null;
+    displayMode="tidy";
+    // Preserve the collection; the tidy-mode limit only controls adding/showing more plates.
     visibleMasks=new Set([...visibleMasks].slice(0,CAPACITY));
-    selectedGroups.clear();renderEverything();
-    $("#tableResult").innerHTML=`<strong>Keeping it tidy.</strong><br>The 15-plate limit is active. Your existing collection is preserved.`;
+    selectedGroups.clear();
+    renderEverything();
+    syncShowAllButton();
+    $("#tableResult").innerHTML=`<strong>Keeping it tidy.</strong><br>The 15-plate limit is active. ∅ and X count toward the 15.`;
   }
 
   function unlockParty(){
     const resume=pendingOverflow?.resume;
-    partyUnlocked=true;pendingOverflow=null;displayMode="party";
+    const returning=partyEverUnlocked;
+    partyEverUnlocked=true;
+    partyUnlocked=true;
+    partyJustReturned=returning;
+    pendingOverflow=null;
+    displayMode="party";
+    enterPartyNight();
     if(resume)resume();
     renderEverything();
-    if(!resume)$("#tableResult").innerHTML=`<strong>Welcome to the combinatorial party.</strong><br>Show all plates is unlocked.`;
+    syncShowAllButton();
+    if(!resume){
+      $("#tableResult").innerHTML=returning
+        ? `<strong>Congrats, the party is back on.</strong><br>Enjoy the plates below.`
+        : `<strong>Welcome to the combinatorial party.</strong><br>Enjoy the plates below.`;
+    }
   }
 
   function updateOverflow(){
     const total=Math.max((generated||baseEntries()).length,pendingOverflow?.total||0);
-    if(total<=CAPACITY){$("#dishwasher").style.display="none";return;}
-    $("#dishwasher").style.display="block";
-    $("#dishBig").textContent=partyUnlocked?`party time — ${total} plates.`:`uh oh — ${total} plates?`;
-    $("#dishText").textContent=partyUnlocked
-      ? "Welcome to the combinatorial party. The table was not designed for this many mathematical guests. Show all plates is unlocked."
-      : `The table holds ${CAPACITY} plates, including ∅. Adding more and showing all are locked. Want to have a party tonight?`;
+    const box=$("#dishwasher");
+    const partyButton=$("#partyBtn");
+
+    if(partyUnlocked){
+      box.style.display="block";
+      $("#dishBig").textContent=`PARTY TIME — ${total} plates.`;
+      $("#dishText").textContent=partyJustReturned
+        ? "Congrats, the party is back on. The full collection is waiting below."
+        : "The full collection is on the party table below.";
+      partyButton.textContent="enjoy the party";
+      partyButton.onclick=scrollToPartyPlates;
+      return;
+    }
+
+    partyButton.textContent="let's have a party tonight";
+    partyButton.onclick=unlockParty;
+
+    // No floating overflow warning unless an action is actively trying to cross the tidy limit.
+    if(!pendingOverflow){box.style.display="none";return;}
+
+    box.style.display="block";
+    $("#dishBig").textContent=`dishwasher overflow — ${total} plates.`;
+    $("#dishText").textContent=`Tidy mode stops at ${CAPACITY} plates. ∅ and X count toward the 15.`;
   }
 
   function celebrate(word,target="#tableResult"){
@@ -1522,12 +1757,13 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
     const b=$("#showAllBtn");
     if(!b)return;
     b.disabled=!partyUnlocked&&((generated||baseEntries()).length>CAPACITY||pendingOverflow!==null);
-    b.title=b.disabled?"Choose ‘let's have a party tonight’ to unlock more than 15 plates.":"";
+    b.title=b.disabled?"Tidy mode stops at 15 plates; ∅ and X count toward the 15.":"";
     b.classList.toggle("active", !b.disabled&&showAllMode);
     b.textContent = !b.disabled&&showAllMode ? "hide all plates" : "show all plates";
   }
 
   function initialState(nn=3){
+    exitPartyNight();
     n=nn;partyUnlocked=false;pendingOverflow=null; visibleMasks.clear();removedRequired.clear();userPlaced=[]; generated=null; displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; resetGroups(); hidePostGenerate(); resetActionResults(); renderEverything(); syncShowAllButton();
   }
 
@@ -1595,14 +1831,43 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
   };
   $("#generateBtn").onclick=()=>{
     const proposed=generateTopology((generated||baseEntries()).map(e=>e.mask));
-    if(!allowCapacity(proposed.length,()=>$("#generateBtn").onclick()))return;
+    let partyCameBack=false;
+
+    if(proposed.length>CAPACITY && !partyUnlocked){
+      if(partyEverUnlocked){
+        partyUnlocked=true;
+        partyJustReturned=true;
+        partyCameBack=true;
+        pendingOverflow=null;
+        displayMode="party";
+        enterPartyNight();
+      }else{
+        pendingOverflow={total:proposed.length,resume:()=>$("#generateBtn").onclick()};
+        syncShowAllButton();
+        updateOverflow();
+        openActionResult("#generateResult",`<strong class="bad">The dishwasher will overflow.</strong><br>This topology needs <b>${proposed.length}</b> plates, but tidy mode stops at ${CAPACITY}. ∅ and X count toward the 15. Nothing has changed yet. Have a party instead?
+          <div class="warning-actions"><button class="btn small" id="generateKeepTidy">keep it tidy</button><button class="btn small dark" id="generateParty">let's have a party tonight</button></div>`);
+        $("#generateKeepTidy").onclick=()=>{
+          keepTidy();
+          openActionResult("#generateResult",`<strong>Still tidy.</strong><br>No new plates were added. If you want all ${proposed.length}, press <b>Generate the topology</b> again and choose <b>let's have a party tonight</b>.`);
+        };
+        $("#generateParty").onclick=unlockParty;
+        return;
+      }
+    }
+
     pendingOverflow=null;
-    generated=proposed;removedRequired.clear(); displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; syncShowAllButton();
+    generated=proposed;
+    removedRequired.clear();
+    displayMode=partyUnlocked?"party":"tidy";
+    showAllMode=false;
+    syncShowAllButton();
     const forced=generated.filter(e=>e.source==="forced").length;
-    const nonempty=generated.filter(e=>e.mask!==0).length;
-    const visiblePlates=generated.length;
-    openActionResult("#generateResult",`<span class="yay">aha</span><strong class="ok">Table set.</strong><br>The smallest topology containing your choices has <b>${generated.length}</b> open sets — ${visiblePlates} visible plates${forced?`, with ${forced} blue plate${forced===1?"":"s"} forced by closure`:""}.`);
-    renderEverything(); updateSeparation(); updateOverflow();
+    const partyLead=partyCameBack?`<strong class="ok">Congrats, the party is back on.</strong><br>`:`<span class="yay">aha</span><strong class="ok">Table set.</strong><br>`;
+    openActionResult("#generateResult",`${partyLead}The smallest topology containing your choices has <b>${generated.length}</b> open sets — ${generated.length} visible plates${forced?`, with ${forced} blue plate${forced===1?"":"s"} forced by closure`:""}.`);
+    renderEverything();
+    updateSeparation();
+    updateOverflow();
   };
   $("#bundleBtn").onclick=bundleSelected;
   $("#autoBundleBtn").onclick=autoBundle;
@@ -1633,6 +1898,10 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
   $$(".q").forEach(b=>b.onclick=()=>help(b.dataset.help));
   $("#closeHelp").onclick=()=>$("#helpModal").style.display="none";
   $("#helpModal").onclick=e=>{if(e.target.id==="helpModal")$("#helpModal").style.display="none"};
+  $("#deleteModal").onclick=e=>{if(e.target.id==="deleteModal")closeDeleteModal();};
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&$("#deleteModal").style.display==="flex")closeDeleteModal();
+  });
 
   initialState(3);
 })();
