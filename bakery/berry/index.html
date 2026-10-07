@@ -26,6 +26,8 @@
   --rasp-hi:#efb4c7;
   --straw:#efbcc9;
   --straw-hi:#f9e0e7;
+  --persimmon:#e56f45;
+  --orange:#f3a33c;
   --good:#64775d;
   --bad:#9d6258;
   --shadow:0 18px 48px rgba(41,26,16,.15);
@@ -343,6 +345,15 @@ h1{margin:4px 0 7px;font-size:clamp(42px,7vw,78px);line-height:.82;letter-spacin
 .footer a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(233,221,212,.42);padding-bottom:1px}
 .footer a:hover{border-bottom-color:currentColor}
 
+/* Quiet fruit signature at the foot of the desktop rail. */
+.rail-fruit-mark{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:18px 0 2px;opacity:.82;pointer-events:none
+}
+.rail-fruit-mark svg{display:block;width:27px;height:24px;overflow:visible}
+.rail-fruit-mark .berry-shine{fill:rgba(255,255,255,.34)}
+body.party-night .rail-fruit-mark{opacity:.9}
+
 /* Party easter egg: the room changes; the table stays readable. */
 body{transition:background .45s ease,color .35s ease}
 body.party-night{
@@ -468,7 +479,8 @@ body.party-kick::after{
   .stage{height:590px}
   #board{height:100%}
   .table{min-width:0}
-  .rail{min-width:0}
+  .rail{min-width:0;align-self:stretch;display:flex;flex-direction:column}
+  .rail-fruit-mark{margin-top:auto}
 }
 
 @media(max-width:900px){
@@ -487,7 +499,7 @@ body.party-kick::after{
 }
 
 .census th{white-space:normal;overflow-wrap:normal;letter-spacing:.04em;padding:6px 3px}
-.rail{align-self:start}
+@media(max-width:900px){.rail{align-self:start}.rail-fruit-mark{margin-top:16px;padding-top:10px}}
 .shelf-head{flex-wrap:wrap}
 .hand-card{min-width:140px}
 .hand-actions .btn{font-size:12px;font-weight:770}
@@ -727,6 +739,39 @@ body.party-kick::after{
         </div>
       </div>
 
+      <div class="rail-fruit-mark" aria-hidden="true">
+        <svg viewBox="0 0 28 24" focusable="false">
+          <circle cx="14" cy="13" r="9" fill="var(--berry)"/>
+          <circle class="berry-shine" cx="10.5" cy="9.5" r="2.1"/>
+        </svg>
+        <svg viewBox="0 0 28 24" focusable="false">
+          <circle cx="10.5" cy="13" r="7.2" fill="var(--rasp)"/>
+          <circle cx="17.5" cy="13" r="7.2" fill="var(--rasp)"/>
+          <circle class="berry-shine" cx="8.5" cy="10" r="1.6"/>
+        </svg>
+        <svg viewBox="0 0 28 24" focusable="false">
+          <circle cx="9" cy="10.5" r="6.3" fill="var(--straw)"/>
+          <circle cx="19" cy="10.5" r="6.3" fill="var(--straw)"/>
+          <circle cx="14" cy="17" r="6.3" fill="var(--straw)"/>
+          <circle class="berry-shine" cx="7.7" cy="8.5" r="1.4"/>
+        </svg>
+        <svg viewBox="0 0 28 24" focusable="false">
+          <circle cx="9.5" cy="8.5" r="5.6" fill="var(--persimmon)"/>
+          <circle cx="18.5" cy="8.5" r="5.6" fill="var(--persimmon)"/>
+          <circle cx="9.5" cy="16.5" r="5.6" fill="var(--persimmon)"/>
+          <circle cx="18.5" cy="16.5" r="5.6" fill="var(--persimmon)"/>
+          <circle class="berry-shine" cx="7.8" cy="6.8" r="1.25"/>
+        </svg>
+        <svg viewBox="0 0 28 24" focusable="false">
+          <circle cx="14" cy="6.8" r="5" fill="var(--orange)"/>
+          <circle cx="20" cy="11.1" r="5" fill="var(--orange)"/>
+          <circle cx="17.7" cy="18.1" r="5" fill="var(--orange)"/>
+          <circle cx="10.3" cy="18.1" r="5" fill="var(--orange)"/>
+          <circle cx="8" cy="11.1" r="5" fill="var(--orange)"/>
+          <circle class="berry-shine" cx="12.5" cy="5.6" r="1.1"/>
+        </svg>
+      </div>
+
     </aside>
   </div>
 
@@ -921,7 +966,9 @@ body.party-kick::after{
     if(size===1)return "var(--berry)";
     if(size===2)return "var(--rasp)";
     if(size===3)return "var(--straw)";
-    return "var(--straw)";
+    if(size===4)return "var(--persimmon)";
+    if(size===5)return "var(--orange)";
+    return "var(--orange)";
   }
 
   function localOffsets(size){
@@ -941,6 +988,8 @@ body.party-kick::after{
     if(group.length===1)return "blueberry";
     if(group.length===2)return "raspberry";
     if(group.length===3)return "strawberry";
+    if(group.length===4)return "persimmon";
+    if(group.length===5)return "orange";
     return "fruit cluster";
   }
 
@@ -1301,9 +1350,7 @@ body.party-kick::after{
     if(candidate){
       const [a,b]=candidate;
       const name=g=>g.length===1?labels[g[0]]:`{${g.map(i=>labels[i]).join(", ")}}`;
-      const instruction=a.length+b.length<=3
-        ? 'Select these two fruits and choose “bundle selection”.'
-        : 'Choose “auto-bundle” to combine the indistinguishable fruits.';
+      const instruction='Select these two fruits and choose “bundle selection”.';
       $("#prompt").innerHTML=`<b>These can be bundled:</b> ${name(a)} and ${name(b)}. No current plate contains one without the other. ${instruction}`;
     }else if(hasBundles){
       $("#prompt").innerHTML=`<b>Bundling complete.</b> The plates distinguish every displayed fruit. Berries within a bundle remain indistinguishable; the T₀ and T₁ tests refer to the original berries.`;
@@ -1495,8 +1542,8 @@ body.party-kick::after{
       return;
     }
     const rawPts=chosen.flatMap(i=>groups[i]);
-    if(rawPts.length<2 || rawPts.length>3){
-      $("#tableResult").innerHTML=`<strong class="bad">Too many berries for one fruit.</strong><br>This prototype bundles 2 into a raspberry or 3 into a strawberry.`;
+    if(rawPts.length<2 || rawPts.length>5){
+      $("#tableResult").innerHTML=`<strong class="bad">That bundle does not fit this table.</strong>`;
       return;
     }
     const check=compatibleToBundle(rawPts, familyForBundleCheck());
@@ -1509,7 +1556,8 @@ body.party-kick::after{
     groups=keep.sort((A,B)=>A[0]-B[0]);
     selectedGroups=new Set();
     displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; renderEverything(); syncShowAllButton();
-    $("#tableResult").innerHTML=`<strong>Bundled ${rawPts.map(i=>labels[i]).join("")}.</strong><br>${rawPts.length===2?"Raspberry created.":"Strawberry created."} The open sets are unchanged.`;
+    const madeFruit=fruitName(rawPts);
+    $("#tableResult").innerHTML=`<strong>Bundled ${rawPts.map(i=>labels[i]).join("")}.</strong><br>${madeFruit.charAt(0).toUpperCase()+madeFruit.slice(1)} created. The open sets are unchanged.`;
   }
 
   function unbundleSelected(){
