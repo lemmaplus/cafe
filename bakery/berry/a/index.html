@@ -671,7 +671,7 @@ html.plate-drag-active,html.plate-drag-active *{
 /* Art mode — flat, centered rounded rectangles; no elevation or staggering. */
 .palette-lab-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .art-mode-toggle{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #d8c9b5;background:#fbf7ef;border-radius:999px;font-size:11px;line-height:1.1;cursor:pointer;color:var(--ink);font-weight:740;white-space:nowrap}
-.art-mode-toggle span:first-child{display:inline-grid;place-items:center;flex:none;width:16px;height:16px;font-size:14px;line-height:1;color:#b88449}
+.art-mode-toggle .art-mode-icon{display:block;flex:none;width:16px;height:16px;color:#b88449;align-self:center}
 .art-mode-state{font-size:10px;color:#897b6a;font-weight:600}
 .art-mode-toggle[aria-pressed="true"]{background:#f0e4cf;border-color:#bca181}
 .art-mode-toggle:focus-visible,.hue-knob:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
@@ -852,7 +852,7 @@ html.plate-drag-active,html.plate-drag-active *{
       <section class="palette-lab" aria-label="Plate colors">
         <div class="palette-lab-header">
           <div class="mini">plate colors</div>
-          <button id="artModeToggle" class="art-mode-toggle" type="button" aria-pressed="false" aria-controls="artHueControls"><span aria-hidden="true">✳</span> art mode <span class="art-mode-state">off</span></button>
+          <button id="artModeToggle" class="art-mode-toggle" type="button" aria-pressed="false" aria-controls="artHueControls"><svg class="art-mode-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M8 1.4 9.65 6.35 14.6 8 9.65 9.65 8 14.6 6.35 9.65 1.4 8 6.35 6.35Z" fill="currentColor"/></svg> art mode <span class="art-mode-state">off</span></button>
         </div>
         <div id="presetPaletteControls" class="palette-lab-grid">
           <div class="palette-choice">
