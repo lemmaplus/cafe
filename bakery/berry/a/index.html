@@ -586,8 +586,7 @@ body.party-kick::after{
 .drawer-ghost{position:fixed;z-index:9999;width:106px;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 14px 30px rgba(32,54,35,.22);background:#e2f2e5;border:2px solid #32795d;border-radius:15px;padding:5px;text-align:center;opacity:.94}
 .drawer-ghost svg{width:88px;height:66px;display:block;margin:auto}
 .drawer-ghost .name{font-size:11px;font-weight:800}
-#baseShelf.drop-ready,#tableResult.drop-ready{outline:3px dashed var(--forced-green);outline-offset:4px;background:rgba(50,121,93,.075);border-radius:14px}
-#tableResult.drop-ready::after{content:"Drop here → add to collection";display:block;color:#31735a;font-weight:850;margin-top:6px;font-size:11px}
+#baseShelf.drop-ready{outline:3px dashed var(--forced-green);outline-offset:3px;background:rgba(50,121,93,.075);border-radius:14px}
 .drawer-empty{background:#e5f0e6;border:1px solid #bcd6c1;border-radius:12px;padding:10px;font-size:12px;color:#28694b}
 #checkResult .check-status,#generateResult .check-status{font-size:14px;font-weight:840}
 #checkResult .check-count,#generateResult .check-count{font-size:11px;color:var(--muted);margin-top:4px}
@@ -712,7 +711,7 @@ html.plate-drag-active,html.plate-drag-active *{
 .drawer-plate .origin{color:var(--forced-plate)}
 .drawer-plate .take-plate{border-color:var(--forced-plate);color:var(--forced-plate)}
 .drawer-ghost{border-color:var(--forced-plate)}
-#baseShelf.drop-ready,#tableResult.drop-ready{outline-color:var(--forced-plate)}
+#baseShelf.drop-ready{outline-color:var(--forced-plate)}
 
 /* Palette colors also tint the resting drawer and card backgrounds. */
 .drawer-plate,.drawer-ghost{background:rgba(var(--forced-plate-rgb),.13)}
@@ -745,6 +744,10 @@ html.plate-drag-active,html.plate-drag-active *{
   cursor:not-allowed;
   transform:none;
 }
+/* One deliberate drop surface: the full plate-card collection, never the message above. */
+#baseShelf{min-height:158px;padding:9px;border:1px solid rgba(122,109,100,.25);border-radius:14px;align-content:start}
+#itemLayer .item{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#itemLayer .item text{user-select:none;-webkit-user-select:none;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1079,6 +1082,9 @@ html.plate-drag-active,html.plate-drag-active *{
   let plateOrigins=new Map();   // history only: forced -> forked, not a proof of current necessity
   let checkStarted=false;     // an open check is cleared on every membership edit
   let drawerOpen=false;
+  // Frozen starting family for "how it grew" replays after pick me / auto load.
+  let growthReplaySeed=null;
+  let lastMilestonePlayed=null;
 
   const $=q=>document.querySelector(q);
   const $$=q=>[...document.querySelectorAll(q)];
@@ -1299,10 +1305,12 @@ html.plate-drag-active,html.plate-drag-active *{
         const toggle=()=>{
           const index=groups.findIndex(grp=>groupMask(grp)===identity);
           if(index<0)return;
-          if(selectedGroups.has(index))selectedGroups.delete(index);else selectedGroups.add(index);
+          const wasSelected=selectedGroups.has(index);
+          if(wasSelected)selectedGroups.delete(index);
+          else selectedGroups.add(index);
           renderBoard();renderGroups();
         };
-        g.onclick=event=>{event.stopPropagation();toggle();};
+        g.onclick=event=>{event.preventDefault();event.stopPropagation();toggle();};
         g.onkeydown=event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();toggle();}};
       });
     }
@@ -1363,9 +1371,14 @@ html.plate-drag-active,html.plate-drag-active *{
   function askPartyDelete(mask,remainingIsTopology){
     const modal=$("#deleteModal");
     $("#deleteTitle").textContent=`Remove ${fmt(mask)}?`;
-    $("#deleteText").textContent=remainingIsTopology
-      ? "The remaining plates still form a topology, so the party can keep going."
-      : "The remaining plates will no longer form a topology. Removing this plate will end the party and return to usual mode.";
+    const currentlyTopology=checkTopology(exactMasks()).ok;
+    const before=currentlyTopology?"This collection is currently a topology. ":"This collection is already not a topology. ";
+    const after=remainingIsTopology
+      ? "After removal, the remaining plates form a topology, so party mode can continue."
+      : currentlyTopology
+        ? "After removal, it will no longer be a topology. Party mode will end."
+        : "After removal, it still will not be a topology. Party mode will end.";
+    $("#deleteText").textContent=before+after;
     modal.style.display="flex";
     $("#confirmDelete").onclick=()=>{closeDeleteModal();deletePlate(mask,true);};
     $("#keepDelete").onclick=closeDeleteModal;
@@ -1592,6 +1605,46 @@ html.plate-drag-active,html.plate-drag-active *{
     }
   }
 
+  function milestoneKind(){
+    const family=exactMasks();
+    if(!checkTopology(family).ok)return null;
+    if(t1(family).ok)return "boom";
+    if(t0(family).ok)return "ting";
+    return null;
+  }
+  function playMilestone(kind){
+    if(!kind)return;
+    // User-initiated checks only: no autoplay when a card repaints, changes
+    // visibility, palettes, or when a modal is restored.
+    try{
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx)return;
+      const ctx=new Ctx();
+      const now=ctx.currentTime;
+      const notes=kind==="ting"?[{hz:880,d:.18,t:0},{hz:1318,d:.23,t:.07}]
+        :[{hz:220,d:.18,t:0},{hz:110,d:.32,t:.12}];
+      for(const {hz,d,t} of notes){
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.type=kind==="ting"?"sine":"triangle";
+        osc.frequency.setValueAtTime(hz,now+t);
+        if(kind==="boom")osc.frequency.exponentialRampToValueAtTime(Math.max(48,hz*.55),now+t+d);
+        gain.gain.setValueAtTime(.0001,now+t);
+        gain.gain.exponentialRampToValueAtTime(kind==="ting"?.045:.07,now+t+.014);
+        gain.gain.exponentialRampToValueAtTime(.0001,now+t+d);
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.start(now+t);osc.stop(now+t+d+.01);
+      }
+      window.setTimeout(()=>ctx.close().catch(()=>{}),1000);
+    }catch(e){/* Sound is optional: never block the math workflow. */}
+  }
+  function soundOnExplicitCheck(){
+    const kind=milestoneKind();
+    if(!kind)return;
+    const fingerprint=`${n}|${exactMasks().sort((a,b)=>a-b).join(',')}|${kind}`;
+    if(lastMilestonePlayed===fingerprint)return;
+    lastMilestonePlayed=fingerprint;
+    playMilestone(kind);
+  }
   function updateSeparation(){
     const masks=(generated||baseEntries()).map(e=>e.mask),r0=t0(masks),r1=t1(masks);
     const validated=generated!==null;
@@ -1742,7 +1795,7 @@ html.plate-drag-active,html.plate-drag-active *{
     slip.style.display="block";
     if(entry.source==="forced") slip.innerHTML=`<b>${fmt(entry.mask)} — FORCED.</b><br>${entry.reason}`;
     else if(entry.source==="forked") slip.innerHTML=`<b>${fmt(entry.mask)} — FORKED.</b><br>Once brought out by the topology drawer; kept through a later edit.`;
-    else if(entry.source==="user") slip.innerHTML=`<b>${fmt(entry.mask)} is blue because you placed it.</b>`;
+    else if(entry.source==="user") slip.innerHTML=`<b>${fmt(entry.mask)} — YOU.</b><br>You placed this plate.`;
     else slip.innerHTML=`<b>${fmt(entry.mask)}</b><br>${entry.reason}`;
   }
 
@@ -1905,7 +1958,17 @@ html.plate-drag-active,html.plate-drag-active *{
     syncPlayerControls();
   }
 
-  function generatorMasks(){ return uniq([0,fullMask(),...userPlaced]); }
+  function replayIsAvailable(){
+    if(!growthReplaySeed||!checkTopology(exactMasks()).ok)return false;
+    const expected=generateTopology(growthReplaySeed).map(e=>e.mask).sort((a,b)=>a-b);
+    const actual=exactMasks().sort((a,b)=>a-b);
+    return expected.length===actual.length&&expected.every((m,i)=>m===actual[i]);
+  }
+  function generatorMasks(){
+    return replayIsAvailable()
+      ? uniq([0,fullMask(),...growthReplaySeed])
+      : uniq([0,fullMask(),...exactMasks()]);
+  }
 
   function buildRecipeSteps(){
     const start=generatorMasks();
@@ -2049,10 +2112,15 @@ html.plate-drag-active,html.plate-drag-active *{
       ? "It's already a topology — nothing needs to be generated."
       : drawerOpen ? "Close the missing-plates drawer." : checkStarted ? "" : "Ask ‘Is this a topology?’ first.";
     // Growth is a separate teaching reveal: it ALWAYS requires a fresh check.
-    grow.disabled=alreadyTopology||!checkStarted;
-    grow.title=alreadyTopology
-      ? "It's already a topology — nothing needs to grow."
-      : checkStarted ? "" : "Ask ‘Is this a topology?’ first.";
+    const replayReady=replayIsAvailable();
+    grow.disabled=replayReady?false:alreadyTopology||!checkStarted;
+    grow.title=replayReady
+      ? "Replay how this topology grew from the starting plates."
+      : alreadyTopology
+        ? "It's already a topology — nothing needs to generate."
+        : checkStarted ? "" : "Ask ‘Is this a topology?’ first.";
+    const growLabel=grow.querySelector('b');
+    if(growLabel)growLabel.textContent=replayReady?"show me how it grew":"show me how it grows";
   }
   function closeTopologyCheck(){
     checkStarted=false;
@@ -2076,7 +2144,7 @@ html.plate-drag-active,html.plate-drag-active *{
 
   function initialState(nn=3){
     exitPartyNight();
-    n=nn;partyUnlocked=false;pendingOverflow=null; visibleMasks.clear();removedRequired.clear();userPlaced=[];plateOrigins.clear();checkStarted=false;drawerOpen=false; generated=null; displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; resetGroups(); hidePostGenerate(); resetActionResults(); renderEverything(); syncShowAllButton();
+    n=nn;partyUnlocked=false;pendingOverflow=null; visibleMasks.clear();removedRequired.clear();userPlaced=[];plateOrigins.clear();checkStarted=false;drawerOpen=false;growthReplaySeed=null;lastMilestonePlayed=null; generated=null; displayMode=partyUnlocked?"party":"tidy"; showAllMode=false; resetGroups(); hidePostGenerate(); resetActionResults(); renderEverything(); syncShowAllButton();
   }
 
   // events
@@ -2108,7 +2176,6 @@ html.plate-drag-active,html.plate-drag-active *{
     drawerOpen=false;
     closeActionResult("#generateResult");
     $("#baseShelf").classList.remove("drop-ready");
-    $("#tableResult").classList.remove("drop-ready");
     syncCheckGenerateLock();
   }
   function syncValidatedFamily(){
@@ -2117,7 +2184,7 @@ html.plate-drag-active,html.plate-drag-active *{
   }
   function afterMembershipEdit(manual=true){
     closeTopologyCheck(); // ANY membership change invalidates the previous answer.
-    if(manual){ageExistingGreenPlates();closeDrawer();}
+    if(manual){growthReplaySeed=null;ageExistingGreenPlates();closeDrawer();}
     // Drawer-assisted additions may continue only while the family is incomplete.
     // If it is now a topology, close the drawer immediately, including its
     // entire old completion forecast / "Table set" message.
@@ -2205,7 +2272,7 @@ html.plate-drag-active,html.plate-drag-active *{
       $("#tableResult").innerHTML=`<strong class="bad">Please check the collection again.</strong><br>The completion preview could not be reconciled with the topology axioms.`;
       return;
     }
-    box.innerHTML=`${completionHeading(info)}<p class="drawer-lede"><b>${missing.length} missing plate${missing.length===1?"":"s"}.</b> These are required by the topology axioms.</p><div class="drawer-drop-note">Drag a plate onto the left collection (or its message strip), or tap “pick me” on a phone. The selected plate appears on the berry table immediately.</div><div id="drawerPlates" class="drawer-plates"></div><div class="drawer-actions"><button id="drawerAutoLoad" type="button" class="btn small blue">auto load</button><button id="drawerClose" type="button" class="btn small flat">close drawer</button></div>`;
+    box.innerHTML=`${completionHeading(info)}<p class="drawer-lede"><b>${missing.length} missing plate${missing.length===1?"":"s"}.</b> These are required by the topology axioms.</p><div class="drawer-drop-note">Drop onto the outlined card collection on the left, or tap “pick me” on a phone. The plate appears on the berry table immediately.</div><div id="drawerPlates" class="drawer-plates"></div><div class="drawer-actions"><button id="drawerAutoLoad" type="button" class="btn small blue">auto load</button><button id="drawerClose" type="button" class="btn small flat">close drawer</button></div>`;
     $("#drawerClose").onclick=closeDrawer;
     $("#drawerAutoLoad").onclick=autoLoadAllMissing;
     const collection=$("#drawerPlates");
@@ -2481,7 +2548,7 @@ html.plate-drag-active,html.plate-drag-active *{
         scrollRaf=requestAnimationFrame(autoScroll);
       };
       const stopAutoScroll=()=>{if(scrollRaf){cancelAnimationFrame(scrollRaf);scrollRaf=0;}};
-      const shelf=$("#baseShelf"),nearby=$("#tableResult");
+      const shelf=$("#baseShelf");
       const inTarget=(el,x,y)=>{const r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;};
       const placeGhost=(x,y)=>{ghost.style.left=x+"px";ghost.style.top=y+"px";};
       tile.setPointerCapture(ev.pointerId);
@@ -2498,7 +2565,6 @@ html.plate-drag-active,html.plate-drag-active *{
         }
         placeGhost(e.clientX,e.clientY);
         shelf.classList.toggle("drop-ready",inTarget(shelf,e.clientX,e.clientY));
-        nearby.classList.toggle("drop-ready",inTarget(nearby,e.clientX,e.clientY));
       };
       const finish=e=>{
         stopAutoScroll();
@@ -2508,10 +2574,10 @@ html.plate-drag-active,html.plate-drag-active *{
         if(tile.hasPointerCapture(ev.pointerId))tile.releasePointerCapture(ev.pointerId);
         tile.classList.remove("dragging");
         document.documentElement.classList.remove("plate-drag-active");
-        ghost?.remove();shelf.classList.remove("drop-ready");nearby.classList.remove("drop-ready");
-        if(moved&&(inTarget(shelf,e.clientX,e.clientY)||inTarget(nearby,e.clientX,e.clientY)))takeMissingPlate(mask);
+        ghost?.remove();shelf.classList.remove("drop-ready");
+        if(moved&&inTarget(shelf,e.clientX,e.clientY))takeMissingPlate(mask);
       };
-      const cancel=()=>{stopAutoScroll();tile.removeEventListener("pointermove",move);tile.removeEventListener("pointerup",finish);tile.removeEventListener("pointercancel",cancel);document.documentElement.classList.remove("plate-drag-active");tile.classList.remove("dragging");ghost?.remove();shelf.classList.remove("drop-ready");nearby.classList.remove("drop-ready");};
+      const cancel=()=>{stopAutoScroll();tile.removeEventListener("pointermove",move);tile.removeEventListener("pointerup",finish);tile.removeEventListener("pointercancel",cancel);document.documentElement.classList.remove("plate-drag-active");tile.classList.remove("dragging");ghost?.remove();shelf.classList.remove("drop-ready");};
       tile.addEventListener("pointermove",move);
       tile.addEventListener("pointerup",finish);
       tile.addEventListener("pointercancel",cancel);
@@ -2545,11 +2611,13 @@ html.plate-drag-active,html.plate-drag-active *{
     syncCheckGenerateLock();
     syncValidatedFamily();
     renderEverything();
+    soundOnExplicitCheck();
   };
   $("#generateBtn").onclick=()=>{
     if($("#generateBtn").disabled)return; // Need a check and missing sets.
     if(drawerOpen){closeDrawer();return;}
     syncValidatedFamily();
+    growthReplaySeed=[...exactMasks()];
     drawerOpen=true;
     refreshDrawer();
     const unit=$("#generateResult").closest(".action-unit");
