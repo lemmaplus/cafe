@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Moody Lemma Looks</title>
+<style>
+:root { --paper-length:214px; color-scheme:light; --ink:#232221; --light:#f5f4f1; --dark:#2d2c2a; --background:#fff; --caption-ink:#5e5c58; --gloss-length:24px; }
+body.inverted { --ink:#f3f0ec; --light:#292826; --dark:#eeeae4; --background:#171716; --caption-ink:#d5d0c9; }
+body.inverted .tile { --tile-color-light:#ece9e3; --tile-color-dark:#282725; }
+body.inverted .citation a {border-color:#aaa19a}
+body.inverted .footer {color:var(--caption-ink)}
+html.inverted {--background:#171716;background:#171716;}
+*, *::before, *::after {box-sizing:border-box}
+html,body {margin:0;min-height:100%;background:var(--background);transition:background-color .32s ease;} body {background:var(--background);transition:background-color .32s ease;}
+body {font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink)}
+button {font:inherit}
+.page {min-height:100svh;display:flex;flex-direction:column;align-items:center;padding:64px 12px 24px;background:var(--background);}
+.logo {position:absolute;left:clamp(18px,3.5vw,32px);top:16px;font:700 19px/1.1 Georgia,"Times New Roman",serif;letter-spacing:-.025em;color:var(--ink);text-decoration:none;}
+.logo:focus-visible {outline:2px solid #9bcced;outline-offset:4px;border-radius:2px}
+.header {text-align:center;margin:0 0 48px;}
+.title {display:flex;align-items:center;justify-content:center;gap:.065em;margin:0;font-family:"Baskerville","Iowan Old Style","Palatino Linotype",Georgia,serif;font-size:clamp(28px,5vw,51px);font-weight:700;line-height:1.1;letter-spacing:.025em;white-space:nowrap;color:var(--ink);}
+.title .gap {width:.30em;flex:0 0 .30em}
+.letter {display:inline-block;line-height:1}
+.o {position:relative;border:2px solid currentColor;border-radius:50%;background:none;display:inline-flex;align-items:center;justify-content:center;flex:none;width:.80em;height:.80em;margin:0 .015em;padding:0;color:var(--ink);cursor:pointer;font-family:"Arial Unicode MS","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;font-size:inherit;line-height:1;transition:background-color .12s linear;}
+.o .symbol {display:block;color:var(--ink);font-size:.36em;font-weight:600;line-height:1;transform:translateY(-.012em)}
+.o.selected {background:var(--ink)}
+.o.selected .symbol {visibility:hidden}
+.o:focus-visible, .letter-button:focus-visible {outline:2px solid #83bde6;outline-offset:4px}
+.letter-button {color:inherit;cursor:pointer;border:0;padding:0;margin:0;background:transparent;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;line-height:1;}
+.wall {position:relative;z-index:2;width:min(92vw,784px);aspect-ratio:784 / 836;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(14,minmax(0,1fr));gap:0;isolation:isolate;margin:0;}
+.tile {appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;position:relative;display:flex;align-items:center;justify-content:center;overflow:visible;border:0;border-radius:0;padding:0;margin:0;cursor:pointer;background:transparent;min-width:0;min-height:0;touch-action:manipulation;}
+.face {position:absolute;inset:0;z-index:3;background:var(--tile-bg);}
+.label {position:relative;z-index:4;padding:0 3px;max-width:100%;font:400 clamp(8px,1.55vw,15px)/1.33 "Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:anywhere;color:var(--tile-color);text-align:center;white-space:normal;}
+.tile:focus-visible .face {outline:2px solid #6ca9d9;outline-offset:-2px}
+.tile.open {z-index:var(--stack,99);pointer-events:none}
+.tile.open .face,.tile.open .label {pointer-events:auto}
+.tile.open .track,.tile.open .paper,.tile.open .sheet,.tile.open .scene,.tile.open .translation {pointer-events:none}
+/* The full page is printed before opening. ONLY the page's position changes.
+   The fixed clipping slot ends at the bottom edge of the Korean tile.
+   The lower (English) tip emerges first; the full vertical text follows. */
+.track {position:absolute;top:calc(100% - 1px);left:7%;width:86%;height:var(--paper-length);z-index:1;overflow:hidden;pointer-events:none;}
+.paper {position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;background:var(--mood-color);color:#242321;border:0;border-radius:0;box-shadow:none;transform:translateY(-100%);transition:transform 1.4s cubic-bezier(.35,.02,.65,.98);will-change:transform;}
+.sheet {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:13px 7px 3px;gap:6px;}
+.tile[data-stage="gloss"] .paper {transform:translateY(calc(-100% + var(--gloss-length,24px)));transition:transform .24s ease-out;}
+.tile[data-stage="full"] .paper {transform:translateY(0);transition:transform 9.5s linear;}
+.tile[data-stage="closed"] .paper {transform:translateY(-100%);transition:transform 1.4s cubic-bezier(.35,.02,.65,.98);}
+.scene {display:block;flex:1 1 auto;min-width:0;min-height:0;writing-mode:vertical-rl;text-orientation:mixed;text-align:start;font-family:"Noto Serif CJK KR","AppleMyungjo",serif;font-size:clamp(10px,1.3vw,13.2px);line-height:1.36;letter-spacing:.015em;overflow:visible;}
+/* Each script uses its own vertical glyph metrics rather than inheriting Chinese forms. */
+.scene[lang="ja"] {writing-mode:vertical-rl;text-orientation:mixed;line-break:strict;word-break:normal;overflow-wrap:normal;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;font-feature-settings:"vert" 1,"vrt2" 1;}
+.scene[lang="zh-Hans"] {writing-mode:vertical-rl;text-orientation:mixed;line-break:strict;font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",serif;font-feature-settings:"vert" 1;}
+/* Korean vertical 띄어쓰기. Each ordinary source space becomes a visible
+   half-em interval plus a legal wrap point; the original data remain untouched. */
+.scene[lang="ko"] {writing-mode:vertical-rl;text-orientation:upright;white-space:normal;word-spacing:0;letter-spacing:.075em;line-break:normal;word-break:keep-all;overflow-wrap:normal;font-family:"AppleMyungjo","Noto Serif CJK KR","Nanum Myeongjo",serif;}
+.translation {display:block;flex:0 0 auto;width:100%;text-align:center;white-space:normal;overflow-wrap:anywhere;word-break:normal;hyphens:manual;font:500 clamp(8px,1.08vw,10.7px)/1.18 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;letter-spacing:0;}
+.paper.english .scene {visibility:hidden}
+.paper.english .translation {font-weight:500;}
+
+
+.citation {margin:calc(-1 * var(--paper-length) + 26px) auto 0;text-align:center;font:400 11px/1.6 "Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;color:var(--caption-ink);max-width:92vw;position:relative;z-index:0;}
+.citation a {color:inherit;text-decoration:none;border-bottom:1px solid #aaa7a1;text-underline-offset:3px}
+.citation a:hover {color:var(--ink)}
+.footer {display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:calc(8px + var(--row-height,56px));margin-bottom:0;text-align:center;font:400 11px/1.4 -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:var(--caption-ink);position:relative;z-index:0;}
+.footer a {color:inherit;text-decoration:none}
+.footer a:hover {text-decoration:underline;text-underline-offset:3px}
+.clearance {height:calc(var(--paper-length) + 18px);flex:none;width:1px;}
+@media(max-width:600px) {
+ :root {--paper-length:220px;}
+ .page {padding:66px 6px 16px;}
+ .header {margin-bottom:38px;}
+ .title {font-size:clamp(28px,7.6vw,39px);gap:.045em}
+ .o {border-width:1.8px}
+ .logo {left:12px;top:12px;font-size:17px}
+ .wall {width:calc(100vw - 12px)}
+ .label {font-size:clamp(7.3px,2.01vw,10.7px);padding:0 1px}
+ .track {left:5%;width:90%;height:var(--paper-length,220px)}
+ .sheet {gap:5px;padding:9px 3px 3px}
+ .scene {font-size:10.3px;line-height:1.2;letter-spacing:0}
+ .translation {font-size:8.5px}
+ .citation {font-size:10px;margin-top:calc(-1 * var(--paper-length) + 22px);padding:0 5px}
+ .footer {margin-top:calc(8px + var(--row-height,28px))}
+}
+@media(max-width:360px) { .scene[lang="ko"] {font-size:10px;} }
+@media(prefers-reduced-motion:reduce) {.paper,.o,body,.clearance{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <a class="logo" href="https://ooo.pilemma.org" aria-label="Pilemma home" title="pilemma">pilemma</a>
+  <header class="header">
+    <h1 class="title" aria-label="MOOD BOARD">
+      <span class="letter">M</span>
+      <button type="button" class="o" data-lang="zh" aria-label="中文" title="中文"><span class="symbol">中</span></button>
+      <button type="button" class="o" data-lang="ko" aria-label="한국어" title="한국어"><span class="symbol">한</span></button>
+      <span class="letter">D</span>
+      <span class="gap" aria-hidden="true"></span>
+      <span class="letter">B</span>
+      <button type="button" class="o" data-lang="ja" aria-label="日本語" title="日本語"><span class="symbol">あ</span></button>
+      <button type="button" class="letter-button" id="english" aria-label="Cycle display: English only, language circles, reversed black and white" title="Display mode">A</button>
+      <span class="letter">R</span><span class="letter">D</span>
+    </h1>
+  </header>
+  <main id="wall" class="wall" aria-label="98 Korean emotion words"></main>
+  <div class="clearance" id="clearance" aria-hidden="true"></div>
+  <p class="citation">홍성향, <a href="https://www.yes24.com/product/goods/57244023" target="_blank" rel="noopener noreferrer"><cite>『오늘, 진짜 내 마음을 만났습니다』</cite></a> (인디고(글담), 2017), 287쪽.</p>
+  <footer class="footer"><span>© Pilemma 2026</span><a href="https://ooo.pilemma.org">ooo.pilemma.org</a></footer>
+  <div id="tail-space" aria-hidden="true" style="height:0;flex:none;width:1px"></div>
+</div>
+<script>
+'use strict';
+const moods = [{"ko":"가라앉는","en":"sinking","strip":"#8ea4b8","zh":"考试结束后独自走出校门，街上依旧热闹，自己却一句话也不想说。","ko_note":"막차가 떠난 플랫폼에서 마음도 천천히 가라앉는 밤.","ja":"文化祭が終わった放課後、教室の飾りを外すうちに、心の高揚も静かに沈んでいく。"},{"ko":"겁나는","en":"afraid","strip":"#a598c8","zh":"电梯到了面试那层，门一开，手心忽然全是汗。","ko_note":"면접장 손잡이 앞에서 겁나는 마음이 먼저 땀을 흘린다.","ja":"初めてのバイト面接。店の引き戸に手をかけたまま、しばらく動けない。"},{"ko":"기쁜","en":"joyful","strip":"#f3d36b","zh":"等了好久的消息终于来了，连下楼买饭都忍不住哼歌。","ko_note":"기쁜 소식 하나에 한강 바람까지 달게 느껴진다.","ja":"帰りの電車で合格の知らせを読む。窓に映る顔が、勝手に笑っている。"},{"ko":"당황스러운","en":"flustered","strip":"#d6a46b","zh":"会议上突然叫到我的名字，刚想好的话一下全忘了。","ko_note":"정적 속 이름이 불리는 당황스러운 순간, 볼부터 뜨거워진다.","ja":"ゼミで突然名前を呼ばれた。開いていたノートの文字が、一瞬読めなくなった。"},{"ko":"무서운","en":"scared","strip":"#6f7f99","zh":"楼道的灯突然灭了，身后那阵脚步声也跟着停住。","ko_note":"불 꺼진 복도 끝에서 들린 발소리가 무서운 밤.","ja":"終電を降りた駅の階段で、後ろから同じ足音がついてくる。"},{"ko":"분한","en":"resentful","strip":"#cf6d5c","zh":"忙了一星期，功劳却算在别人头上。回家路上越想越气。","ko_note":"잘못도 없는데 사과하라니, 분한 마음에 입술만 깨문다.","ja":"一週間かけた資料を他人の手柄にされた。帰り道、悔しくて拳がほどけない。"},{"ko":"속상한","en":"upset","strip":"#9aa7c9","zh":"明明只是几句闲话，回到家却难受得连饭都不想吃。","ko_note":"정성껏 싼 도시락이 그대로 돌아온 속상한 오후.","ja":"がんばって作ったお弁当が、ほとんど手つかずで戻ってきた。怒れず、ただつらい。"},{"ko":"아쉬운","en":"wistful","strip":"#88a9a0","zh":"朋友进站前又回头挥了挥手，偏偏还有好多话没说。","ko_note":"막차 문이 닫힐 때 남은 인사가 아쉬운 밤.","ja":"終電のベルが鳴る。楽しかった夜を、あと一駅だけ延ばしたい。"},{"ko":"원망스러운","en":"resentful","strip":"#b88578","zh":"答应得好好的，最后却让我一个人收拾残局。","ko_note":"약속을 잊은 너를 생각하면 원망스러운 마음이 스친다.","ja":"約束した駅の改札にひとり残る。待ちながら、少しずつ相手を恨めしく思う。"},{"ko":"즐거운","en":"delighted","strip":"#f2c84d","zh":"和老朋友吃顿火锅，聊到店员来催打烊还不想走。","ko_note":"친구와 떡볶이를 나눠 먹는 즐거운 귀갓길.","ja":"駅のホームで友達とくだらない話をしていたら、別れるのが惜しくなった。"},{"ko":"가벼운","en":"lighthearted","strip":"#c7d89b","zh":"压在心头的事终于解决了，出门时连风都变轻了。","ko_note":"마감 끝낸 어깨 위로 가벼운 봄바람이 지난다.","ja":"心配していたことが片づいた。帰り道、いつもより階段が軽い。"},{"ko":"고단한","en":"worn-out","strip":"#9f8f88","zh":"末班公交上找到座位，眼睛一闭，整天的疲惫才涌上来。","ko_note":"버스 맨 뒷자리, 고단한 하루가 눈꺼풀에 앉는다.","ja":"残業帰りの電車で座れた途端、眠気がどっと押し寄せた。"},{"ko":"긴장한","en":"tense","strip":"#d9997c","zh":"讲台就在前面，手里的讲稿却被汗浸湿了一个角。","ko_note":"발표 직전, 긴장한 손끝이 종이 모서리를 만진다.","ja":"発表の順番が近づく。ノートを持つ手がじんわり汗ばんできた。"},{"ko":"든든한","en":"reassured","strip":"#7fae8f","zh":"一抬头看见有人在等我，忽然觉得今天没那么难熬。","ko_note":"비 오는 날 문밖까지 나온 사람이 든든한 밤.","ja":"改札の向こうに迎えに来た顔が見えた。それだけでほっとした。"},{"ko":"뭉클한","en":"moved","strip":"#d49a9d","zh":"收拾旧书时翻出妈妈留的纸条，读着读着鼻子就酸了。","ko_note":"할머니의 오래된 손글씨를 보면 뭉클한 마음이 인다.","ja":"久しぶりに食べた母の卵焼き。いつもと同じ味なのに、胸が熱くなる。"},{"ko":"불안한","en":"anxious","strip":"#9099b8","zh":"消息发出去半小时了，手机一亮，心就跟着一紧。","ko_note":"답장이 늦은 밤, 불안한 상상이 휴대폰만 밝힌다.","ja":"大事な結果を待つ夜。通知が来てもいないのに、何度もスマホを裏返す。"},{"ko":"수줍은","en":"shy","strip":"#d8a7be","zh":"被当面夸了一句，嘴上说着没有，耳朵却先红了。","ko_note":"마주친 눈을 피해 웃는 수줍은 고백의 첫마디.","ja":"好きな人が隣の席に座った。プリントを渡すだけなのに、指先までぎこちない。"},{"ko":"안타까운","en":"pained","strip":"#a9a1c8","zh":"朋友落榜了。我陪她走了一路，却不知道该说什么。","ko_note":"우산 없이 서 있는 아이를 보니 안타까운 발걸음.","ja":"頑張った友達の不合格を知る。かける言葉も見つからず、ただ隣を歩く。"},{"ko":"위축되는","en":"intimidated","strip":"#a7a3a0","zh":"一句批评之后，原本想说的话也不敢再开口了。","ko_note":"날카로운 한마디에 위축되는 목소리가 작아진다.","ja":"会議で何度も話を遮られて、次に順番が来ても小さくうなずくだけになる。"},{"ko":"지겨운","en":"fed-up","strip":"#b0a687","zh":"同一份材料改到第八遍，听见“再调整一下”就想叹气。","ko_note":"한없이 반복되는 공지, 지겨운 월요일의 회의.","ja":"同じ書類の修正がまた届く。机の上のカレンダーだけが進んでいく。"},{"ko":"가뿐한","en":"sprightly","strip":"#bedd9a","zh":"大睡一觉醒来，窗外有太阳，整个人都轻快了。","ko_note":"과제를 낸 아침, 가뿐한 발걸음으로 계단을 오른다.","ja":"久しぶりにぐっすり眠れた朝。駅までの坂道も今日は苦にならない。"},{"ko":"고독한","en":"solitary","strip":"#8f95a9","zh":"饭桌上坐满了人，却找不到一个能说心里话的。","ko_note":"불 켜진 창문들 사이 고독한 내 방 하나.","ja":"満員電車の中で、今日は誰ともまともに話していないことに気づく。"},{"ko":"낙담한","en":"discouraged","strip":"#9ba5b4","zh":"结果名单里没有我的名字，回家的路忽然变得好长。","ko_note":"합격자 명단을 접고 낙담한 채 지하철에 오른다.","ja":"何度も練習したオーディションに落ちた。駅までの坂道が今日は長い。"},{"ko":"들뜬","en":"excited","strip":"#f0b35a","zh":"车票买好了，行李还没收拾，心早就飞到海边了。","ko_note":"여행 전날, 들뜬 마음에 짐을 세 번이나 다시 싼다.","ja":"花見の約束が決まっただけで、まだ寒い朝の景色まで少し明るくなる。"},{"ko":"뭔가 아닌 것 같은","en":"off","strip":"#c1a89e","zh":"大家都笑着说没问题，我却总觉得有哪里不对劲。","ko_note":"모두 웃는데 뭔가 아닌 것 같은 저녁 식탁.","ja":"みんなは納得している。でも、どうしても引っかかるところがある。"},{"ko":"불쾌한","en":"unpleasant","strip":"#a5948f","zh":"那句“开玩笑的”听着刺耳，回家后还堵在心里。","ko_note":"농담이라며 넘긴 한마디가 불쾌한 밤으로 남는다.","ja":"冗談のつもりだと言われた一言が、帰宅しても耳の奥に残っている。"},{"ko":"숨 막히는","en":"suffocating","strip":"#7c8c9b","zh":"地铁里挤得动弹不得，只盼着下一站快点到。","ko_note":"만석인 막차 안, 숨 막히는 침묵과 젖은 우산.","ja":"満員電車で身動きが取れない。降りる駅の名前だけを何度も確かめる。"},{"ko":"애틋한","en":"tender","strip":"#e1a0a8","zh":"小时候的围巾早就戴不下了，却怎么也舍不得扔。","ko_note":"오래 입은 교복을 접는 애틋한 졸업식 저녁.","ja":"引っ越しの荷物から、小学生のころの手紙が出てきた。捨てる手が止まる。"},{"ko":"유쾌한","en":"cheerful","strip":"#f3c85f","zh":"一句玩笑把大家逗得前仰后合，连尴尬都散了。","ko_note":"비 맞은 신발도 웃음거리가 되는 유쾌한 귀갓길.","ja":"雨で靴までびしょぬれなのに、友達のひと言で笑いが止まらない。"},{"ko":"창피한","en":"embarrassed","strip":"#d79d88","zh":"当众把人叫错了名字，真想当场钻进地缝里。","ko_note":"틀린 답을 큰 소리로 읽은 창피한 기억이 떠오른다.","ja":"みんなの前で名前を呼び間違えた。穴があったら入りたい。"},{"ko":"가슴 아픈","en":"heartbroken","strip":"#8d90b7","zh":"又路过那家关门的小店，想起以前一起吃饭的人。","ko_note":"비어 있는 신발 한 켤레가 가슴 아픈 아침.","ja":"もう閉店したあの店の前を通ると、一緒に来た人の顔を思い出す。"},{"ko":"고요한","en":"serene","strip":"#99c0bb","zh":"清晨街上还没什么车，连自己的脚步声都听得清。","ko_note":"눈 내린 골목, 고요한 새벽의 우유 배달 소리.","ja":"始発前のホーム。風だけが通り過ぎ、まだ誰も急いでいない。"},{"ko":"난처한","en":"in a bind","strip":"#c9ae82","zh":"两个人同时约我周末见面，答应谁都不好。","ko_note":"두 약속이 겹친 난처한 토요일 오후.","ja":"断りたい頼みごとほど相手は笑顔で持ってくる。返事だけが宙に浮いた。"},{"ko":"떨떠름한","en":"unconvinced","strip":"#b4a48c","zh":"道歉倒是收到了，可那句话听着还是不太舒服。","ko_note":"칭찬인 듯한 그 말이 떨떠름한 뒷맛으로 남는다.","ja":"謝ってもらえたのに、最後のひと言が気になって素直に笑えない。"},{"ko":"미심쩍은","en":"suspicious","strip":"#8f93a0","zh":"账单上的数字怎么也对不上，我把小票又看了一遍。","ko_note":"영수증의 작은 숫자가 미심쩍은 밤.","ja":"受け取ったレシートの合計が少しおかしい。帰り道も気になってしまう。"},{"ko":"불행한","en":"unfortunate","strip":"#7d8aa8","zh":"坏消息接二连三地来，连晴天都像蒙了一层灰。","ko_note":"잇따른 안 좋은 소식, 불행한 하루가 끝나지 않는다.","ja":"やっと落ち着いたと思ったら、また悪い知らせ。窓の外まで暗く見える。"},{"ko":"슬픈","en":"sad","strip":"#7f97b4","zh":"想说的话到了嘴边，最后只剩一句“那我走了”。","ko_note":"오래 듣던 노래가 슬픈 이별을 다시 데려온다.","ja":"「じゃあね」と手を振ったあと、振り返れないまま歩きだす。"},{"ko":"포근한","en":"cozy","strip":"#f1d0a3","zh":"刚晒过的被子有太阳的味道，钻进去就不想出来。","ko_note":"온돌 바닥과 귤 향이 포근한 겨울밤을 만든다.","ja":"こたつに足を入れた瞬間、外の寒さも今日の疲れも、ゆっくりほどけていく。"},{"ko":"통쾌한","en":"exhilarated","strip":"#ee8f55","zh":"憋了半天的话终于说出口，走出门时真想大笑一声。","ko_note":"밀린 말을 드디어 다 하고 난 통쾌한 퇴근길.","ja":"ずっと我慢していたことを言えた。店を出たら空まで広く感じた。"},{"ko":"초라한","en":"diminished","strip":"#b39c90","zh":"站在一群盛装打扮的人中间，忽然不知该把手放哪儿。","ko_note":"축하 꽃다발들 곁에서 초라한 내 손이 숨는다.","ja":"華やかな人たちの輪の中で、自分の服ばかり気になってしまう。"},{"ko":"간절한","en":"fervent","strip":"#cc8e64","zh":"盯着那条迟迟不来的回复，睡前又看了一遍手机。","ko_note":"새벽 절집의 종소리에도 간절한 바람이 실린다.","ja":"合格発表まであと一時間。お守りを握る手をなかなか離せない。"},{"ko":"고통스러운","en":"painful","strip":"#8c7f9a","zh":"难受了一整夜，天亮了也没觉得轻松一点。","ko_note":"계속 울리는 알람조차 고통스러운 이별 뒤 아침.","ja":"夜が明けても、昨日の痛みがそのまま胸に残っている。"},{"ko":"날아갈 듯한","en":"elated","strip":"#f4c66d","zh":"录取通知一到，恨不得一路跑着去告诉所有人。","ko_note":"장학금 문자 하나, 날아갈 듯한 기쁨이 발끝에.","ja":"うれしい知らせを受け取って、駅の階段を飛ぶように駆け上がった。"},{"ko":"떨리는","en":"trembling","strip":"#c98da1","zh":"刷新结果页面的时候，指尖都跟着心跳发抖。","ko_note":"발표 직전, 떨리는 목소리가 마이크를 만난다.","ja":"合格発表のページを開く。画面を押さえる指先まで震えている。"},{"ko":"미안한","en":"sorry","strip":"#8fb4b8","zh":"想了半天只发出去三个字：“对不起。”","ko_note":"놓친 약속 앞에 미안한 문자만 길어진다.","ja":"返信を書いては消し、最後に「ごめんね」だけを送った。"},{"ko":"뿌듯한","en":"proud","strip":"#e6b85d","zh":"终于把那幅画画完，退后两步看了又看。","ko_note":"내 이름이 적힌 책등을 만지는 뿌듯한 저녁.","ja":"部活で何度も練習した技がやっとできた。帰り道まで背筋が伸びている。"},{"ko":"신나는","en":"excited","strip":"#f2a542","zh":"音乐一响，脚就开始打拍子，恨不得马上出门。","ko_note":"기차표를 손에 쥐면 신나는 여행이 벌써 시작된다.","ja":"ライブの一曲目が始まった瞬間、体が勝手にリズムを刻んでいた。"},{"ko":"어리둥절한","en":"bewildered","strip":"#a694c3","zh":"大家突然一起看向我，我愣了半天才弄明白发生什么。","ko_note":"갑자기 바뀐 시간표 앞에 어리둥절한 눈동자들.","ja":"駅の案内が急に変わって、どのホームへ行けばいいのかわからない。"},{"ko":"절망적인","en":"hopeless","strip":"#6f748a","zh":"所有办法都试过了，眼前还是一条走不通的路。","ko_note":"빈 접수창을 보며 절망적인 새벽을 버틴다.","ja":"もう一度やり直そうとしても、手の届くところに道が見つからない。"},{"ko":"충만한","en":"fulfilled","strip":"#d9c16d","zh":"吃完饭，洗好碗，窗外正好有一片晚霞。","ko_note":"별일 없는 일요일, 충만한 낮잠 뒤의 햇살.","ja":"洗い物が終わって窓を開ける。今日も悪くない一日だった。"},{"ko":"갈망하는","en":"yearning","strip":"#d69378","zh":"听到熟悉的歌，就又想起那个再也见不到的人。","ko_note":"멀리 바다가 보일 때마다 갈망하는 여행의 계절.","ja":"写真で見た海の町へ、いつか必ず行こうと思っている。"},{"ko":"공허한","en":"empty","strip":"#9fa3af","zh":"热闹一散，房间还是原来的房间，却空得厉害。","ko_note":"손님이 모두 떠난 뒤 공허한 찻잔만 남는다.","ja":"やることは全部終わったのに、部屋の真ん中だけが空っぽに感じる。"},{"ko":"넋 나간","en":"spaced-out","strip":"#b0afb7","zh":"人坐在桌前，朋友叫了两声才回过神来。","ko_note":"눈은 창밖에, 마음은 먼 곳에 간 넋 나간 오후.","ja":"返事をしたつもりが声になっていなかった。気持ちはまだ遠くにある。"},{"ko":"막막한","en":"overwhelmed","strip":"#899bb4","zh":"明天就要交了，文档还是空白，连从哪儿写起都不知道。","ko_note":"첫 장을 못 펴는 막막한 졸업 논문 첫날.","ja":"締切は明日なのに、画面にはまだ白いページが開いている。"},{"ko":"민망한","en":"abashed","strip":"#d1a58f","zh":"电梯里认错了人，只好对着楼层数字假装发呆。","ko_note":"인사하려는데 이름이 기억 안 나는 민망한 엘리베이터.","ja":"場が急にしんとして、笑うにも説明するにもタイミングを失う気まずさ。"},{"ko":"산뜻한","en":"fresh","strip":"#a5d4ba","zh":"雨刚停，换上干净衣服出门，空气都透着清爽。","ko_note":"비 갠 다음 날, 산뜻한 운동화가 골목을 지난다.","ja":"雨上がりに玄関を出たら、空気が洗いたてのように澄んでいた。"},{"ko":"실망한","en":"disappointed","strip":"#8ea2b0","zh":"期待了一整周，到了那天却发现根本不是那么回事。","ko_note":"기다린 연락이 한 줄뿐인 실망한 밤.","ja":"楽しみにしていた限定のお菓子は売り切れ。仕方ない、が少し重い。"},{"ko":"어색한","en":"awkward","strip":"#b7a7a0","zh":"很久没见的同学坐在对面，寒暄完就不知道说什么了。","ko_note":"오랜 친구와 말끝을 고르는 어색한 카페 테이블.","ja":"久しぶりの同級生と駅前で会う。最初のひと言だけ、妙にぎこちない。"},{"ko":"조급한","en":"impatient","strip":"#d78d70","zh":"看了十几次时间，电梯的数字还是慢吞吞往上跳。","ko_note":"초록불마저 느리게 보이는 조급한 출근길.","ja":"改札を抜けた瞬間、ホームに発車ベル。体が気持ちより先に走りだす。"},{"ko":"평화로운","en":"peaceful","strip":"#9ecab0","zh":"周日下午什么也不用赶，窗台上的花开得正好。","ko_note":"담장 너머 밥 짓는 냄새, 평화로운 일요일.","ja":"休日の縁側。湯のみの茶が冷めても、誰も急かさない。"},{"ko":"감격스러운","en":"deeply moved","strip":"#e7a46d","zh":"终于听到自己的名字，笑着笑着眼泪却下来了。","ko_note":"오랜 기다림 끝의 악수, 감격스러운 눈물이 난다.","ja":"長い練習の末、舞台で名前を呼ばれた。拍手の中で急に涙がこぼれる。"},{"ko":"괜찮은","en":"okay","strip":"#b7c9a9","zh":"事情没做到满分，不过今天这样也已经很好了。","ko_note":"조금 틀려도 괜찮은 오늘, 창문을 연다.","ja":"少し失敗したけれど、今日の自分にはこれで十分だと思えた。"},{"ko":"놀라운","en":"astonishing","strip":"#f1b76d","zh":"翻开旧相册，竟在角落里发现小时候没见过的自己。","ko_note":"골목 틈에서 피어난 꽃이 놀라운 봄을 알린다.","ja":"いつもの路地に小さな花が咲いていた。思わず足を止めた。"},{"ko":"만족스러운","en":"satisfying","strip":"#d8c47a","zh":"最后一只碗也洗好了，厨房干干净净，心里很踏实。","ko_note":"마지막 그릇까지 씻고 나니 만족스러운 저녁이다.","ja":"最後の皿を洗い終える。台所がきれいだと、それだけでうれしい。"},{"ko":"반가운","en":"glad","strip":"#f0c385","zh":"远远看见熟悉的身影，名字已经先喊出了口。","ko_note":"역 출구에서 마주친 반가운 얼굴, 이름이 먼저 나온다.","ja":"遠くに住む友達が改札から出てきた。手を振るだけで昔に戻れる。"},{"ko":"상쾌한","en":"refreshing","strip":"#a2d4cf","zh":"推开窗，凉风扑了满脸，昨晚的烦闷也散了。","ko_note":"샤워 뒤 연 창문, 상쾌한 바람이 목덜미를 지난다.","ja":"窓を開けると冷たい風が入ってきて、眠気まで吹き飛んだ。"},{"ko":"심술 나는","en":"spiteful","strip":"#c07a7f","zh":"明明没什么大事，偏偏就想和人唱反调。","ko_note":"내 과자만 빼놓다니, 심술 나는 오후다.","ja":"悪いのは自分だとわかっているのに、つい言い返してしまう。"},{"ko":"어이없는","en":"dumbfounded","strip":"#b69f95","zh":"眼镜明明架在头上，找了半天，自己都笑不出来。","ko_note":"주머니에 안경을 넣고 찾던 어이없는 아침.","ja":"眼鏡を頭に乗せたまま部屋中を探していた。もう笑うしかない。"},{"ko":"편안한","en":"comfortable","strip":"#c2d6b6","zh":"坐在那家熟悉的小店，不用点单，老板就记得我要什么。","ko_note":"말없이 앉아도 편안한 우리 동네 책방.","ja":"喫茶店のいつもの席。店員さんが何も聞かずに水を置いてくれる。"},{"ko":"혼란스러운","en":"confused","strip":"#988fb4","zh":"电话还没挂，消息又弹出来，脑子里乱成一团。","ko_note":"서로 다른 세 개의 전화가 울리는 혼란스러운 오후.","ja":"乗り換え案内が急に変わった。知らないホームに立ち、頭が真っ白になる。"},{"ko":"감동적인","en":"touching","strip":"#e2a68d","zh":"下雨时有人悄悄把伞往我这边挪了挪。","ko_note":"낯선 이가 우산을 내어 준 감동적인 귀갓길.","ja":"雨の中、知らない人が傘をこちらに少し傾けてくれた。"},{"ko":"괴로운","en":"tormented","strip":"#857e9f","zh":"那件事早就过去了，夜里想起来还是睡不着。","ko_note":"읽지 않은 메시지를 붙들고 괴로운 밤이 깊다.","ja":"夜中にふと思い出す。終わったことなのに、まだ胸が痛い。"},{"ko":"다행스러운","en":"relieved","strip":"#a5c7a1","zh":"钱包找回来了，站在派出所门口，终于长出一口气。","ko_note":"잃어버린 지갑을 찾은 다행스러운 금요일.","ja":"なくした定期券が駅の窓口に届いていた。やっと息を吐くことができた。"},{"ko":"멍한","en":"dazed","strip":"#b8b2ac","zh":"咖啡放凉了很久，回过神才发现自己一直望着窗外。","ko_note":"커피가 식는 줄도 모르는 멍한 점심시간.","ja":"喫茶店でコーヒーを一口も飲まずに、ずっと窓の外を見ていた。"},{"ko":"버거운","en":"burdened","strip":"#9f8b83","zh":"消息一条接一条地来，连吃饭都觉得费力。","ko_note":"끝나지 않는 부탁들이 버거운 퇴근길.","ja":"仕事の連絡が次々届く。コンビニの夕飯を前に、箸を持つ力も残っていない。"},{"ko":"서러운","en":"sorrowing","strip":"#9c8db3","zh":"白天还好好的，听见妈妈问“累不累”，眼泪就下来了。","ko_note":"괜찮냐는 엄마의 한마디에 서러운 눈물이 난다.","ja":"「大丈夫？」と聞かれた瞬間、我慢していた涙がこぼれた。"},{"ko":"쑥스러운","en":"bashful","strip":"#d8afb7","zh":"被认真夸了一句，只好低头摆弄衣角。","ko_note":"칭찬받고 소매 끝만 만지는 쑥스러운 손.","ja":"先生に作文を褒められて、下駄箱までうつむいたまま歩いてしまう。"},{"ko":"억울한","en":"wronged","strip":"#c37a72","zh":"明明不是我做的，却怎么解释都没人肯听。","ko_note":"하지도 않은 말을 했다는 소문이 억울한 밤.","ja":"やっていないことを注意された。言い返せず、廊下で唇をかむ。"},{"ko":"좌절하는","en":"frustrated","strip":"#8f91a5","zh":"改了无数遍还是被退回来，忍不住怀疑自己是不是真的不行。","ko_note":"지운 원고를 다시 쓰며 좌절하는 새벽.","ja":"何度書き直しても原稿が戻ってくる。つい、自分まで嫌になる。"},{"ko":"홀가분한","en":"unburdened","strip":"#bcd7a7","zh":"把拖了几个月的事办完，回家路上脚步都轻了。","ko_note":"마지막 택배를 보내고 홀가분한 숨을 쉰다.","ja":"気になっていた用事を全部片づけて、帰り道で思いきり伸びをした。"},{"ko":"감사한","en":"grateful","strip":"#e3c483","zh":"门口放着一碗热粥，不用问也知道是谁送来的。","ko_note":"문 앞에 놓인 죽 한 그릇, 감사한 마음이 오래 간다.","ja":"大雨の日、隣の人が傘を少し寄せてくれた。その数歩がずっと忘れられない。"},{"ko":"귀찮은","en":"a hassle","strip":"#aaa59a","zh":"衣服都洗好了，光是想到要晾出去就不想动。","ko_note":"젖은 양말을 벗는 것조차 귀찮은 비 오는 날.","ja":"洗濯機が終わった音がする。でも布団から出るまでがいちばん長い。"},{"ko":"답답한","en":"stifled","strip":"#879ab0","zh":"解释了半天，对方还是没听懂，胸口闷得慌。","ko_note":"열 번 설명해도 전해지지 않는 답답한 오후.","ja":"会議がなかなか終わらない。言いたいことはあるのに、声を挟めない。"},{"ko":"못마땅한","en":"displeased","strip":"#b08e7f","zh":"说好大家一起商量，结果他一个人全做了决定。","ko_note":"대충 넘기는 대답이 못마땅한 회의실.","ja":"みんなで決めたはずの約束が軽く変えられる。返事だけが少し冷たくなる。"},{"ko":"부끄러운","en":"ashamed","strip":"#c99696","zh":"发现自己冤枉了别人，道歉时连眼睛都不敢抬。","ko_note":"나도 모르게 던진 말이 부끄러운 귀갓길.","ja":"相手のせいだと思っていたら自分の勘違いだった。謝る声が小さくなる。"},{"ko":"섭섭한","en":"hurt","strip":"#9da4c4","zh":"以为会被邀请，后来才知道大家早就约好了。","ko_note":"생일을 잊은 친구에게 섭섭한 마음이 든다.","ja":"何でも話していた友達から、大事な知らせだけ最後に聞いた。少し寂しい。"},{"ko":"쓸쓸한","en":"lonesome","strip":"#8e9ab0","zh":"散场后的街道还挂着彩灯，人却已经走光了。","ko_note":"시장 불이 꺼진 뒤 쓸쓸한 골목길 하나.","ja":"祭りの屋台が片づく夕方、商店街の灯りがぽつぽつ消えていく。"},{"ko":"외로운","en":"lonely","strip":"#7f86a4","zh":"拍了张晚饭的照片，想来想去，不知道发给谁。","ko_note":"단체 채팅방이 조용해질수록 외로운 밤.","ja":"夕飯の写真を撮ったのに、送る相手が思いつかなくてそのまま消す。"},{"ko":"죄스러운","en":"guilty","strip":"#b78f8b","zh":"那天说过的谎，到现在想起来还是心虚。","ko_note":"그날의 거짓말이 죄스러운 새벽을 깨운다.","ja":"ついた小さな嘘を、相手はまだ信じている。目を合わせづらい。"},{"ko":"후회스러운","en":"regretful","strip":"#a398b5","zh":"消息已经发出去了，却总想着当时为什么不换种说法。","ko_note":"보내 버린 메시지를 읽는 후회스러운 새벽.","ja":"帰りの電車で、言わなければよかったひと言を何度も思い返している。"},{"ko":"걱정되는","en":"worried","strip":"#8d9db7","zh":"家人说晚点回来，天黑了还没消息，电话又拨了一次。","ko_note":"늦은 버스를 기다리는 아이가 걱정되는 저녁.","ja":"台風が近づく夜、実家の屋根は大丈夫かと何度も天気予報を開く。"},{"ko":"그리운","en":"longing","strip":"#d4a18f","zh":"路过卖烤红薯的小摊，忽然很想念小时候的冬天。","ko_note":"비슷한 향기만 지나도 그리운 얼굴이 떠오른다.","ja":"駅の発車メロディーを聞くたびに、遠くで暮らすあの人の顔が浮かぶ。"},{"ko":"답답한","en":"constricted","strip":"#8698aa","zh":"话都到了嘴边，偏偏越着急越说不清楚。","ko_note":"입술 끝까지 차오른 말이 답답한 목을 막는다.","ja":"言いたいことほど言葉にならない。何度口を開いても止まってしまう。"},{"ko":"무기력한","en":"lethargic","strip":"#9ea3ad","zh":"闹钟响了三遍，明明醒着，还是没力气掀开被子。","ko_note":"해가 중천인데도 무기력한 몸은 이불 속이다.","ja":"日が高くなっても布団の端に座ったまま。今日は何も始められそうにない。"},{"ko":"부담스러운","en":"pressured","strip":"#b99582","zh":"听到“这件事就交给你了”，高兴之余又有点发愁。","ko_note":"기대한다는 한마디가 부담스러운 저녁.","ja":"先輩から大事な役目を任される。うれしいのに、その重さで眠れない。"},{"ko":"씁쓸한","en":"bitter","strip":"#a28d77","zh":"大家都在庆祝，自己笑着举杯，心里却泛着一点苦。","ko_note":"친구의 축하 앞에서 씁쓸한 웃음을 삼킨다.","ja":"卒業式の帰り道。いい思い出ばかりなのに、なぜか少し苦い。"},{"ko":"아득한","en":"distant","strip":"#96a6b8","zh":"站在山顶往远处看，路和云连成一片，竟看不到尽头。","ko_note":"졸업 뒤의 먼 계획이 아득한 안개처럼 남는다.","ja":"卒業までの予定表は埋まっているのに、その先だけ白く遠く見える。"},{"ko":"우울한","en":"depressed","strip":"#7886a2","zh":"天气明明很好，窗帘却一整天都没拉开。","ko_note":"화창한 날에도 우울한 마음은 커튼을 닫는다.","ja":"梅雨の朝。洗濯物も気分も乾かず、どこへ行くのもしんどい。"}];
+const wall = document.getElementById('wall');
+const langButtons = Array.from(document.querySelectorAll('.o'));
+const clearance = document.getElementById('clearance');
+const page = document.getElementById('page');
+const aButton = document.getElementById('english');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const SLOW_PRINT_MS = 9500;
+const FIRST_SLIP_MS = 240;
+const RETURN_MS = 1400;
+let lang='ko', z=10, aPhase=0, reversed=false;
+const syllables = {
+ 'suffocating':'suffo\u00adcating','overwhelmed':'over\u00adwhelmed','disappointed':'disap\u00adpointed',
+ 'comfortable':'com\u00adfortable','astonishing':'aston\u00adishing','intimidated':'intim\u00adidated',
+ 'unfortunate':'unfor\u00adtunate','unmotivated':'unmoti\u00advated','heartbroken':'heart\u00adbroken',
+ 'discouraged':'dis\u00adcouraged','unburdened':'un\u00adburdened','embarrassed':'embar\u00adrassed',
+ 'lighthearted':'light\u00adhearted','exhilarated':'exhil\u00adarated','bewildered':'bewil\u00addered',
+ 'reassured':'reas\u00adsured','frustrated':'frus\u00adtrated','suspicious':'sus\u00adpicious',
+ 'unconvinced':'uncon\u00advinced','satisfying':'satis\u00adfying','refreshing':'re\u00adfreshing',
+ 'constricted':'con\u00adstricted','mortified':'morti\u00adfied','pressured':'pres\u00adsured',
+ 'regretful':'regret\u00adful','reluctant':'reluc\u00adtant','resentful':'resent\u00adful',
+ 'displeased':'dis\u00adpleased','lonesome':'lone\u00adsome','peaceful':'peace\u00adful',
+ 'burdened':'bur\u00addened','cheerful':'cheer\u00adful','confused':'con\u00adfused',
+ 'delighted':'de\u00adlighted','depressed':'de\u00adpressed','dumbfounded':'dumb\u00adfounded',
+ 'flustered':'flus\u00adtered','fulfilled':'ful\u00adfilled','grateful':'grate\u00adful',
+ 'hopeless':'hope\u00adless','impatient':'impa\u00adtient','lethargic':'leth\u00adargic',
+ 'overjoyed':'over\u00adjoyed','relieved':'re\u00adlieved','solitary':'soli\u00adtary',
+ 'sorrowing':'sor\u00adrowing','spiteful':'spite\u00adful','sprightly':'spright\u00adly',
+ 'touching':'touch\u00ading','trembling':'tremb\u00adling','unpleasant':'un\u00adpleasant',
+ 'yearning':'yearn\u00ading'
+};
+function titleState(){
+  for(const btn of langButtons){
+    const selected = aPhase===1 || (aPhase===0 && lang===btn.dataset.lang);
+    btn.classList.toggle('selected',selected);
+    btn.setAttribute('aria-pressed',String(aPhase!==1 && lang===btn.dataset.lang));
+  }
+  aButton.setAttribute('aria-label',aPhase===0?'Show English translations in all three circles':
+    aPhase===1?'Reveal all three language labels':
+    aPhase===2?'Invert black and white':
+    'Restore original colors and Korean landing');
+  aButton.setAttribute('aria-pressed',String(reversed));
+  document.documentElement.lang=lang==='zh'?'zh-Hans':lang==='en'?'en':lang;
+}
+function recolor(){
+  document.body.classList.toggle('inverted',reversed);
+  document.documentElement.classList.toggle('inverted',reversed);
+  for(const tile of wall.querySelectorAll('.tile')){
+    const dark=tile.dataset.dark==='true';
+    tile.style.setProperty('--tile-bg',dark?'var(--dark)':'var(--light)');
+    const physicallyDark=reversed?!dark:dark;
+    tile.style.setProperty('--tile-color',physicallyDark?'#faf9f6':'#282726');
+  }
+}
+// This is a setting for FUTURE printing, never a rewrite of a slip already open.
+function setLanguage(next){lang=next;titleState();drawers.forEach(d=>{if(d.stage==='gloss')setActionLabel(d);});}
+for(const btn of langButtons){
+  btn.addEventListener('click',()=>{
+    aPhase=0;
+    setLanguage(btn.dataset.lang);
+  });
+}
+aButton.addEventListener('click',()=>{
+  aPhase=(aPhase+1)%4;
+  if(aPhase===1){reversed=false;recolor();setLanguage('en');}
+  else if(aPhase===2){setLanguage('ko');}
+  else if(aPhase===3){reversed=true;recolor();setLanguage('ko');}
+  else{reversed=false;recolor();setLanguage('ko');}
+  titleState();
+});
+// Footer position is intentionally fixed even when every drawer is closed.
+// The permanent .clearance below the wall is at least one full paper long.
+function updateClearance() { /* reserved in CSS; no layout changes on click */ }
+// Each tile records its own printed language. Only closing erases its page.
+const drawers=[];
+function stopTyping(drawer){
+  if(drawer.raf){cancelAnimationFrame(drawer.raf);drawer.raf=0;}
+}
+function sceneFor(index, language){
+  const m=moods[index];
+  return language==='zh'?m.zh:language==='ja'?m.ja:m.ko_note;
+}
+function setActionLabel(drawer){
+  const {tile,index,stage,printedLang}=drawer;
+  const langName={ko:'Korean',ja:'Japanese',zh:'Chinese',en:'English'}[printedLang]||'current language';
+  const queuedName={ko:'Korean',ja:'Japanese',zh:'Chinese'}[lang]||'current language';
+  const action=stage==='gloss'?(lang==='en'?'Retract paper':'Reveal the '+queuedName+' scene'):
+    stage==='full'?'Retract printed paper':'Show English gloss';
+  tile.setAttribute('aria-label',moods[index].ko+', '+action);
+  tile.setAttribute('aria-expanded',String(stage==='gloss'||stage==='full'));
+}
+function syncScene(drawer, language){
+  drawer.scene.lang = language==='zh' ? 'zh-Hans' : language;
+  const printed = sceneFor(drawer.index, language);
+  drawer.scene.textContent = language==='ko' ? printed.replace(/ /g, '\u2002\u200b') : printed;
+}
+function openGloss(drawer){
+  stopTyping(drawer);
+  drawer.tile.removeAttribute('aria-busy');
+  drawer.printedLang=null;
+  drawer.scene.textContent='';
+  drawer.paper.classList.toggle('english',lang==='en');
+  drawer.stage='gloss';
+  drawer.tile.dataset.stage='gloss';
+  // Only feed as much paper as this English gloss needs.
+  const glyphHeight=Math.ceil(drawer.translation.getBoundingClientRect().height);
+  drawer.tile.style.setProperty('--gloss-length', Math.max(18,glyphHeight+6)+'px');
+  drawer.tile.classList.add('open');
+  drawer.tile.style.setProperty('--stack',String(1000-Math.floor(drawer.index/7))); // Upper rows stay above lower rows, even when opened earlier
+  drawer.track.setAttribute('aria-hidden','false');
+  setActionLabel(drawer);
+  updateClearance('gloss');
+}
+function extendAndPrint(drawer){
+  drawer.printedLang=lang;
+  syncScene(drawer, drawer.printedLang);
+  drawer.paper.classList.toggle('english',drawer.printedLang==='en');
+  drawer.stage='full';
+  drawer.tile.dataset.stage='full';
+  setActionLabel(drawer);
+  // The text is already on the paper; the paper itself is simply revealed.
+  updateClearance('full');
+}
+function retract(drawer){
+  stopTyping(drawer);
+  drawer.tile.removeAttribute('aria-busy');
+  drawer.stage='closed';
+  drawer.tile.dataset.stage='closed';
+  drawer.track.setAttribute('aria-hidden','true');
+  setActionLabel(drawer);
+  updateClearance('close');
+  if(reduceMotion.matches){drawer.tile.classList.remove('open');drawer.scene.textContent='';drawer.printedLang=null;}
+}
+for(let i=0;i<moods.length;i++){
+ const d=moods[i],row=Math.floor(i/7),col=i%7;
+ const tile=document.createElement('button');tile.type='button';tile.className='tile';
+ const dark=(row+col)%2===1;
+ tile.dataset.dark=String(dark);
+ tile.dataset.stage='closed';
+ tile.style.setProperty('--tile-bg',dark?'var(--dark)':'var(--light)');
+ tile.style.setProperty('--tile-color',dark?'#faf9f6':'#282726');
+ tile.style.setProperty('--mood-color',d.strip);
+ tile.setAttribute('aria-expanded','false');
+ const face=document.createElement('span');face.className='face';face.setAttribute('aria-hidden','true');
+ const label=document.createElement('span');label.className='label';label.textContent=d.ko;
+ const track=document.createElement('span');track.className='track';track.setAttribute('aria-hidden','true');
+ const paper=document.createElement('span');paper.className='paper';
+ const sheet=document.createElement('span');sheet.className='sheet';
+ const scene=document.createElement('span');scene.className='scene';scene.lang='ko';
+ const translation=document.createElement('span');translation.className='translation';translation.lang='en';
+ const en=d.en;translation.textContent=en.split(' ').map(w=>syllables[w]||w).join(' ');
+ sheet.append(scene,translation);paper.append(sheet);track.append(paper);tile.append(track,face,label);
+ const drawer={index:i,tile,track,paper,sheet,scene,translation,stage:'closed',printedLang:null,raf:0};
+ drawers.push(drawer);
+ setActionLabel(drawer);
+ tile.addEventListener('click',()=>{
+   if(drawer.stage==='closed')openGloss(drawer);
+   else if(drawer.stage==='gloss'){
+     if(lang==='en')retract(drawer);
+     else extendAndPrint(drawer);
+   }
+   else retract(drawer);
+ });
+ paper.addEventListener('transitionend',event=>{
+   if(event.propertyName!=='transform'||drawer.stage!=='closed')return;
+   tile.classList.remove('open');
+   drawer.scene.textContent='';
+   drawer.printedLang=null;
+ });
+ wall.append(tile);
+}
+titleState();
+recolor();
+// A tile-high move of the footer, measured from the rendered grid rather than guessed.
+function syncPageSpacing(){
+ const tileHeight=wall.getBoundingClientRect().height/14;
+ page.style.setProperty('--row-height',tileHeight+'px');
+ const paperLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||214;
+ const bottomOfPaper=wall.getBoundingClientRect().bottom+paperLength;
+ const bottomOfFooter=document.querySelector('.footer').getBoundingClientRect().bottom;
+ document.getElementById('tail-space').style.height=Math.max(0,Math.ceil(bottomOfPaper-bottomOfFooter))+'px';
+}
+syncPageSpacing();
+requestAnimationFrame(syncPageSpacing);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(syncPageSpacing);
+window.addEventListener('resize',syncPageSpacing);
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape')drawers.forEach(d=>{if(d.stage!=='closed')retract(d)});
+});
+</script>
+</body>
+</html>
