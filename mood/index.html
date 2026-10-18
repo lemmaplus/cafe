@@ -73,11 +73,13 @@ button {font:inherit}
  .o {border-width:1.8px}
  .logo {left:12px;top:12px;font-size:17px}
  .wall {width:calc(100vw - 12px);aspect-ratio:11 / 20}
- .label {font-size:clamp(7.3px,2.01vw,10.7px);padding:0 1px}
+ .tile {align-items:flex-end;}
+ .label {font-size:clamp(7.7px,2.12vw,11.1px);line-height:1.16;padding:0 1px 4px}
  .track {left:5%;width:90%;height:var(--paper-length,220px)}
  .sheet {gap:5px;padding:9px 3px 3px}
  .scene {font-size:10.3px;line-height:1.2;letter-spacing:0}
- .translation {font-size:8.5px}
+ .translation {font-size:8.3px;line-height:1.05}
+ .tile[data-stage="gloss"] .translation {font-size:7.7px;line-height:1.02}
  .citation {font-size:10px;margin-top:calc(-1 * var(--paper-length) + 22px);padding:0 5px}
  .footer {margin-top:calc(8px + var(--row-height,28px))}
 }
