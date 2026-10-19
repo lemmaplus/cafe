@@ -74,7 +74,7 @@ button {font:inherit}
 .footer a:hover {text-decoration:underline;text-underline-offset:3px}
 .clearance {height:calc(var(--paper-length) + 18px);flex:none;width:1px;}
 @media(max-width:600px) {
- :root {--paper-length:304px;--scene-gap:22px;}
+ :root {--paper-length:220px;--scene-gap:3px;}
  .page {padding:66px 6px 16px;}
  .header {margin-bottom:38px;}
  .title {font-size:clamp(28px,7.6vw,39px);gap:.045em}
@@ -82,14 +82,16 @@ button {font:inherit}
  .logo {left:12px;top:12px;font-size:17px}
  .wall {width:calc(100vw - 12px)}
  .label {font-size:clamp(7.3px,2.01vw,10.7px);padding:0 1px;letter-spacing:-.055em}
- .track {left:5%;width:90%;height:var(--paper-length)}
- .sheet {gap:var(--scene-gap);padding:30px 3px 3px}
+ .track {left:3%;width:94%;height:var(--paper-length)}
+ .sheet {gap:var(--scene-gap);padding:10px 3px 3px}
  .scene {font-size:10.3px;line-height:1.2;letter-spacing:0}
- .translation {font-size:clamp(7px,2.18vw,8.5px)}
+ /* The English tip has one stable line box even when a long word needs a
+    smaller type size. Prevent Safari's automatic text enlargement. */
+ .translation {font-size:clamp(7px,2.18vw,8.5px);height:11px;flex:0 0 11px;line-height:11px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .citation {font-size:10px;margin-top:calc(-1 * var(--paper-length) + 22px);padding:0 5px}
  .footer {margin-top:calc(8px + var(--row-height,28px))}
 }
-@media(max-width:360px) { :root {--paper-length:328px;} .scene[lang="ko"] {font-size:10px;} }
+@media(max-width:360px) { :root {--paper-length:240px;} .scene[lang="ko"] {font-size:10px;} }
 @media(prefers-reduced-motion:reduce) {.paper,.o,body,.clearance{transition:none!important}}
 
 .scene{max-width:100%;width:100%;overflow-wrap:anywhere;}
@@ -130,11 +132,16 @@ dialog details{margin:10px 0}dialog summary{cursor:pointer}
 .scene {width:auto;max-width:100%;text-align:center;}
 .scene.columns-2 {width:auto;max-width:min(100%,3em);}
 .scene.columns-3 {width:auto;max-width:min(100%,4.5em);}
+/* Only on mobile: centre the two-column group horizontally, start its lines
+   at the top. Desktop keeps the earlier vertical centring. */
+@media(max-width:600px){
+  .tile:not([data-printed-mode="dictionary"]) .scene.columns-2 {text-align:start;}
+}
 .tile[data-printed-mode="original"] .scene {width:auto;max-width:100%;}
 .scene[lang="ko"] {text-orientation:upright;letter-spacing:.075em;word-spacing:.225em;}
 .scene-credit[lang="ko"] {letter-spacing:.075em;word-spacing:.225em;}
 .sheet {padding:32px 7px 3px;gap:var(--scene-gap);}
-@media(max-width:600px){.sheet {padding:30px 3px 3px;gap:var(--scene-gap);}}
+@media(max-width:600px){.sheet {padding:10px 3px 3px;gap:var(--scene-gap);}}
 /* Give successive vertical glyphs room, without moving the English tip. */
 .tile[data-printed-mode="original"] .scene {letter-spacing:.12em;}
 .ko-space {display:inline-block;inline-size:.65em;block-size:1em;letter-spacing:0;word-spacing:0;}
@@ -435,7 +442,11 @@ function syncScene(drawer, language){
   drawer.tile.dataset.record=printed.record?printed.record.id:'';
   const units=[...drawer.scene.textContent].reduce((n,ch)=>n+(ch===' '?0.4:/[A-Za-z0-9]/.test(ch)?0.65:1),0);
   const threshold=mode==='original'?(language==='zh'?54:60):mode==='dictionary'?78:mode==='drama'?138:112;
-  const columns=units>threshold?3:2;
+  const naturalColumns=units>threshold?3:2;
+  // Mobile first tries two centred columns, then checks their real rendered
+  // height before allowing a third. The dictionary keeps its own arrangement.
+  const preferTwo=matchMedia('(max-width:600px)').matches && mode!=='dictionary';
+  const columns=preferTwo?2:naturalColumns;
   drawer.scene.classList.toggle('columns-2',columns===2);
   drawer.scene.classList.toggle('columns-3',columns===3);
   fitScene(drawer);
@@ -445,16 +456,27 @@ function fitScene(drawer){
   if(!el.textContent)return;
   el.style.fontSize='';
   const mode=drawer.tile.dataset.printedMode;
+  const mobile=matchMedia('(max-width:600px)').matches;
   const baseLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||268;
   const upper=mode==='original'?560:mode==='dictionary'?480:mode==='drama'?760:650;
-  // Every original-language scene starts on a comfortably long paper. Only
-  // unusually long sentences extend it; none are allowed to meet the gloss.
-  const minimum=mode==='original'?baseLength:110;
+  // Desktop original scenes retain their regular paper; mobile scenes are
+  // content-sized, so short two-column scenes don't leave a long blank tail.
+  const minimum=mobile?110:(mode==='original'?baseLength:110);
   const fits=length=>{
     drawer.tile.style.setProperty('--paper-length',length+'px');
     // Vertical text advances along the paper, then into adjacent columns.
     return el.scrollWidth<=el.clientWidth+2 && el.scrollHeight<=el.clientHeight+2;
   };
+  if(mobile && mode!=='dictionary'){
+    // A third column is used only when two would make the little paper long.
+    el.classList.add('columns-2');
+    el.classList.remove('columns-3');
+    const twoColumnLimit=mode==='original'?290:mode==='drama'?350:320;
+    if(!fits(twoColumnLimit)){
+      el.classList.remove('columns-2');
+      el.classList.add('columns-3');
+    }
+  }
   // Prefer readable type and let the paper grow only as long as the words need.
   if(!fits(upper)){
     let size=parseFloat(getComputedStyle(el).fontSize);
@@ -466,7 +488,7 @@ function fitScene(drawer){
     const mid=Math.ceil((low+high)/2);
     if(fits(mid))high=mid;else low=mid+1;
   }
-  const breathingRoom=mode==='original'?10:35;
+  const breathingRoom=mobile?3:(mode==='original'?10:35);
   drawer.paperLength=Math.min(upper,Math.max(minimum,high+breathingRoom));
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
@@ -573,16 +595,40 @@ for(let i=0;i<moods.length;i++){
  });
  wall.append(tile);
 }
-// Fit each English label once to the actual strip width. No word may break,
-// including when the whole sheet is extended.
+// Preserve the original desktop English exactly. On phones, measure the
+// glyphs themselves (not scrollWidth's rounded overflow) and reduce only
+// their font size, keeping the tip's line height fixed.
 function fitTranslations(){
+  const mobile=matchMedia('(max-width:600px)').matches;
   for(const drawer of drawers){
     const el=drawer.translation;
-    el.style.transform='';
-    const available=el.clientWidth;
-    const wanted=el.scrollWidth;
-    if(available>0 && wanted>available)
-      el.style.transform='scaleX('+Math.max(.68,(available-1)/wanted).toFixed(3)+')';
+    if(!mobile){
+      el.style.fontSize='';
+      el.style.transform='';
+      const available=el.clientWidth;
+      const wanted=el.scrollWidth;
+      if(available>0 && wanted>available)
+        el.style.transform='scaleX('+Math.max(.68,(available-1)/wanted).toFixed(3)+')';
+      continue;
+    }
+    el.style.transform='none';
+    el.style.fontSize='';
+    const available=el.clientWidth-1.5;
+    if(available<=0)continue;
+    const range=document.createRange();
+    range.selectNodeContents(el);
+    const textWidth=()=>range.getBoundingClientRect().width;
+    const normalSize=parseFloat(getComputedStyle(el).fontSize);
+    const naturalWidth=textWidth();
+    if(naturalWidth<=available)continue;
+    // No 6px floor: on a narrow phone it could leave the final letters cut
+    // off. The extra width in the mobile strip keeps reductions modest.
+    let size=Math.max(4,normalSize*available/naturalWidth);
+    el.style.fontSize=size.toFixed(3)+'px';
+    for(let n=0;n<4 && textWidth()>available;n++){
+      size*=available/textWidth()*.99;
+      el.style.fontSize=size.toFixed(3)+'px';
+    }
   }
 }
 titleState();
