@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&family=Noto+Serif+KR:wght@400&display=swap" rel="stylesheet">
 <style>
-:root { --paper-length:214px; color-scheme:light; --ink:#232221; --light:#f5f4f1; --dark:#2d2c2a; --background:#fff; --caption-ink:#5e5c58; --gloss-length:24px; }
+:root { --paper-length:268px; --scene-gap:23px; color-scheme:light; --ink:#232221; --light:#f5f4f1; --dark:#2d2c2a; --background:#fff; --caption-ink:#5e5c58; --gloss-length:24px; }
 body.inverted { --ink:#f3f0ec; --light:#292826; --dark:#eeeae4; --background:#171716; --caption-ink:#d5d0c9; }
 body.inverted .tile { --tile-color-light:#ece9e3; --tile-color-dark:#282725; }
 body.inverted .citation a {border-color:#aaa19a}
@@ -50,7 +50,7 @@ button {font:inherit}
    The lower (English) tip emerges first; the full vertical text follows. */
 .track {position:absolute;top:calc(100% - 1px);left:7%;width:86%;height:var(--paper-length);z-index:1;overflow:hidden;pointer-events:none;}
 .paper {position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible;background:var(--mood-color);color:#242321;border:0;border-radius:0;box-shadow:none;transform:translateY(-100%);transition:transform 1.4s cubic-bezier(.35,.02,.65,.98);}
-.sheet {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:13px 7px 3px;gap:6px;}
+.sheet {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:32px 7px 3px;gap:var(--scene-gap);}
 .tile[data-stage="gloss"] .paper {transform:translateY(calc(-100% + var(--gloss-length,24px)));transition:transform .24s ease-out;}
 .tile[data-stage="full"] .paper {transform:translateY(0);transition:transform 9.5s linear;}
 .tile[data-stage="gloss-return"] .paper {transform:translateY(calc(-100% + var(--gloss-length,24px)));transition:transform 1.4s cubic-bezier(.35,.02,.65,.98);}
@@ -74,7 +74,7 @@ button {font:inherit}
 .footer a:hover {text-decoration:underline;text-underline-offset:3px}
 .clearance {height:calc(var(--paper-length) + 18px);flex:none;width:1px;}
 @media(max-width:600px) {
- :root {--paper-length:260px;}
+ :root {--paper-length:304px;--scene-gap:22px;}
  .page {padding:66px 6px 16px;}
  .header {margin-bottom:38px;}
  .title {font-size:clamp(28px,7.6vw,39px);gap:.045em}
@@ -82,14 +82,14 @@ button {font:inherit}
  .logo {left:12px;top:12px;font-size:17px}
  .wall {width:calc(100vw - 12px)}
  .label {font-size:clamp(7.3px,2.01vw,10.7px);padding:0 1px;letter-spacing:-.055em}
- .track {left:5%;width:90%;height:var(--paper-length,220px)}
- .sheet {gap:5px;padding:9px 3px 3px}
+ .track {left:5%;width:90%;height:var(--paper-length)}
+ .sheet {gap:var(--scene-gap);padding:30px 3px 3px}
  .scene {font-size:10.3px;line-height:1.2;letter-spacing:0}
  .translation {font-size:clamp(7px,2.18vw,8.5px)}
  .citation {font-size:10px;margin-top:calc(-1 * var(--paper-length) + 22px);padding:0 5px}
  .footer {margin-top:calc(8px + var(--row-height,28px))}
 }
-@media(max-width:360px) { :root {--paper-length:300px;} .scene[lang="ko"] {font-size:10px;} }
+@media(max-width:360px) { :root {--paper-length:328px;} .scene[lang="ko"] {font-size:10px;} }
 @media(prefers-reduced-motion:reduce) {.paper,.o,body,.clearance{transition:none!important}}
 
 .scene{max-width:100%;width:100%;overflow-wrap:anywhere;}
@@ -125,15 +125,16 @@ dialog button{border:0;background:none;color:inherit;cursor:pointer;padding:10px
 .catalogue-entry a{color:inherit;text-underline-offset:3px}
 dialog details{margin:10px 0}dialog summary{cursor:pointer}
 
-/* Match the uploaded original: centred vertical columns and clear Korean spaces. */
+/* Centre the vertical text within the paper, with a separate quiet band
+   above the English tip. Keep the tip's type, baseline and bottom pad intact. */
 .scene {width:auto;max-width:100%;text-align:center;}
 .scene.columns-2 {width:auto;max-width:min(100%,3em);}
 .scene.columns-3 {width:auto;max-width:min(100%,4.5em);}
 .tile[data-printed-mode="original"] .scene {width:auto;max-width:100%;}
 .scene[lang="ko"] {text-orientation:upright;letter-spacing:.075em;word-spacing:.225em;}
 .scene-credit[lang="ko"] {letter-spacing:.075em;word-spacing:.225em;}
-.sheet {padding:13px 7px 3px;gap:6px;}
-@media(max-width:600px){.sheet {padding:9px 3px 3px;gap:5px;}}
+.sheet {padding:32px 7px 3px;gap:var(--scene-gap);}
+@media(max-width:600px){.sheet {padding:30px 3px 3px;gap:var(--scene-gap);}}
 /* Give successive vertical glyphs room, without moving the English tip. */
 .tile[data-printed-mode="original"] .scene {letter-spacing:.12em;}
 .ko-space {display:inline-block;inline-size:.65em;block-size:1em;letter-spacing:0;word-spacing:0;}
@@ -444,14 +445,11 @@ function fitScene(drawer){
   if(!el.textContent)return;
   el.style.fontSize='';
   const mode=drawer.tile.dataset.printedMode;
-  if(mode==='original'){
-    // The self-written landing scenes retain the original equal-length papers.
-    drawer.paperLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||214;
-    drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
-    return;
-  }
-  const upper=mode==='original'?500:mode==='dictionary'?480:mode==='drama'?760:650;
-  const minimum=60;
+  const baseLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||268;
+  const upper=mode==='original'?560:mode==='dictionary'?480:mode==='drama'?760:650;
+  // Every original-language scene starts on a comfortably long paper. Only
+  // unusually long sentences extend it; none are allowed to meet the gloss.
+  const minimum=mode==='original'?baseLength:110;
   const fits=length=>{
     drawer.tile.style.setProperty('--paper-length',length+'px');
     // Vertical text advances along the paper, then into adjacent columns.
@@ -462,13 +460,14 @@ function fitScene(drawer){
     let size=parseFloat(getComputedStyle(el).fontSize);
     while(!fits(upper)&&size>9){size-=.3;el.style.fontSize=size+'px';}
   }
-  // Measure the actual vertical columns; keep the same spacing in every mode.
+  // Measure the actual vertical columns, including Korean word spacing.
   let low=minimum, high=upper;
   for(let n=0;n<9;n++){
     const mid=Math.ceil((low+high)/2);
     if(fits(mid))high=mid;else low=mid+1;
   }
-  drawer.paperLength=Math.min(upper,Math.max(minimum,high+35));
+  const breathingRoom=mode==='original'?10:35;
+  drawer.paperLength=Math.min(upper,Math.max(minimum,high+breathingRoom));
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
 function openGloss(drawer){
@@ -592,7 +591,7 @@ recolor();
 function syncPageSpacing(){
  const tileHeight=wall.getBoundingClientRect().height/14;
  page.style.setProperty('--row-height',tileHeight+'px');
- const baseLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||214;
+ const baseLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||268;
  const paperLength=Math.max(baseLength,...drawers.filter(d=>d.stage==='full').map(d=>d.paperLength||baseLength));
  const bottomOfPaper=wall.getBoundingClientRect().bottom+paperLength;
  const bottomOfFooter=document.querySelector('.footer').getBoundingClientRect().bottom;
