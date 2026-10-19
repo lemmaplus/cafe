@@ -151,6 +151,14 @@ dialog details{margin:10px 0}dialog summary{cursor:pointer}
 /* Give successive vertical glyphs room, without moving the English tip. */
 .tile[data-printed-mode="original"] .scene {letter-spacing:.12em;}
 .ko-space {display:inline-block;inline-size:.65em;block-size:1em;letter-spacing:0;word-spacing:0;}
+/* Phone paper typography: option B. Keep desktop and the English tip intact. */
+@media(max-width:600px){
+  .tile:not([data-printed-mode="dictionary"]) .sheet,
+  .tile[data-printed-mode="dictionary"] .sheet {padding-top:24px;}
+  .tile .scene {flex:0 0 auto;min-height:0;text-align:start;}
+  .tile .scene.columns-1 {width:auto;max-width:min(100%,1.5em);}
+  .tile .scene.columns-2 {width:auto;max-width:min(100%,3em);}
+}
 </style>
 </head>
 <body>
@@ -449,40 +457,80 @@ function syncScene(drawer, language){
   const units=[...drawer.scene.textContent].reduce((n,ch)=>n+(ch===' '?0.4:/[A-Za-z0-9]/.test(ch)?0.65:1),0);
   const threshold=mode==='original'?(language==='zh'?54:60):mode==='dictionary'?78:mode==='drama'?138:112;
   const naturalColumns=units>threshold?3:2;
-  // Mobile first tries two centred columns, then checks their real rendered
-  // height before allowing a third. The dictionary keeps its own arrangement.
-  const preferTwo=matchMedia('(max-width:600px)').matches && mode!=='dictionary';
-  const columns=preferTwo?2:naturalColumns;
+  // The phone uses one or two centred vertical columns, never a squeezed third.
+  // Original short notes occasionally get one column; longer prose keeps two.
+  const phone=matchMedia('(max-width:600px)').matches;
+  const letterCount=[...drawer.scene.textContent.replace(/[\s\u200b]/g,'')].length;
+  const oneColumn=mode==='original'?
+    (language==='ko'?letterCount<=16:language==='zh'?letterCount<=18:false):
+    mode==='dictionary'&&letterCount<=12;
+  const columns=phone?(oneColumn?1:2):naturalColumns;
+  drawer.scene.classList.toggle('columns-1',columns===1);
   drawer.scene.classList.toggle('columns-2',columns===2);
   drawer.scene.classList.toggle('columns-3',columns===3);
   fitScene(drawer);
+}
+function fitPhoneScene(drawer,mode){
+  const el=drawer.scene;
+  const original=mode==='original';
+  // Original notes share one length across all languages. Allow room for the
+  // longest 48-character Japanese note without introducing a third column.
+  const paperLimit=original?340:mode==='dictionary'?520:mode==='drama'?900:780;
+  const top=24, englishAndBottom=17;
+  const quietTail=original?0:mode==='dictionary'?23:30;
+  const maximumTextHeight=paperLimit-top-englishAndBottom-quietTail;
+  drawer.tile.style.setProperty('--paper-length',paperLimit+'px');
+  const fits=height=>{
+    el.style.height=height+'px';
+    // A third vertical column increases scrollWidth, even when it is not visible.
+    return el.scrollWidth<=el.clientWidth+1.5 && el.scrollHeight<=el.clientHeight+1.5;
+  };
+  if(!fits(maximumTextHeight)){
+    let size=parseFloat(getComputedStyle(el).fontSize);
+    while(size>9.5 && !fits(maximumTextHeight)){
+      size=Math.max(9.5,size-.2);
+      el.style.fontSize=size.toFixed(2)+'px';
+    }
+  }
+  // Find the shortest two-column block that fits the actual glyphs and word
+  // breaks. The columns need not end at the same height.
+  let low=24,high=maximumTextHeight;
+  if(fits(high)){
+    for(let n=0;n<10;n++){
+      const mid=Math.ceil((low+high)/2);
+      if(fits(mid))high=mid;else low=mid+1;
+    }
+  }
+  const contentHeight=Math.min(maximumTextHeight,high+2);
+  el.style.height=contentHeight+'px';
+  drawer.paperLength=original?paperLimit:
+    Math.max(135,Math.min(paperLimit,top+contentHeight+englishAndBottom+quietTail));
+  drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
 function fitScene(drawer){
   const el=drawer.scene;
   if(!el.textContent)return;
   el.style.fontSize='';
+  el.style.height='';
   const mode=drawer.tile.dataset.printedMode;
   const mobile=matchMedia('(max-width:600px)').matches;
+  if(mobile){fitPhoneScene(drawer,mode);return;}
+  // A paper opened on the phone may remain open as the viewport grows.
+  // Restore its desktop column count and original sizing rules.
+  el.classList.remove('columns-1');
+  const units=[...el.textContent].reduce((n,ch)=>n+(ch===' '?0.4:/[A-Za-z0-9]/.test(ch)?0.65:1),0);
+  const threshold=mode==='original'?(el.lang==='zh-Hans'?54:60):mode==='dictionary'?78:mode==='drama'?138:112;
+  el.classList.toggle('columns-3',units>threshold);
+  el.classList.toggle('columns-2',units<=threshold);
   const baseLength=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--paper-length'))||268;
   const upper=mode==='original'?560:mode==='dictionary'?480:mode==='drama'?760:650;
-  // Desktop original scenes retain their regular paper; mobile scenes are
-  // content-sized, so short two-column scenes don't leave a long blank tail.
-  const minimum=mobile?110:(mode==='original'?baseLength:110);
+  // Keep the established desktop paper sizing completely unchanged.
+  const minimum=mode==='original'?baseLength:110;
   const fits=length=>{
     drawer.tile.style.setProperty('--paper-length',length+'px');
     // Vertical text advances along the paper, then into adjacent columns.
     return el.scrollWidth<=el.clientWidth+2 && el.scrollHeight<=el.clientHeight+2;
   };
-  if(mobile && mode!=='dictionary'){
-    // A third column is used only when two would make the little paper long.
-    el.classList.add('columns-2');
-    el.classList.remove('columns-3');
-    const twoColumnLimit=mode==='original'?290:mode==='drama'?350:320;
-    if(!fits(twoColumnLimit)){
-      el.classList.remove('columns-2');
-      el.classList.add('columns-3');
-    }
-  }
   // Prefer readable type and let the paper grow only as long as the words need.
   if(!fits(upper)){
     let size=parseFloat(getComputedStyle(el).fontSize);
