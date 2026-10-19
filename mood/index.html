@@ -142,6 +142,12 @@ dialog details{margin:10px 0}dialog summary{cursor:pointer}
 .scene-credit[lang="ko"] {letter-spacing:.075em;word-spacing:.225em;}
 .sheet {padding:32px 7px 3px;gap:var(--scene-gap);}
 @media(max-width:600px){.sheet {padding:10px 3px 3px;gap:var(--scene-gap);}}
+/* The mobile English tip keeps its compact 3px separation. Above it, the
+   CJK scene gets its own margins instead of being pressed to the paper edge.
+   Dictionary leaves retain their existing centred layout. */
+@media(max-width:600px){
+  .tile:not([data-printed-mode="dictionary"]) .sheet {padding-top:19px;}
+}
 /* Give successive vertical glyphs room, without moving the English tip. */
 .tile[data-printed-mode="original"] .scene {letter-spacing:.12em;}
 .ko-space {display:inline-block;inline-size:.65em;block-size:1em;letter-spacing:0;word-spacing:0;}
@@ -488,7 +494,9 @@ function fitScene(drawer){
     const mid=Math.ceil((low+high)/2);
     if(fits(mid))high=mid;else low=mid+1;
   }
-  const breathingRoom=mobile?3:(mode==='original'?10:35);
+  // Keep roughly equal quiet space above and below the mobile scene's glyphs.
+  // This is independent of the English label's fixed height and fitting.
+  const breathingRoom=mobile?(mode==='dictionary'?3:15):(mode==='original'?10:35);
   drawer.paperLength=Math.min(upper,Math.max(minimum,high+breathingRoom));
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
