@@ -473,9 +473,8 @@ function syncScene(drawer, language){
 function fitPhoneScene(drawer,mode){
   const el=drawer.scene;
   const original=mode==='original';
-  // Original notes share one length across all languages. Allow room for the
-  // longest 48-character Japanese note without introducing a third column.
-  const paperLimit=original?340:mode==='dictionary'?520:mode==='drama'?900:780;
+  // Measure a compact block first; each mode then shares its own paper length.
+  const paperLimit=original?300:mode==='dictionary'?520:mode==='drama'?900:780;
   const top=24, englishAndBottom=17;
   const quietTail=original?0:mode==='dictionary'?23:30;
   const maximumTextHeight=paperLimit-top-englishAndBottom-quietTail;
@@ -485,6 +484,12 @@ function fitPhoneScene(drawer,mode){
     // A third vertical column increases scrollWidth, even when it is not visible.
     return el.scrollWidth<=el.clientWidth+1.5 && el.scrollHeight<=el.clientHeight+1.5;
   };
+  // A few long slips can use three columns instead of stretching every paper.
+  const preferredHeight=original?200:mode==='dictionary'?220:mode==='drama'?400:300;
+  if(!el.classList.contains('columns-1') && !fits(preferredHeight)){
+    el.classList.remove('columns-2');
+    el.classList.add('columns-3');
+  }
   if(!fits(maximumTextHeight)){
     let size=parseFloat(getComputedStyle(el).fontSize);
     while(size>9.5 && !fits(maximumTextHeight)){
@@ -503,18 +508,26 @@ function fitPhoneScene(drawer,mode){
   }
   const contentHeight=Math.min(maximumTextHeight,high+2);
   el.style.height=contentHeight+'px';
-  drawer.paperLength=original?paperLimit:
+  drawer.paperLength=
     Math.max(135,Math.min(paperLimit,top+contentHeight+englishAndBottom+quietTail));
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
-function fitScene(drawer){
+function fitNaturalScene(drawer){
   const el=drawer.scene;
   if(!el.textContent)return;
   el.style.fontSize='';
   el.style.height='';
   const mode=drawer.tile.dataset.printedMode;
   const mobile=matchMedia('(max-width:600px)').matches;
-  if(mobile){fitPhoneScene(drawer,mode);return;}
+  if(mobile){
+    const language=el.lang==='zh-Hans'?'zh':el.lang;
+    const letterCount=[...el.textContent.replace(/[\s\u200b]/g,'')].length;
+    const oneColumn=mode==='original'?(language==='ko'?letterCount<=16:language==='zh'?letterCount<=18:false):mode==='dictionary'&&letterCount<=12;
+    el.classList.toggle('columns-1',oneColumn);
+    el.classList.toggle('columns-2',!oneColumn);
+    el.classList.remove('columns-3');
+    fitPhoneScene(drawer,mode);return;
+  }
   // A paper opened on the phone may remain open as the viewport grows.
   // Restore its desktop column count and original sizing rules.
   el.classList.remove('columns-1');
@@ -546,6 +559,49 @@ function fitScene(drawer){
   // This is independent of the English label's fixed height and fitting.
   const breathingRoom=mobile?(mode==='dictionary'?3:15):(mode==='original'?10:35);
   drawer.paperLength=Math.min(upper,Math.max(minimum,high+breathingRoom));
+  drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
+}
+// Measure all three languages and every collected fragment once per mode/width.
+// The hidden probe never changes a visible slip or the reader's record sequence.
+const modePaperLengths=new Map();
+let measuringPaper=false;
+function fitScene(drawer){
+  fitNaturalScene(drawer);
+  if(measuringPaper || !drawer.scene.textContent)return;
+  const mode=drawer.tile.dataset.printedMode;
+  const key=mode+':'+wall.getBoundingClientRect().width;
+  if(!modePaperLengths.has(key)){
+    measuringPaper=true;
+    const savedRecords=new Map(selectedRecords);
+    const savedMode=contentMode,savedReversed=reversed;
+    contentMode=mode;reversed=mode==='scene';
+    const tile=drawer.tile.cloneNode(true);
+    tile.style.cssText='position:absolute;visibility:hidden;pointer-events:none;left:0;top:0;width:'+drawer.tile.getBoundingClientRect().width+'px;height:'+drawer.tile.getBoundingClientRect().height+'px';
+    tile.classList.remove('open');
+    tile.removeAttribute('id');
+    wall.append(tile);
+    const probe={tile,scene:tile.querySelector('.scene'),sheet:tile.querySelector('.sheet'),index:0};
+    let length=0;
+    try{
+      for(let i=0;i<moods.length;i++){
+        probe.index=i;
+        const records=collection.records.filter(r=>(r.positions||[r.position]).includes(i+1));
+        const count=(mode==='original'||mode==='dictionary')?1:Math.max(1,records.length);
+        for(const language of ['ko','zh','ja']){
+          for(let j=0;j<count;j++){
+            syncScene(probe,language);
+            if(probe.scene.textContent)length=Math.max(length,probe.paperLength||0);
+          }
+        }
+      }
+      modePaperLengths.set(key,Math.ceil(length));
+    }finally{
+      tile.remove();contentMode=savedMode;reversed=savedReversed;selectedRecords.clear();
+      savedRecords.forEach((value,key)=>selectedRecords.set(key,value));
+      measuringPaper=false;
+    }
+  }
+  drawer.paperLength=modePaperLengths.get(key)||drawer.paperLength;
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
 function openGloss(drawer){
@@ -706,7 +762,7 @@ function syncPageSpacing(){
 syncPageSpacing();
 requestAnimationFrame(syncPageSpacing);
 fitTranslations();
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{drawers.filter(d=>d.stage==='full').forEach(fitScene);syncPageSpacing();fitTranslations();});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{modePaperLengths.clear();drawers.filter(d=>d.stage==='full').forEach(fitScene);syncPageSpacing();fitTranslations();});
 let lastWallWidth=wall.getBoundingClientRect().width;
 window.addEventListener('resize',()=>{
   const currentWidth=wall.getBoundingClientRect().width;
