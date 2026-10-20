@@ -68,7 +68,7 @@ button {font:inherit}
 .paper.english .translation {font-weight:500;}
 
 
-.citation {margin:calc(-1 * var(--paper-length) + 26px + var(--paper-clearance,0px)) auto 0;text-align:center;font:400 11px/1.6 "Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;color:var(--caption-ink);max-width:92vw;position:relative;z-index:0;}
+.citation {margin:calc(-1 * var(--paper-length) + 26px) auto 0;text-align:center;font:400 11px/1.6 "Apple SD Gothic Neo","Noto Sans KR",Arial,sans-serif;color:var(--caption-ink);max-width:92vw;position:relative;z-index:0;}
 .citation a {color:inherit;text-decoration:none;border-bottom:1px solid #aaa7a1;text-underline-offset:3px}
 .citation a:hover {color:var(--ink)}
 .footer {display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:calc(8px + var(--row-height,56px));margin-bottom:0;text-align:center;font:400 11px/1.4 -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:var(--caption-ink);position:relative;z-index:0;}
@@ -94,7 +94,7 @@ button {font:inherit}
  /* The English tip has one stable line box even when a long word needs a
     smaller type size. Prevent Safari's automatic text enlargement. */
  .translation {font-size:clamp(7px,2.18vw,8.5px);height:11px;flex:0 0 11px;line-height:11px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
- .citation {font-size:10px;margin-top:calc(-1 * var(--paper-length) + 22px + var(--paper-clearance,0px));padding:0 5px}
+ .citation {font-size:10px;margin-top:calc(-1 * var(--paper-length) + 22px);padding:0 5px}
  .footer {margin-top:calc(8px + var(--row-height,28px))}
 }
 @media(max-width:360px) { :root {--paper-length:240px;} .scene[lang="ko"] {font-size:10px;} }
