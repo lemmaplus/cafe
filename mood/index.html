@@ -16,7 +16,7 @@ body.inverted .citation a {border-color:#aaa19a}
 body.inverted .footer {color:var(--caption-ink)}
 html.inverted {--background:#171716;background:#171716;}
 *, *::before, *::after {box-sizing:border-box}
-html,body {margin:0;min-height:100%;background:var(--background);transition:background-color .32s ease;} body {background:var(--background);transition:background-color .32s ease;}
+html,body {margin:0;min-height:100%;background:var(--background);} body {background:var(--background);}
 /* Opening a long strip must not make mobile Safari re-anchor the whole page. */
 html,body,.page {overflow-anchor:none;}
 body {font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink)}
@@ -28,13 +28,12 @@ button {font:inherit}
 .title {display:flex;align-items:center;justify-content:center;gap:.065em;margin:0;font-family:"Baskerville","Iowan Old Style","Palatino Linotype",Georgia,serif;font-size:clamp(28px,5vw,51px);font-weight:700;line-height:1.1;letter-spacing:.025em;white-space:nowrap;color:var(--ink);}
 .title .gap {width:.30em;flex:0 0 .30em}
 .letter {display:inline-block;line-height:1}
-.o {position:relative;border:2px solid currentColor;border-radius:50%;background:none;display:inline-flex;align-items:center;justify-content:center;flex:none;width:.80em;height:.80em;margin:0 .015em;padding:0;color:var(--ink);cursor:pointer;font-family:"Arial Unicode MS","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;font-size:inherit;line-height:1;transition:background-color .12s linear;}
+.o {position:relative;border:2px solid currentColor;border-radius:50%;background:none;display:inline-flex;align-items:center;justify-content:center;flex:none;width:.80em;height:.80em;margin:0 .015em;padding:0;color:var(--ink);cursor:pointer;font-family:"Arial Unicode MS","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif;font-size:inherit;line-height:1;}
 .o .symbol {display:block;color:var(--ink);font-size:.36em;font-weight:600;line-height:1;transform:translateY(-.012em)}
 .o.selected {background:var(--ink)}
 .o.selected .symbol {visibility:hidden}
 .o.black-language {background:var(--ink)}
 .o.black-language .symbol {visibility:visible;color:var(--background)}
-.o.outlined-language {box-shadow:inset 0 0 0 1px currentColor}
 .o:focus-visible, .letter-button:focus-visible {outline:2px solid #83bde6;outline-offset:4px}
 .letter-button {color:inherit;cursor:pointer;border:0;padding:0;margin:0;background:transparent;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;line-height:1;}
 .wall {position:relative;z-index:2;width:min(92vw,784px);aspect-ratio:784 / 836;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(14,minmax(0,1fr));gap:0;isolation:isolate;margin:0;}
@@ -159,6 +158,16 @@ dialog details{margin:10px 0}dialog summary{cursor:pointer}
   .tile .scene.columns-1 {width:auto;max-width:min(100%,1.5em);}
   .tile .scene.columns-2 {width:auto;max-width:min(100%,3em);}
 }
+/* Pointer input should not select the controls or leave a native blue flash.
+   Keyboard users retain a visible, monochrome focus outline. */
+button,.logo {-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.title,.wall {-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+button:focus:not(:focus-visible),.logo:focus:not(:focus-visible) {outline:none;}
+.tile:focus:not(:focus-visible) .face {outline:none;}
+.o:focus-visible,.letter-button:focus-visible,.logo:focus-visible,
+.catalogue-dot:focus-visible {outline-color:var(--ink);}
+.tile:focus-visible .face {outline-color:var(--tile-color);}
+.switching-theme .paper {transition:none!important;}
 </style>
 </head>
 <body>
@@ -173,7 +182,7 @@ dialog details{margin:10px 0}dialog summary{cursor:pointer}
       <span class="gap" aria-hidden="true"></span>
       <span class="letter">B</span>
       <button type="button" class="o" data-lang="ja" aria-label="日本語" title="日本語"><span class="symbol">あ</span></button>
-      <button type="button" class="letter-button" id="english" aria-label="Cycle display: English only, language circles, reversed black and white" title="Display mode">A</button>
+      <button type="button" class="letter-button" id="english" aria-label="Switch to English only" title="Light view → English only">A</button>
       <span class="letter">R</span><button type="button" class="letter-button" id="dictionary" aria-label="Dictionary" title="Dictionary">D</button>
     </h1>
   </header>
@@ -197,8 +206,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const SLOW_PRINT_MS = 9500;
 const FIRST_SLIP_MS = 240;
 const RETURN_MS = 1400;
-let lang='ko', z=10, aPhase=0, reversed=false, contentMode='original';
-const revealedCircles=new Set();
+let lang='ko', lastSceneLanguage='ko', z=10, reversed=false, contentMode='original';
 const dramaButton=document.getElementById('drama');
 const dictionaryButton=document.getElementById('dictionary');
 const syllables = {
@@ -233,17 +241,13 @@ function titleState(){
     d.tile.setAttribute('aria-disabled',String(!available));
   });
   for(const btn of langButtons){
-    const selected = aPhase===1 ? !revealedCircles.has(btn.dataset.lang) : aPhase===0 && lang===btn.dataset.lang;
-    btn.classList.toggle('selected',selected);
-    btn.classList.toggle('black-language',aPhase===3 && lang===btn.dataset.lang);
-    btn.classList.toggle('outlined-language',aPhase===2 && lang===btn.dataset.lang);
-    // Visual treatment and semantic selection need not be the same state.
-    btn.setAttribute('aria-pressed',String(lang===btn.dataset.lang));
+    const selected=lang===btn.dataset.lang;
+    btn.classList.toggle('selected',lang==='en' || (selected && !reversed));
+    btn.classList.toggle('black-language',selected && reversed);
+    btn.setAttribute('aria-pressed',String(selected));
   }
-  aButton.setAttribute('aria-label',aPhase===0?'Show English translations in all three circles':
-    aPhase===1?'Reveal all three language labels':
-    aPhase===2?'Invert black and white':
-    'Restore original colors and Korean landing');
+  aButton.setAttribute('aria-label',reversed?'Restore light view':lang==='en'?'Switch to inverted scene view':'Switch to English only');
+  aButton.title=reversed?'Inverted view → light view':lang==='en'?'English only → inverted view':'Light view → English only';
   aButton.setAttribute('aria-pressed',String(reversed));
   // The wall is Korean in every display mode. Keep the document's Korean
   // language context stable; each individual scene carries its own lang.
@@ -261,36 +265,31 @@ function recolor(){
   }
 }
 // This is a setting for FUTURE printing, never a rewrite of a slip already open.
-function setLanguage(next){lang=next;titleState();drawers.forEach(d=>{if(d.stage==='gloss')setActionLabel(d);});}
+function setLanguage(next){lang=next;if(next!=='en')lastSceneLanguage=next;titleState();drawers.forEach(d=>{if(d.stage==='gloss')setActionLabel(d);});}
 for(const btn of langButtons){
   btn.addEventListener('click',()=>{
-    if(aPhase===1){
-      // In the three-filled-O state each circle reveals its own glyph.
-      // Choosing one must not invert the other two.
-      if(revealedCircles.has(btn.dataset.lang))revealedCircles.delete(btn.dataset.lang);
-      else revealedCircles.add(btn.dataset.lang);
-      setLanguage(btn.dataset.lang);
-      return;
-    }
-    // O never exits an A phase; it only selects the language for the next slip.
     setLanguage(btn.dataset.lang);
   });
 }
 aButton.addEventListener('click',()=>{
+  // Close old slips before changing the page palette; do not blend two views.
+  document.documentElement.classList.add('switching-theme');
   drawers.forEach(d=>{if(d.stage!=='closed')retract(d)});
-  aPhase=(aPhase+1)%4;
-  if(aPhase===1){revealedCircles.clear();reversed=false;recolor();setLanguage('en');}
-  else if(aPhase===2){setLanguage('ko');}
-  else if(aPhase===3){reversed=true;recolor();setLanguage('ko');}
-  else{reversed=false;recolor();setLanguage('ko');}
-  titleState();syncPageSpacing();
+  void wall.offsetHeight;
+  if(reversed){reversed=false;lang=lastSceneLanguage;}
+  else if(lang==='en'){reversed=true;lang=lastSceneLanguage;}
+  else{lastSceneLanguage=lang;lang='en';}
+  recolor();titleState();syncPageSpacing();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.documentElement.classList.remove('switching-theme');
+  }));
 });
 function effectiveMode(){return reversed?'scene':contentMode;}
 function chooseMode(next){
   drawers.forEach(d=>{if(d.stage!=='closed')retract(d)});
   // In black scene view, a D must enter its drawer, not toggle a hidden old D.
   contentMode=!reversed && contentMode===next?'original':next;
-  aPhase=0;reversed=false;recolor();if(lang==='en')lang='ko';titleState();syncPageSpacing();
+  reversed=false;recolor();if(lang==='en')lang=lastSceneLanguage;titleState();syncPageSpacing();
 }
 dramaButton.addEventListener('click',()=>chooseMode('drama'));
 dictionaryButton.addEventListener('click',()=>chooseMode('dictionary'));
