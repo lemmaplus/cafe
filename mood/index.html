@@ -85,9 +85,8 @@ button {font:inherit}
  /* Seven columns and fourteen rows: make phone bricks almost square.
     The extra row height leaves room for the English paper tip below a tile. */
  .wall {width:calc(100vw - 12px);aspect-ratio:7 / 13}
- /* Restore the original poster rhythm: labels sit near the lower edge of
-    each tall brick, below the preceding tile's English paper tip. */
- .tile .label {align-items:flex-end;transform:none;padding-bottom:2px}
+ /* Keep the original lower-edge rhythm, with a small, deliberate inset. */
+ .tile .label {align-items:flex-end;transform:none;padding-bottom:3px}
  .label {font-size:clamp(7.3px,2.01vw,10.7px);padding:0 1px;letter-spacing:-.055em}
  .track {left:3%;width:94%;height:var(--paper-length)}
  .sheet {gap:var(--scene-gap);padding:10px 3px 3px}
@@ -736,7 +735,16 @@ function fitScene(drawer){
       measuringPaper=false;
     }
   }
-  drawer.paperLength=modePaperLengths.get(key)||drawer.paperLength;
+  const measuredLength=drawer.paperLength;
+  const sharedLength=modePaperLengths.get(key)||measuredLength;
+  // In the mobile original mode, pull most papers back by one wall brick.
+  // A passage whose measured text needs more room retains that room, so the
+  // global longest passage no longer forces every other paper to stay tall.
+  const mobileOriginal=mode==='original'&&matchMedia('(max-width:600px)').matches;
+  const brickHeight=mobileOriginal?drawer.tile.getBoundingClientRect().height:0;
+  drawer.paperLength=mobileOriginal
+    ?Math.max(measuredLength,Math.ceil(sharedLength-brickHeight))
+    :sharedLength;
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
 // Preserve the visible lower edge when changing the paper's physical length.
