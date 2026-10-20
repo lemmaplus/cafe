@@ -504,13 +504,11 @@ function syncScene(drawer, language){
   const units=[...drawer.scene.textContent].reduce((n,ch)=>n+(ch===' '?0.4:/[A-Za-z0-9]/.test(ch)?0.65:1),0);
   const threshold=mode==='original'?(language==='zh'?54:60):mode==='dictionary'?78:mode==='drama'?138:112;
   const naturalColumns=units>threshold?3:2;
-  // The phone uses one or two centred vertical columns, never a squeezed third.
-  // Original short notes occasionally get one column; longer prose keeps two.
+  // Mobile original notes start in two columns even when the note is short.
+  // Only very short dictionary definitions may use a single column.
   const phone=matchMedia('(max-width:600px)').matches;
   const letterCount=[...drawer.scene.textContent.replace(/[\s\u200b]/g,'')].length;
-  const oneColumn=mode==='original'?
-    (language==='ko'?letterCount<=16:language==='zh'?letterCount<=18:false):
-    mode==='dictionary'&&letterCount<=12;
+  const oneColumn=mode==='dictionary'&&letterCount<=12;
   const columns=phone?(oneColumn?1:2):naturalColumns;
   drawer.scene.classList.toggle('columns-1',columns===1);
   drawer.scene.classList.toggle('columns-2',columns===2);
@@ -531,9 +529,11 @@ function fitPhoneScene(drawer,mode){
     // A third vertical column increases scrollWidth, even when it is not visible.
     return el.scrollWidth<=el.clientWidth+1.5 && el.scrollHeight<=el.clientHeight+1.5;
   };
-  // A few long slips can use three columns instead of stretching every paper.
+  // Long Chinese/Japanese notes may need three columns. Keep Korean original
+  // notes in the two-column layout chosen for the phone; give them more length.
   const preferredHeight=original?160:mode==='dictionary'?220:mode==='drama'?400:300;
-  if(!el.classList.contains('columns-1') && !fits(preferredHeight)){
+  const keepKoreanPair=original&&el.lang==='ko';
+  if(!keepKoreanPair&&!el.classList.contains('columns-1')&&!fits(preferredHeight)){
     el.classList.remove('columns-2');
     el.classList.add('columns-3');
   }
@@ -574,9 +574,8 @@ function fitNaturalScene(drawer){
   const mode=drawer.tile.dataset.printedMode;
   const mobile=matchMedia('(max-width:600px)').matches;
   if(mobile){
-    const language=el.lang==='zh-Hans'?'zh':el.lang;
     const letterCount=[...el.textContent.replace(/[\s\u200b]/g,'')].length;
-    const oneColumn=mode==='original'?(language==='ko'?letterCount<=16:language==='zh'?letterCount<=18:false):mode==='dictionary'&&letterCount<=12;
+    const oneColumn=mode==='dictionary'&&letterCount<=12;
     el.classList.toggle('columns-1',oneColumn);
     el.classList.toggle('columns-2',!oneColumn);
     el.classList.remove('columns-3');
