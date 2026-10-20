@@ -19,6 +19,7 @@ html.inverted {--background:#171716;background:#171716;}
 html,body {margin:0;min-height:100%;background:var(--background);} body {background:var(--background);}
 /* Opening a long strip must not make mobile Safari re-anchor the whole page. */
 html,body,.page {overflow-anchor:none;}
+html {scrollbar-gutter:stable;}
 body {font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink)}
 button {font:inherit}
 .page {min-height:100svh;display:flex;flex-direction:column;align-items:center;padding:64px 12px 24px;background:var(--background);}
@@ -40,6 +41,8 @@ button {font:inherit}
 .tile {appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;position:relative;display:flex;align-items:center;justify-content:center;overflow:visible;border:0;border-radius:0;padding:0;margin:0;cursor:pointer;background:transparent;min-width:0;min-height:0;touch-action:manipulation;}
 .face {position:absolute;inset:0;z-index:3;background:var(--tile-bg);}
 .label {position:relative;z-index:4;padding:0 3px;max-width:100%;font:400 clamp(8px,1.55vw,15px)/1.33 "Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;letter-spacing:-.035em;word-break:keep-all;overflow-wrap:anywhere;color:var(--tile-color);text-align:center;white-space:normal;}
+/* Anchor the label independently of native button pressed-state layout. */
+.tile .label {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;margin:0;transform:none;}
 .tile:focus-visible .face {outline:2px solid #6ca9d9;outline-offset:-2px}
 .tile.open {z-index:var(--stack,99);pointer-events:none}
 .tile.open .face,.tile.open .label {pointer-events:auto}
@@ -610,7 +613,24 @@ function fitScene(drawer){
   drawer.paperLength=modePaperLengths.get(key)||drawer.paperLength;
   drawer.tile.style.setProperty('--paper-length',drawer.paperLength+'px');
 }
+// Preserve the visible lower edge when changing the paper's physical length.
+// Flush measurement with transitions disabled, then animate from that edge.
+function holdPaperEdge(drawer){
+  const style=getComputedStyle(drawer.paper);
+  const matrix=new DOMMatrixReadOnly(style.transform==='none'?undefined:style.transform);
+  const edge=drawer.paper.getBoundingClientRect().height+matrix.m42;
+  drawer.paper.style.transition='none';
+  drawer.paper.style.transform=style.transform;
+  return ()=>{
+    const height=drawer.paper.getBoundingClientRect().height;
+    drawer.paper.style.transform='translateY('+(edge-height)+'px)';
+    void drawer.paper.offsetHeight;
+    drawer.paper.style.transition='';
+    drawer.paper.style.transform='';
+  };
+}
 function openGloss(drawer){
+  const releasePaper=holdPaperEdge(drawer);
   clearTimeout(drawer.closeTimer);
   stopTyping(drawer);
   drawer.tile.removeAttribute('aria-busy');
@@ -637,8 +657,10 @@ function openGloss(drawer){
   drawer.track.setAttribute('aria-hidden','false');
   setActionLabel(drawer);
   updateClearance('gloss');
+  releasePaper();
 }
 function extendAndPrint(drawer){
+  const releasePaper=holdPaperEdge(drawer);
   drawer.printedLang=lang;
   syncScene(drawer, drawer.printedLang);
   drawer.paper.classList.toggle('english',drawer.printedLang==='en');
@@ -648,6 +670,7 @@ function extendAndPrint(drawer){
   // The text is already on the paper; the paper itself is simply revealed.
   syncPageSpacing();
   updateClearance('full');
+  releasePaper();
 }
 function foldToGloss(drawer){
   // The printed scene retreats above the clipped slot; the English end stays.
