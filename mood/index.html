@@ -474,10 +474,10 @@ function fitPhoneScene(drawer,mode){
   const el=drawer.scene;
   const original=mode==='original';
   // Measure a compact block first; each mode then shares its own paper length.
-  const paperLimit=original?300:mode==='dictionary'?520:mode==='drama'?900:780;
+  let paperLimit=original?230:mode==='dictionary'?520:mode==='drama'?900:780;
   const top=24, englishAndBottom=17;
   const quietTail=original?0:mode==='dictionary'?23:30;
-  const maximumTextHeight=paperLimit-top-englishAndBottom-quietTail;
+  let maximumTextHeight=paperLimit-top-englishAndBottom-quietTail;
   drawer.tile.style.setProperty('--paper-length',paperLimit+'px');
   const fits=height=>{
     el.style.height=height+'px';
@@ -485,19 +485,26 @@ function fitPhoneScene(drawer,mode){
     return el.scrollWidth<=el.clientWidth+1.5 && el.scrollHeight<=el.clientHeight+1.5;
   };
   // A few long slips can use three columns instead of stretching every paper.
-  const preferredHeight=original?200:mode==='dictionary'?220:mode==='drama'?400:300;
+  const preferredHeight=original?160:mode==='dictionary'?220:mode==='drama'?400:300;
   if(!el.classList.contains('columns-1') && !fits(preferredHeight)){
     el.classList.remove('columns-2');
     el.classList.add('columns-3');
   }
-  if(!fits(maximumTextHeight)){
+  if(!original && !fits(maximumTextHeight)){
     let size=parseFloat(getComputedStyle(el).fontSize);
     while(size>9.5 && !fits(maximumTextHeight)){
       size=Math.max(9.5,size-.2);
       el.style.fontSize=size.toFixed(2)+'px';
     }
   }
-  // Find the shortest two-column block that fits the actual glyphs and word
+  // Narrow screens may only accommodate two columns. Grow the paper rather
+  // than clipping a long word or forcing a third column outside its edges.
+  while(!fits(maximumTextHeight) && maximumTextHeight<2400){
+    maximumTextHeight+=24;
+    paperLimit=top+maximumTextHeight+englishAndBottom+quietTail;
+    drawer.tile.style.setProperty('--paper-length',paperLimit+'px');
+  }
+  // Find the shortest column block that fits the actual glyphs and word
   // breaks. The columns need not end at the same height.
   let low=24,high=maximumTextHeight;
   if(fits(high)){
@@ -612,6 +619,8 @@ function openGloss(drawer){
   drawer.printedLang=null;
   drawer.scene.textContent='';
   drawer.scene.style.fontSize='';
+  drawer.scene.style.height='';
+  drawer.scene.classList.remove('columns-1','columns-2','columns-3');
   drawer.tile.removeAttribute('aria-description');
   drawer.paper.classList.toggle('english',lang==='en');
   // The English tip alone needs almost no length. The full pull is calculated
