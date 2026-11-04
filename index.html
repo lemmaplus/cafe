@@ -56,7 +56,8 @@ dialog .slogan-line {
 }
 .slogan-line a { display: inline-block; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 @media (max-width: 600px) {
-  /* Phone-only paper card: 90vw panel, roughly 16px side padding on 390px phones. */
+  /* Phone layout only: restore the original top/footer rhythm;
+     preserve the revised side gutters, X and slogan alignment. */
   dialog {
     background: #fff;
     color: #5a4450;
@@ -64,15 +65,27 @@ dialog .slogan-line {
     max-width: 90vw;
     margin-inline: auto;
     inset-inline: 0;
-    padding: 0 4.1vw;
+    padding: 8px 3.3vw 0;
   }
-  /* The close control has its own 44px touch area; no extra space below it. */
-  dialog header { margin-bottom: 0; }
-  /* Align the 44px close hit area with the outer white card edge,
-     rather than the inner video edge; the glyph shifts right by one side gutter. */
-  dialog #close { flex-basis: 44px; width: 44px; height: 44px; margin-right: -4.1vw; }
+  /* Restore the original vertical rhythm: 8px + 44px close hit area + 2px = 54px. */
+  dialog header { margin-bottom: 2px; }
+  /* Keep the hit area aligned to the outer white card, not the inner video edge. */
+  dialog #close {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    margin-right: -3.3vw;
+    transform: translateX(1px);
+  }
   dialog iframe { margin-inline: auto; }
-  dialog .slogan-line { font-size: 12px; font-weight: 600; }
+  /* Preserve the current slogan alignment; restore the original footer height. */
+  dialog .slogan-line {
+    min-height: 40px;
+    padding-left: 0;
+    margin-left: 0;
+    font-size: 12px;
+    font-weight: 600;
+  }
 }
 /* On desktop, grow just the colored side rails by 4px each.
    Expand the outer dialog by 8px to keep the video and X exactly in place.
