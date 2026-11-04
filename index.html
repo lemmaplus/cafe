@@ -1,5 +1,64 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Immerse</title><style>
-*{box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}body{margin:0;background:white;color:#5a4450;font:16px system-ui}main{position:fixed;inset:0;display:grid;place-items:center;padding:clamp(12px,3vmin,32px);height:100%;height:100dvh}main>svg{display:block;width:100%;height:100%;min-width:0;min-height:0;overflow:visible}svg [role=button]{cursor:pointer;transition:filter .18s}svg [role=button]:hover,svg [role=button]:focus-visible{filter:brightness(1.08);outline:none;stroke:#5a4450;stroke-width:.5;stroke-opacity:.6}dialog{border:0;padding:12px;width:min(96vw,calc((100dvh - 140px)*16/9 + 24px));max-width:96vw;max-height:calc(100dvh - 24px);overflow:hidden;color:inherit;background:#fff}dialog p{margin:18px 0 0}dialog p a{display:inline-block;transform:translateX(12px)}@media(max-width:600px){dialog p a{font-size:12px;font-weight:600;transform:translateX(8px)}}dialog header{margin-bottom:8px}dialog::backdrop{background:#5a445055;backdrop-filter:blur(3px)}header{display:flex;justify-content:flex-end;gap:16px;margin-bottom:16px}button{font:inherit;color:inherit;cursor:pointer;border:0;background:transparent;padding:8px}button:focus-visible,input:focus-visible{outline:2px solid #866f77}iframe{display:block;width:100%;aspect-ratio:16/9;border:0}form{max-width:520px;margin:24px auto}label{display:block;margin-bottom:12px}input{width:100%;padding:12px;border:1px solid #dfb9c6;font:inherit}p{font-size:13px;line-height:1.6}form button{background:#fcf1df;margin-top:12px}#error{color:#983b54}a{color:inherit} [hidden]{display:none!important}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body { margin: 0; background: #fff; color: #5a4450; font: 16px system-ui; }
+main { position: fixed; inset: 0; display: grid; place-items: center; padding: clamp(12px, 3vmin, 32px); height: 100%; height: 100dvh; }
+main > svg { display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: visible; }
+svg [role=button] { cursor: pointer; transition: filter .18s; }
+svg [role=button]:hover, svg [role=button]:focus-visible { filter: brightness(1.08); outline: none; stroke: #5a4450; stroke-width: .5; stroke-opacity: .6; }
+
+/* The dialog frame follows the fill color of the piece used to open it. */
+dialog {
+  --panel-color: #fcf1df;
+  --panel-ink: #5a4450;
+  border: 0;
+  padding: 12px 12px 0;
+  width: min(96vw, calc((100dvh - 140px) * 16 / 9 + 24px));
+  max-width: 96vw;
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+  color: var(--panel-ink);
+  background: var(--panel-color);
+}
+dialog:focus { outline: none; }
+dialog::backdrop { background: #5a445055; backdrop-filter: blur(3px); }
+dialog header { display: flex; justify-content: flex-end; align-items: center; margin: 0 0 8px; }
+#close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+#close:hover { opacity: .7; }
+/* Intentional keyboard focus is indicated without a square border around the X. */
+#close:focus-visible { outline: none; text-decoration: underline; text-underline-offset: 5px; }
+iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #fff; }
+/* A single footer strip: the text shares the video's left edge and is centered vertically. */
+dialog .slogan-line {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 0 0 0.5em;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.slogan-line a { display: inline-block; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+@media (max-width: 600px) {
+  dialog .slogan-line { font-size: 12px; font-weight: 600; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style><main aria-label="Immerse interactive artwork"><svg
    width="210mm"
    height="297mm"
@@ -189,26 +248,71 @@
 
 
 
-</main><dialog aria-label="Video doorway"><header><button id="close" aria-label="Close video">✕</button></header><iframe title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><p><a id="external" href="https://yozmsa.com/" target="_blank" rel="noopener noreferrer">세상이 말하는 정답 말고, 나다운 삶의 레퍼런스 ↗</a></p></dialog><script>const modal=document.querySelector('dialog'),frame=document.querySelector('iframe');
-const doorways=[
- {parts:['rect1-5','rect2-3-4-6','rect2-3-4-7'],video:'dO0qyt74-YQ',label:'Upper-left bottom block'},
- {parts:['rect1-7','rect2-6','rect2'],video:'zb_PL4oUN9g',label:'Upper-right square'},
- {parts:['rect1-4-8-8','rect2-6-2-4-4'],video:'dXy4Pad61b4',label:'Upper-left rectangle'},
- {parts:['path7','path7-9'],video:'5AIlsU3N7tg',label:'Upper-right circle'},
- {parts:['rect1-4-8','rect2-6-2-4'],video:'1vQ_kd3qDus',label:'Lower-left rectangle'},
- {parts:['path7-8','path7-9-7'],video:'Fs-KHW7OfRM',label:'Lower-right circle'},
- {parts:['rect1-7-9','rect2-6-4','rect2-8'],video:'2MSGGPz5p4k',label:'Lower-right square'}
+</main><dialog aria-label="Video doorway" tabindex="-1">
+  <header><button id="close" type="button" aria-label="Close video">✕</button></header>
+  <iframe title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <p class="slogan-line"><a id="external" lang="ko" href="https://yozmsa.com/" target="_blank" rel="noopener noreferrer">세상이 말하는 정답 말고, 나다운 삶의 레퍼런스 ↗</a></p>
+</dialog><script>
+const modal = document.querySelector('dialog');
+const frame = modal.querySelector('iframe');
+let lastDoorway = null;
+const doorways = [
+  {parts:['rect1-5','rect2-3-4-6','rect2-3-4-7'],video:'dO0qyt74-YQ',label:'Upper-left bottom block'},
+  {parts:['rect1-7','rect2-6','rect2'],video:'zb_PL4oUN9g',label:'Upper-right square'},
+  {parts:['rect1-4-8-8','rect2-6-2-4-4'],video:'dXy4Pad61b4',label:'Upper-left rectangle'},
+  {parts:['path7','path7-9'],video:'5AIlsU3N7tg',label:'Upper-right circle'},
+  {parts:['rect1-4-8','rect2-6-2-4'],video:'1vQ_kd3qDus',label:'Lower-left rectangle'},
+  {parts:['path7-8','path7-9-7'],video:'Fs-KHW7OfRM',label:'Lower-right circle'},
+  {parts:['rect1-7-9','rect2-6-4','rect2-8'],video:'2MSGGPz5p4k',label:'Lower-right square'}
 ];
-for(const {parts,video,label} of doorways){
- const group=document.createElementNS('http://www.w3.org/2000/svg','g');
- const first=document.getElementById(parts[0]);first.before(group);
- for(const id of parts)group.append(document.getElementById(id));
- group.setAttribute('role','button');group.setAttribute('tabindex','0');group.setAttribute('aria-label','Play video: '+label);group.setAttribute('aria-haspopup','dialog');
- function open(){frame.src='https://www.youtube-nocookie.com/embed/'+video;modal.showModal()}
- group.addEventListener('click',open);group.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
-}
-document.querySelector('#close').onclick=()=>modal.close();
-modal.addEventListener('close',()=>frame.removeAttribute('src'));
-// Intentionally ignore clicks outside the player. Use the close button or Escape.
 
+// Keep the chosen panel color tied to the original SVG rather than a duplicate palette.
+function colorContrast(rgb, other) {
+  const linear = value => {
+    value /= 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = c => .2126 * linear(c[0]) + .7152 * linear(c[1]) + .0722 * linear(c[2]);
+  const a = luminance(rgb), b = luminance(other);
+  return (Math.max(a,b) + .05) / (Math.min(a,b) + .05);
+}
+function usePieceColor(piece) {
+  const fill = getComputedStyle(piece).fill;
+  const channels = (fill.match(/[\d.]+/g) || []).slice(0,3).map(Number);
+  // The palette uses opaque fills, but leave a safe neutral fallback if that changes.
+  if (channels.length !== 3) return;
+  const cream = [252,241,223], plum = [90,68,80];
+  const ink = colorContrast(channels, cream) >= 4.5 ? '#fcf1df' :
+              colorContrast(channels, plum) >= 4.5 ? '#5a4450' : '#ffffff';
+  modal.style.setProperty('--panel-color', fill);
+  modal.style.setProperty('--panel-ink', ink);
+}
+for (const {parts,video,label} of doorways) {
+  const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  const first = document.getElementById(parts[0]);
+  first.before(group);
+  for (const id of parts) group.append(document.getElementById(id));
+  group.setAttribute('role', 'button');
+  group.setAttribute('tabindex', '0');
+  group.setAttribute('aria-label', 'Play video: ' + label);
+  group.setAttribute('aria-haspopup', 'dialog');
+  function open() {
+    lastDoorway = group;
+    usePieceColor(first);
+    frame.src = 'https://www.youtube-nocookie.com/embed/' + video;
+    modal.showModal();
+    // Avoid the browser's automatic focus ring on the X when the dialog opens.
+    modal.focus({preventScroll:true});
+  }
+  group.addEventListener('click', open);
+  group.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+  });
+}
+document.getElementById('close').addEventListener('click', () => modal.close());
+modal.addEventListener('close', () => {
+  frame.removeAttribute('src');
+  if (lastDoorway) lastDoorway.focus({preventScroll:true});
+});
+// Clicking the background does not close the player; only X and Escape do.
 </script></html>
