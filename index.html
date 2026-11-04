@@ -56,7 +56,33 @@ dialog .slogan-line {
 }
 .slogan-line a { display: inline-block; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 @media (max-width: 600px) {
+  /* Phone-only paper card: 90vw panel, roughly 16px side padding on 390px phones. */
+  dialog {
+    background: #fff;
+    color: #5a4450;
+    width: 90vw;
+    max-width: 90vw;
+    margin-inline: auto;
+    inset-inline: 0;
+    padding: 0 4.1vw;
+  }
+  /* The close control has its own 44px touch area; no extra space below it. */
+  dialog header { margin-bottom: 0; }
+  /* Align the 44px close hit area with the outer white card edge,
+     rather than the inner video edge; the glyph shifts right by one side gutter. */
+  dialog #close { flex-basis: 44px; width: 44px; height: 44px; margin-right: -4.1vw; }
+  dialog iframe { margin-inline: auto; }
   dialog .slogan-line { font-size: 12px; font-weight: 600; }
+}
+/* On desktop, grow just the colored side rails by 4px each.
+   Expand the outer dialog by 8px to keep the video and X exactly in place.
+   Touch-first tablets continue to use the earlier layout. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  dialog {
+    padding-inline: 16px;
+    width: min(calc(96vw + 8px), calc((100dvh - 140px) * 16 / 9 + 32px));
+    max-width: calc(96vw + 8px);
+  }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style><main aria-label="Immerse interactive artwork"><svg
