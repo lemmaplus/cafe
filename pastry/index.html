@@ -729,7 +729,7 @@
       padding:0 10px;
       font-size:1.2rem;
     }
-    .hangul:hover,.hangul.selected{
+    .hangul.selected{
       border-color:#8e887f;
       background:#f2ebdd;
     }
@@ -1117,7 +1117,7 @@ textarea:focus-visible,button:focus-visible {outline-color:#505281;}
 .quote-dot {border-color:#505281;}
 .quote-dot.active {background:#505281;}
 .hangul {background:#FFFFFF;color:#262626;}
-.hangul:hover,.hangul.selected {background:#E7EAF3;border-color:#505281;}
+.hangul.selected {background:#E7EAF3;border-color:#505281;}
 .locked {color:#85868A;}
 .found {background:#F0F2F2;color:#39413F;}
 .prototype-note {background:#F7F8F7;}
@@ -1339,7 +1339,7 @@ textarea:focus-visible,button:focus-visible{outline-color:#111111}
 .btn.white{background:#FFFFFF;color:#171717}
 .btn.ghost{background:transparent;color:inherit}
 .hangul{background:#FFFFFF;color:#171717}
-.hangul:hover,.hangul.selected{background:#F1F1F1;border-color:#171717}
+.hangul.selected{background:#F1F1F1;border-color:#171717}
 .locked{color:#656565}
 .found{background:#F1F1F1;color:#171717}
 /* 音 and 訓 are identified through ink and fine stripes, not full pastel rooms. */
@@ -1660,7 +1660,6 @@ body[data-language="zh"] #openBtn{background:#DA6144;color:#FFFFFF;border-color:
 body[data-language="zh"] textarea{border-color:#DDB7A7;}
 body[data-language="zh"] textarea:focus-visible,
 body[data-language="zh"] button:focus-visible{outline-color:#E26228;}
-body[data-language="zh"] .hangul:hover,
 body[data-language="zh"] .hangul.selected{background:#FFE8D0;border-color:#DA6144;}
 body[data-language="zh"] .found{background:#F5E5D8;color:#52443D;}
 body[data-language="zh"] .prototype-note{background:#FAEEE6;}
@@ -1873,7 +1872,7 @@ body[data-palette] .route-chip-num{background:#FFFFFF;color:var(--ch-primary-ink
 body[data-palette] .quote-dot{border-color:var(--ch-primary);}
 body[data-palette] .quote-dot.active{background:var(--ch-primary);}
 body[data-palette] .hangul{background:#FFFFFF;color:#242424;}
-body[data-palette] .hangul:is(:hover,.selected){background:var(--ch-secondary-light);border-color:var(--ch-secondary);}
+body[data-palette] .hangul.selected{background:var(--ch-secondary-light);border-color:var(--ch-secondary);}
 body[data-palette] .found{background:var(--ch-surface);color:#333;}
 body[data-palette] .prototype-note{background:var(--ch-surface);}
 body[data-palette] .route.eum{background:var(--ch-secondary-light);color:var(--ch-secondary-ink);box-shadow:none;}
@@ -2020,6 +2019,8 @@ body[data-palette] #englishLanding .examples > .example :is(.eyebrow,.main,.sub)
 /* CHI-CHAR UX REFINEMENT — isolated interaction changes. */
 #grammarNote{display:none!important}
 .dig-tools{position:relative;overflow:visible}
+/* Keep the hint control's footprint while changing the selected syllable. */
+#answerBtn.hidden{display:inline-block!important;visibility:hidden;pointer-events:none}
 .answer-reveal{
   position:fixed;
   top:0;
@@ -2094,8 +2095,47 @@ body[data-palette] #englishLanding .examples > .example :is(.eyebrow,.main,.sub)
 }
 .output-toggle{display:block;margin:8px 0 0;text-align:left;color:inherit}
 @media(max-width:800px){
-  .dig-tools{max-width:none}
-  .answer-reveal{max-width:min(315px,calc(100vw - 24px))}
+  .dig-tools{
+    flex-basis:100%;
+    min-width:0;
+    max-width:none;
+    min-height:28px;
+    justify-content:flex-start;
+    align-items:baseline;
+    flex-wrap:nowrap;
+  }
+  .answer-reveal.inline-hint{
+    position:static;
+    flex:1;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 10px;
+    align-items:baseline;
+    min-width:0;
+    width:auto;
+    max-width:none;
+    min-height:0;
+    max-height:none;
+    margin:0;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    color:inherit;
+    box-shadow:none;
+    overflow:visible;
+  }
+  #answerReveal.inline-hint .answer-ticket{
+    display:inline;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    color:inherit;
+    font-size:inherit;
+  }
+  .inline-hint :is(.answer-kind,.answer-source,.answer-context){display:none}
+  .inline-hint .answer-weird-btn{padding:0;color:inherit}
   .context-nav{align-items:start}
   #play.context-compact .hangul{min-width:33px;min-height:41px;padding:0 5px;border-radius:3px}
   #play.context-compact .replacement{min-height:41px;padding:0 8px;border-radius:3px}
@@ -4797,6 +4837,7 @@ function createChiCharVocabulary(rows, nativeWords) {
     redoHistory = [];
     replacements = replacements.filter(r=>r.start!==start);
     closeTray();
+    renderText();
     updateUndoButton();
     const focusTarget = fromOutput ? $("#output") : $(`#play button[data-index="${start}"]`);
     if (focusTarget) focusTarget.focus({preventScroll:true});
@@ -4948,6 +4989,7 @@ function createChiCharVocabulary(rows, nativeWords) {
         const b = document.createElement("button");
         b.type = "button";
         b.className = "hangul" + (selectedIndex === i ? " selected" : "");
+        b.setAttribute("aria-pressed",String(selectedIndex===i));
         b.dataset.index = String(i);
         b.textContent = u.ch;
         play.appendChild(b);
@@ -5060,6 +5102,7 @@ function createChiCharVocabulary(rows, nativeWords) {
   function syncAnswerButton(){
     const btn = $("#answerBtn");
     if (!btn) return;
+    btn.textContent = activeUI().showAnswer || "HINT";
 
     // Only offer a hint when this position has a vocabulary or playful entry.
     const valid = lang !== "en" && selectedIndex !== null && !!units[selectedIndex];
@@ -5068,17 +5111,32 @@ function createChiCharVocabulary(rows, nativeWords) {
       (playMode === "free" && weirdMatchesAt(selectedIndex).length>0)
     );
     btn.classList.toggle("hidden", !visible);
+    btn.disabled = !visible;
 
     if (!visible){
       clearAnswer();
       return;
     }
 
-    const u = activeUI();
-    btn.textContent = u.showAnswer || "HINT";
+  }
+
+  const inlineHintMedia=window.matchMedia("(max-width:800px)");
+  function syncHintLayout(){
+    const box=$("#answerReveal");
+    const inline=inlineHintMedia.matches;
+    const parent=inline ? $("#answerBtn").parentElement : app;
+    if (box.parentElement!==parent){
+      parent.appendChild(box);
+      for (const property of ["left","top","max-width","max-height"]){
+        box.style.removeProperty(property);
+      }
+    }
+    box.classList.toggle("inline-hint",inline);
+    return inline;
   }
 
   function positionAnswer(){
+    if (syncHintLayout()) return;
     const box=$("#answerReveal");
     if (box.classList.contains("hidden")) return;
     const viewport=window.visualViewport;
@@ -5123,8 +5181,7 @@ function createChiCharVocabulary(rows, nativeWords) {
     kind.className = "answer-kind";
     kind.textContent = u.weirdKind || "weird";
 
-    const value = document.createElement("span");
-    value.textContent = `${weird.word} → ${displayHanja(weird.hanja)}`;
+    const value = hintValue(weird.word,weird.hanja);
 
     ticket.append(kind,value);
     box.appendChild(ticket);
@@ -5149,8 +5206,7 @@ function createChiCharVocabulary(rows, nativeWords) {
       const kind = document.createElement("span");
       kind.className = "answer-kind";
       kind.textContent = lang === "ko" ? "한자어" : zhScript === "hant" ? "漢字詞" : "汉字词";
-      const value = document.createElement("span");
-      value.textContent = `${standard.word} → ${displayHanja(standard.hanja)}`;
+      const value = hintValue(standard.word,standard.hanja);
       ticket.append(kind,value);
       box.appendChild(ticket);
     }
@@ -5166,6 +5222,7 @@ function createChiCharVocabulary(rows, nativeWords) {
       box.appendChild(note);
     }
     if (!standards.length && weird){
+      if (inlineHintMedia.matches){revealWeirdAnswer();return;}
       const weirdBtn = document.createElement("button");
       weirdBtn.type = "button";
       weirdBtn.className = "answer-weird-btn";
@@ -5176,6 +5233,18 @@ function createChiCharVocabulary(rows, nativeWords) {
     box.classList.toggle("hidden", box.childElementCount === 0);
     $("#answerBtn").setAttribute("aria-expanded",String(box.childElementCount>0));
     positionAnswer();
+  }
+
+  function hintValue(word,hanja){
+    const value=document.createElement("span");
+    const source=document.createElement("span");
+    source.className="answer-source";
+    source.textContent=`${word} → `;
+    const target=document.createElement("span");
+    target.className="answer-hanja";
+    target.textContent=displayHanja(hanja);
+    value.append(source,target);
+    return value;
   }
 
   function matchingWords(idx){
@@ -5241,7 +5310,15 @@ function createChiCharVocabulary(rows, nativeWords) {
 
     eumVisibleCount = 18;
     eumDeepOpen = false;
-    renderText();
+    syncSelectedSyllable();
+  }
+
+  function syncSelectedSyllable(){
+    $$("#play .hangul").forEach(button=>{
+      const selected=Number(button.dataset.index)===selectedIndex;
+      button.classList.toggle("selected",selected);
+      button.setAttribute("aria-pressed",String(selected));
+    });
   }
 
   function openTray(idx){
@@ -5249,7 +5326,11 @@ function createChiCharVocabulary(rows, nativeWords) {
 
     selectedIndex = idx;
     clearAnswer();
-    renderText();
+    if (isLongText() && !contextExpanded && contextChunkFor(idx)!==contextChunk){
+      renderText();
+    }else{
+      syncSelectedSyllable();
+    }
     syncAnswerButton();
 
     const u = activeUI();
@@ -5476,7 +5557,7 @@ function createChiCharVocabulary(rows, nativeWords) {
     $("#routeLog").replaceChildren();
     $("#eumBox").replaceChildren();
     $("#hunBox").replaceChildren();
-    clearAnswer();updateContextNav();updateOutputPreview();updateUndoButton();
+    clearAnswer();syncAnswerButton();updateContextNav();updateOutputPreview();updateUndoButton();
     const gallery = currentGallery();
     const match = gallery.findIndex(q => q.text === $("#source").value);
     if (match >= 0){
@@ -5617,7 +5698,7 @@ function createChiCharVocabulary(rows, nativeWords) {
     else revealAnswer();
   });
   document.addEventListener("keydown",e=>{if(e.key==="Escape")clearAnswer();});
-  document.addEventListener("pointerdown",e=>{
+  document.addEventListener("click",e=>{
     if(!e.target.closest("#answerBtn, #answerReveal")) clearAnswer();
   });
   window.addEventListener("resize",scheduleAnswerPosition,{passive:true});
@@ -5626,6 +5707,12 @@ function createChiCharVocabulary(rows, nativeWords) {
     window.visualViewport.addEventListener("resize",scheduleAnswerPosition,{passive:true});
     window.visualViewport.addEventListener("scroll",scheduleAnswerPosition,{passive:true});
   }
+  inlineHintMedia.addEventListener("change",()=>{
+    const revealed=!$("#answerReveal").classList.contains("hidden");
+    syncHintLayout();
+    if (revealed) revealAnswer();
+  });
+  syncHintLayout();
 
 
   function navigateDoor(next){
