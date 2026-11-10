@@ -1719,7 +1719,7 @@ body[data-language="zh"] .door-card{background:#FAECE2;}
 /* Keep CJK headings crisp without the artificial 850/900 heaviness. */
 body:is([data-language="zh"],[data-language="ko"]) :is(
   .mode-title,.block-title,.route-title,.word-ko,.entry strong,
-  .play-mode strong,.lang-tab,.route-label,.candidate .big
+  .play-mode strong,.lang-tab,.route-label
 ) {font-weight:700;}
 body:is([data-language="zh"],[data-language="ko"]) :is(.mode-flow,.play-mode-label) {font-weight:600;}
 
@@ -3380,6 +3380,44 @@ body[data-language="en"][data-english-view="cover"] .brand .hero-copy--vector {
   .hero-copy--vector .newsreader-art--mobile {display:block;}
 }
 </style>
+
+<style id="chichar-cjk-20261109-from-oct04">
+/* Font correction + consistent bold Hanja cards.
+   Large boxes, MY VERSION, colors, arrows and radius untouched. */
+:is(#eumBox,#hunBox) .candidate .big { font-weight: 850; }
+.candidate .big[lang="zh-Hans"], .replacement[lang="zh-Hans"],
+.output-replacement[lang="zh-Hans"], .answer-hanja[lang="zh-Hans"],
+.answer .hanja[lang="zh-Hans"], .word-src-hanja[lang="zh-Hans"],
+.route-chip-hanja[lang="zh-Hans"] {
+  font-family:"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+}
+.candidate .big[lang="zh-Hant"], .replacement[lang="zh-Hant"],
+.output-replacement[lang="zh-Hant"], .answer-hanja[lang="zh-Hant"],
+.answer .hanja[lang="zh-Hant"], .word-src-hanja[lang="zh-Hant"],
+.route-chip-hanja[lang="zh-Hant"] {
+  font-family:"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif;
+}
+:is(#eumBox,#hunBox) .candidate small[lang="ko"] {
+  font-family:"Apple SD Gothic Neo","Noto Sans CJK KR","Malgun Gothic",sans-serif;
+}
+</style>
+
+<style id="chichar-tracing-pills-20261110">
+/* Restore only the MY VERSION tracing tabs' silhouette.
+   Leave large boxes square; preserve text, fills, arrows and palette. */
+body[data-palette] .my-version .route-chip {
+  border-radius: 999px;
+}
+body[data-palette] .my-version .route-chip-num {
+  border-radius: 50%;
+}
+/* The generic --ch-line is a neutral gray. Follow the panel's ink instead,
+   except where the original palette deliberately colors 音 and 訓 separately. */
+body[data-language="ko"][data-palette] .my-version .route-chip,
+body[data-language="zh"][data-palette]:not([data-palette="atelier"]):not([data-palette="pear"]) .my-version .route-chip {
+  border-color: color-mix(in srgb, currentColor 25%, transparent);
+}
+</style>
 </head>
 <body data-language="en" data-play-mode="free" data-english-view="cover">
 <main class="page" id="app">
@@ -4710,6 +4748,7 @@ function createChiCharVocabulary(rows, nativeWords) {
     b.className = className;
     b.dataset.index = String(r.start);
     b.dataset.action = "restore-hangul";
+    b.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
     b.textContent = displayHanja(r.to);
     b.setAttribute("aria-label", lang === "ko"
       ? `${b.textContent} · ${original}(으)로 되돌리기`
@@ -4897,7 +4936,11 @@ function createChiCharVocabulary(rows, nativeWords) {
       num.textContent = String(index + 1);
 
       const change = document.createElement("span");
-      change.textContent = `${Array.from(text).slice(r.start,r.end).join("")} → ${displayHanja(r.to)}`;
+      const traceHanja = document.createElement("span");
+      traceHanja.className = "route-chip-hanja";
+      traceHanja.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
+      traceHanja.textContent = displayHanja(r.to);
+      change.append(document.createTextNode(`${Array.from(text).slice(r.start,r.end).join("")} → `), traceHanja);
 
       const route = document.createElement("span");
       route.className = "route-chip-route";
@@ -4920,12 +4963,14 @@ function createChiCharVocabulary(rows, nativeWords) {
 
     const c = document.createElement("span");
     c.className = "big";
+    c.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
     c.textContent = displayHanja(item[0]);
 
     b.appendChild(c);
 
     if (item[1]){
       const s = document.createElement("small");
+      s.lang = "ko";
       s.textContent = item[1];
       b.appendChild(s);
     }
@@ -4944,11 +4989,16 @@ function createChiCharVocabulary(rows, nativeWords) {
 
     const c = document.createElement("span");
     c.className = "big";
+    c.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
     c.textContent = displayHanja(w.hanja || w.to);
 
     const src = document.createElement("span");
     src.className = "src";
-    src.textContent = `${w.src} → ${displayHanja(w.to)}`;
+    const srcHanja = document.createElement("span");
+    srcHanja.className = "word-src-hanja";
+    srcHanja.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
+    srcHanja.textContent = displayHanja(w.to);
+    src.append(document.createTextNode(`${w.src} → `), srcHanja);
 
     const note = document.createElement("small");
     note.textContent = displayHanja(lang === "ko" ? w.note : (w.noteZh || w.note));
@@ -5149,6 +5199,7 @@ function createChiCharVocabulary(rows, nativeWords) {
     source.textContent=`${word} → `;
     const target=document.createElement("span");
     target.className="answer-hanja";
+    target.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
     target.textContent=displayHanja(hanja);
     value.append(source,target);
     return value;
@@ -5436,6 +5487,7 @@ function createChiCharVocabulary(rows, nativeWords) {
 
       const han = document.createElement("span");
       han.className = "hanja";
+      han.lang = zhScript === "hant" ? "zh-Hant" : "zh-Hans";
       han.textContent = displayHanja(chars);
 
       const kind = document.createElement("span");
